@@ -12,7 +12,14 @@ export async function registerUserController(req: Request, res: Response) {
 export async function loginUserController(req: Request, res: Response) {
     const data = req.body;
 
-    const user = await loginUser(data);
+    const result = await loginUser(data);
 
-    return res.status(200).json({ user })
+    res.cookie("accessToken", result.token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false, // enquanto estiver em desenvolvimento
+        maxAge: 60 * 60 * 1000
+    })
+
+    return res.status(200).json(result.user);
 }

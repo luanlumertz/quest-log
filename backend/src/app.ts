@@ -1,4 +1,5 @@
 import express, { urlencoded } from "express";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
 import { routes } from "./routes/index.js"
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.disable("x-powered-by");
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(routes);
 
