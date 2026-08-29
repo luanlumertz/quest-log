@@ -33,3 +33,16 @@ export const registerSchema = z
     }
   )
   .transform(({ confirmPassword, ...data }) => data);
+
+export const loginSchema = z
+  .object({
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .pipe(z.email("Email inválido")),
+    password: z
+      .string()
+      .min(1, "Senha é obrigatória")
+      .max(70, "Senha inválida")
+  })
