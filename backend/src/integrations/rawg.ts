@@ -6,7 +6,7 @@ if (!RAWG_API_KEY) {
     throw new Error("RAWG_API_KEY não configurada");
 }
 
-export async function searchGames(query: string): Promise<GameSearchResult[]> {
+export async function searchRawgGames(query: string): Promise<GameSearchResult[]> {
     const encodedQuery = encodeURIComponent(query);
 
     const response = await fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodedQuery}&page_size=10`);
