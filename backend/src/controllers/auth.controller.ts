@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { loginUser, registerUser } from "../services/auth.service.js"
+import { loginUser, registerUser, getCurrentUser } from "../services/auth.service.js"
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -22,4 +22,12 @@ export async function loginUserController(req: Request, res: Response) {
     })
 
     return res.status(200).json(result.user);
+}
+
+export async function getCurrentUserController(req: Request, res: Response) {
+    const userId = req.userId!
+
+    const user = await getCurrentUser(userId);
+
+    return res.status(200).json({ user })
 }

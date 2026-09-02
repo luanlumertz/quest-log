@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail } from "../repositories/user.repository.js";
+import { createUser, findUserByEmail, findUserById } from "../repositories/user.repository.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { AppError } from "../errors/AppError.js";
 import type { LoginUserData, RegisterUserData } from "../types/auth.types.js";
@@ -45,4 +45,18 @@ export async function loginUser(data: LoginUserData) {
         },
         token
     };
+}
+
+export async function getCurrentUser(id: number) {
+    const user = await findUserById(id)
+
+    if (!user) {
+        throw new AppError("Usuário não encontrado", 404);
+    }
+
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email
+    }
 }
