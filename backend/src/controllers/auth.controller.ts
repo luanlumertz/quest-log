@@ -24,6 +24,16 @@ export async function loginUserController(req: Request, res: Response) {
     return res.status(200).json(result.user);
 }
 
+export function logoutUserController(req: Request, res: Response) {
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false, // enquanto estiver em desenvolvimento
+    })
+
+    return res.status(204).send()
+}
+
 export async function getCurrentUserController(req: Request, res: Response) {
     const userId = req.userId!
 
