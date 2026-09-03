@@ -3,25 +3,17 @@ import { AppError } from "../errors/AppError.js";
 import { getRawgGame, searchGame } from "../services/game.service.js";
 
 export async function searchGameController(req: Request, res: Response) {
-    const query = req.query.query;
+    const { query } = res.locals.query;
 
-    if (!query || typeof query !== "string" || query.trim() === "") {
-        throw new AppError("Informe um termo para busca", 400);
-    }
-
-    const data = await searchGame(query.trim());
+    const data = await searchGame(query);
 
     return res.status(200).json(data);
 }
 
 export async function getRawgGameController(req: Request, res: Response) {
-    const id = Number(req.params.externalId);
+    const { externalId } = res.locals.params;
 
-    if (!Number.isFinite(id)) {
-        throw new AppError("Deve ser informado um número válido", 400);
-    }
-
-    const game = await getRawgGame(id);
+    const game = await getRawgGame(externalId);
 
     return res.status(200).json(game);
 }
