@@ -1,5 +1,9 @@
-import { searchRawgGames } from "../integrations/rawg.js";
+import { getRawgGameById, searchRawgGames } from "../integrations/rawg.js";
 
 export function searchGame(query: string) {
     return searchRawgGames(query);
+}
+
+export function getRawgGame(id: number){
+    return getRawgGameById(id);
 }
