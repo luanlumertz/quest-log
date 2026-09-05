@@ -42,3 +42,41 @@ export function createLibraryEntryPlatform(userId: number, gameId: number, platf
 
     return createdLibraryEntryPlatform;
 }
+
+export async function getLibraryEntriesByUserId(userId: number) {
+    return prisma.libraryEntry.findMany({
+        where: {
+            userId
+        },
+        select: {
+            status: true,
+            rating: true,
+            playtimeMinutes: true,
+            startedAt: true,
+            completedAt: true,
+            createdAt: true,
+            updatedAt: true,
+
+            game: {
+                select: {
+                    id: true,
+                    externalId: true,
+                    title: true,
+                    coverUrl: true,
+                    releaseDate: true
+                }
+            },
+
+            libraryEntryPlatforms: {
+                select: {
+                    platform: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
