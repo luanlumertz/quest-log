@@ -41,7 +41,7 @@ model Platform {
   id   Int    @id @default(autoincrement())
   name String @unique
 
-  games GamePlatform[]
+  games                 GamePlatform[]
   libraryEntryPlatforms LibraryEntryPlatform[]
 }
 
@@ -82,12 +82,12 @@ model LibraryEntry {
 }
 
 model LibraryEntryPlatform {
-  userId Int
-  gameId Int
+  userId     Int
+  gameId     Int
   platformId Int
 
   libraryEntry LibraryEntry @relation(fields: [userId, gameId], references: [userId, gameId])
-  platform Platform @relation(fields: [platformId], references: [id])
+  platform     Platform     @relation(fields: [platformId], references: [id])
 
   @@id([userId, gameId, platformId])
 }

@@ -1,7 +1,7 @@
 import { AppError } from "../errors/AppError.js";
 import type { GameDetailsResult, GameSearchResult, RawgGame, RawgGameDetails } from "../types/rawgGame.types.js";
 
-const RAWG_API_KEY = process.env.RAWG_API_KEY
+const RAWG_API_KEY = process.env.RAWG_API_KEY;
 
 if (!RAWG_API_KEY) {
     throw new Error("RAWG_API_KEY não configurada");
@@ -24,7 +24,7 @@ export async function searchRawgGames(query: string): Promise<GameSearchResult[]
         coverUrl: game.background_image,
         releaseDate: game.released,
         platforms: game.platforms?.map(item => item.platform.name) ?? []
-    }))
+    }));
 }
 
 export async function getRawgGameById(externalId: number): Promise<GameDetailsResult> {
@@ -46,10 +46,18 @@ export async function getRawgGameById(externalId: number): Promise<GameDetailsRe
         coverUrl: data.background_image,
         releaseDate: data.released,
         description: data.description_raw ?? "",
-        genres: data.genres?.map((item) => item.name) ?? [],
-        platforms: data.platforms?.map((item) => item.platform.name) ?? [],
-        developers: data.developers?.map((item) => item.name) ?? [],
-        publishers: data.publishers?.map((item) => item.name) ?? [],
+        genres: data.genres?.map(
+            item => item.name
+        ) ?? [],
+        platforms: data.platforms?.map(
+            item => item.platform.name
+        ) ?? [],
+        developers: data.developers?.map(
+            item => item.name
+        ) ?? [],
+        publishers: data.publishers?.map(
+            item => item.name
+        ) ?? []
     };
 
     return game;
