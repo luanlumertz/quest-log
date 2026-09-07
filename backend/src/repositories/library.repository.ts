@@ -24,6 +24,7 @@ export const libraryEntrySelect = {
         select: {
             platform: {
                 select: {
+                    id: true,
                     name: true
                 }
             }

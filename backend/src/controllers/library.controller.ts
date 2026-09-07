@@ -29,7 +29,7 @@ export async function getLibraryEntriesController(req: Request, res: Response) {
 
 export async function getLibraryEntryDetailsController(req: Request, res: Response) {
     const userId = req.userId!
-    const { gameId } = res.locals.params.gameId as GetLibraryEntryDetailsParams;
+    const { gameId } = res.locals.params as GetLibraryEntryDetailsParams;
 
     const libraryEntry = await getLibraryEntryDetails(userId, gameId);
 

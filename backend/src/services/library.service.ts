@@ -122,9 +122,10 @@ function formatLibraryEntry(entry: LibraryEntryData) {
     return {
         ...rest,
         rating: rest.rating !== null ? Number(rest.rating) : null,
-        platforms: libraryEntryPlatforms.map(
-            item => item.platform.name
-        )
+        platforms: libraryEntryPlatforms.map(item => ({
+            id: item.platform.id,
+            name: item.platform.name
+        }))
     };
 }
 
