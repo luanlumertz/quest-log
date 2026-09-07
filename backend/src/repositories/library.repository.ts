@@ -80,3 +80,42 @@ export async function getLibraryEntriesByUserId(userId: number) {
         }
     });
 }
+
+export function findLibraryEntryByUserAndGameId(userId: number, gameId: number) {
+    return prisma.libraryEntry.findUnique({
+        where: {
+            userId_gameId: {
+                userId,
+                gameId
+            }
+        },
+        select: {
+            status: true,
+            rating: true,
+            playtimeMinutes: true,
+            startedAt: true,
+            completedAt: true,
+            createdAt: true,
+            updatedAt: true,
+            game: {
+                select: {
+                    id: true,
+                    externalId: true,
+                    title: true,
+                    coverUrl: true,
+                    releaseDate: true
+                }
+            },
+            libraryEntryPlatforms: {
+                select: {
+                    platform: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+}
