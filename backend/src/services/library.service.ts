@@ -1,11 +1,11 @@
-import type { GameStatus } from "@prisma/client";
+import type { Game, GameStatus, LibraryEntry } from "@prisma/client";
 import { AppError } from "../errors/AppError.js";
 import { getRawgGameById } from "../integrations/rawg.js";
 import { createGame, createGamePlatform, findGameByExternalId } from "../repositories/game.repository.js";
-import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, getLibraryEntriesByUserId } from "../repositories/library.repository.js";
+import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
 import { createPlatform, findPlatformByName, findPlatformsByGameId } from "../repositories/platform.repository.js";
 import type { CreateGameData } from "../types/game.types.js";
-import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData } from "../types/library.types.js";
+import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryEntryData } from "../types/library.types.js";
 
 async function getOrCreateGame(externalId: number) {
     let game = await findGameByExternalId(externalId);
@@ -116,20 +116,30 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
     return { ...libraryEntry, platforms: data.platforms };
 }
 
+function formatLibraryEntry(entry: LibraryEntryData) {
+    const { libraryEntryPlatforms, ...rest } = entry;
+
+    return {
+        ...rest,
+        rating: rest.rating !== null ? Number(rest.rating) : null,
+        platforms: libraryEntryPlatforms.map(
+            item => item.platform.name
+        )
+    };
+}
+
 export async function getLibraryEntries(userId: number) {
-    const libraryEntries = await getLibraryEntriesByUserId(userId);
+    const libraryEntries = await findLibraryEntriesByUserId(userId);
 
-    const formattedData = libraryEntries.map(item => {
-        const { libraryEntryPlatforms, ...rest } = item;
+    return libraryEntries.map(formatLibraryEntry);
+}
 
-        return {
-            ...rest,
-            rating: rest.rating !== null ? Number(rest.rating) : null,
-            platforms: libraryEntryPlatforms.map(
-                entry => entry.platform.name
-            )
-        };
-    });
+export async function getLibraryEntryDetails(userId: number, gameId: number) {
+    const libraryDetails = await findLibraryEntryByUserAndGameId(userId, gameId);
 
-    return formattedData;
+    if (libraryDetails == null) {
+        throw new AppError("Jogo não encontrado na biblioteca do usuário", 404)
+    }
+
+    return formatLibraryEntry(libraryDetails);
 }
