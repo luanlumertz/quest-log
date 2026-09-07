@@ -35,3 +35,21 @@ export const addGameToLibrarySchema = z
             })
     })
     .strict();
+
+export const getLibraryEntryDetailsSchema = z
+    .object({
+        gameId: z
+            .coerce
+            .number({
+                error: "o gameId deve ser um número"
+            })
+            .int({
+                error: "o gameId deve ser um número inteiro"
+            })
+            .positive({
+                error: "o gameId deve ser maior que 0"
+            })
+
+    })
+
+export type GetLibraryEntryDetailsParams = z.infer<typeof getLibraryEntryDetailsSchema>;

@@ -1,5 +1,36 @@
 import { prisma } from "../lib/prisma.js";
 import type { AddGameToLibraryRepositoryData } from "../types/library.types.js";
+import { Prisma } from "@prisma/client";
+
+export const libraryEntrySelect = {
+    status: true,
+    rating: true,
+    playtimeMinutes: true,
+    startedAt: true,
+    completedAt: true,
+    createdAt: true,
+    updatedAt: true,
+
+    game: {
+        select: {
+            id: true,
+            externalId: true,
+            title: true,
+            coverUrl: true,
+            releaseDate: true
+        }
+    },
+    libraryEntryPlatforms: {
+        select: {
+            platform: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
+    }
+} satisfies Prisma.LibraryEntrySelect;
 
 export async function gameInUserLibraryEntryExists(userId: number, externalId: number) {
     const entry = await prisma.libraryEntry.findFirst({
@@ -43,40 +74,23 @@ export function createLibraryEntryPlatform(userId: number, gameId: number, platf
     return createdLibraryEntryPlatform;
 }
 
-export async function getLibraryEntriesByUserId(userId: number) {
+export async function findLibraryEntriesByUserId(userId: number) {
     return prisma.libraryEntry.findMany({
         where: {
             userId
         },
-        select: {
-            status: true,
-            rating: true,
-            playtimeMinutes: true,
-            startedAt: true,
-            completedAt: true,
-            createdAt: true,
-            updatedAt: true,
-
-            game: {
-                select: {
-                    id: true,
-                    externalId: true,
-                    title: true,
-                    coverUrl: true,
-                    releaseDate: true
-                }
-            },
-
-            libraryEntryPlatforms: {
-                select: {
-                    platform: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                }
-            }
-        }
+        select: libraryEntrySelect
     });
+}
+
+export function findLibraryEntryByUserAndGameId(userId: number, gameId: number) {
+    return prisma.libraryEntry.findUnique({
+        where: {
+            userId_gameId: {
+                userId,
+                gameId
+            }
+        },
+        select: libraryEntrySelect
+    })
 }
