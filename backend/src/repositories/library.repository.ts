@@ -95,8 +95,8 @@ export function findLibraryEntryByUserAndGameId(userId: number, gameId: number) 
     })
 }
 
-export function updateLibraryEntryByUserAndGameId(userId: number, gameId: number, data: UpdateLibraryEntryData) {
-    return prisma.libraryEntry.update({
+export function updateLibraryEntryByUserAndGameId(userId: number, gameId: number, data: UpdateLibraryEntryData, tx: Prisma.TransactionClient) {
+    return tx.libraryEntry.update({
         where: {
             userId_gameId: {
                 userId,
@@ -105,4 +105,21 @@ export function updateLibraryEntryByUserAndGameId(userId: number, gameId: number
         },
         data
     })
+}
+
+export async function replaceLibraryEntryPlatforms(userId: number,gameId: number,platformIds: number[], tx: Prisma.TransactionClient) {
+    await tx.libraryEntryPlatform.deleteMany({
+        where: {
+            userId,
+            gameId
+        }
+    });
+
+    return tx.libraryEntryPlatform.createMany({
+        data: platformIds.map(platformId => ({
+            userId,
+            gameId,
+            platformId
+        }))
+    });
 }

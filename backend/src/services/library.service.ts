@@ -2,10 +2,12 @@ import type { Game, GameStatus, LibraryEntry } from "@prisma/client";
 import { AppError } from "../errors/AppError.js";
 import { getRawgGameById } from "../integrations/rawg.js";
 import { createGame, createGamePlatform, findGameByExternalId } from "../repositories/game.repository.js";
-import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId, updateLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
+import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId, updateLibraryEntryByUserAndGameId, replaceLibraryEntryPlatforms } from "../repositories/library.repository.js";
 import { createPlatform, findPlatformByName, findPlatformsByGameId } from "../repositories/platform.repository.js";
 import type { CreateGameData } from "../types/game.types.js";
 import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryEntryData, UpdateLibraryEntryData, UpdateLibraryEntryServiceData } from "../types/library.types.js";
+import { prisma } from "../lib/prisma.js";
+import { runInTransaction } from "../repositories/transaction.repository.js";
 
 async function getOrCreateGame(externalId: number) {
     let game = await findGameByExternalId(externalId);
@@ -244,5 +246,39 @@ export async function updateLibraryEntry(userId: number, gameId: number, data: U
 
     // ... parte de platforms ⇣
 
-    const updatedLibraryEntry = await updateLibraryEntryByUserAndGameId(userId, gameId, libraryEntryData);
+    if (platforms !== undefined && platforms.length === 0) {
+        throw new AppError("É necessário informar pelo menos uma plataforma", 400)
+    }
+
+    if (platforms !== undefined) {
+        const uniquePlatforms = new Set(platforms);
+
+        if (uniquePlatforms.size !== platforms.length) {
+            throw new AppError("Não é permitido informar plataformas duplicadas", 400);
+        }
+
+        const validPlatforms = await findPlatformsByGameId(gameId);
+
+        for (const platformId of platforms) {
+            if (!validPlatforms.some(validPlatform => validPlatform.id === platformId)) {
+                throw new AppError("Uma ou mais plataformas informadas não são suportadas por este jogo", 400);
+            }
+        }
+    }
+
+    await runInTransaction(async (tx) => {
+        await updateLibraryEntryByUserAndGameId(userId, gameId, libraryEntryData, tx);
+
+        if (platforms !== undefined) {
+            await replaceLibraryEntryPlatforms(userId, gameId, platforms, tx);
+        }
+    });
+
+    const updatedLibraryEntry = await findLibraryEntryByUserAndGameId(userId, gameId);
+
+    if (!updatedLibraryEntry) {
+        throw new AppError("Jogo não encontrado após atualização", 500);
+    }
+
+    return formatLibraryEntry(updatedLibraryEntry);
 }
