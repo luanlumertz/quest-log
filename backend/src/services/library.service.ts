@@ -2,10 +2,10 @@ import type { Game, GameStatus, LibraryEntry } from "@prisma/client";
 import { AppError } from "../errors/AppError.js";
 import { getRawgGameById } from "../integrations/rawg.js";
 import { createGame, createGamePlatform, findGameByExternalId } from "../repositories/game.repository.js";
-import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
+import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId, updateLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
 import { createPlatform, findPlatformByName, findPlatformsByGameId } from "../repositories/platform.repository.js";
 import type { CreateGameData } from "../types/game.types.js";
-import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryEntryData } from "../types/library.types.js";
+import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryEntryData, UpdateLibraryEntryData, UpdateLibraryEntryServiceData } from "../types/library.types.js";
 
 async function getOrCreateGame(externalId: number) {
     let game = await findGameByExternalId(externalId);
@@ -62,14 +62,14 @@ function getInitialDates(status: GameStatus) {
     switch (status) {
         case "PLAYING":
             return {
-                startedAt: new Date(),
+                startedAt: normalizeDate(new Date()),
                 completedAt: null
             };
 
         case "COMPLETED":
             return {
                 startedAt: null,
-                completedAt: new Date()
+                completedAt: normalizeDate(new Date())
             };
 
         default:
@@ -143,4 +143,106 @@ export async function getLibraryEntryDetails(userId: number, gameId: number) {
     }
 
     return formatLibraryEntry(libraryDetails);
+}
+
+function normalizeDate(date: Date) {
+    const normalizedDate = new Date(date);
+
+    normalizedDate.setUTCHours(0, 0, 0, 0);
+
+    return normalizedDate;
+}
+
+export async function updateLibraryEntry(userId: number, gameId: number, data: UpdateLibraryEntryServiceData) {
+    const { platforms, ...libraryEntryData } = data
+
+    const libraryEntry = await findLibraryEntryByUserAndGameId(userId, gameId);
+
+    if (libraryEntry == null) {
+        throw new AppError("Jogo não encontrado na biblioteca do usuário", 404);
+    }
+
+    const finalStatus = libraryEntryData.status ?? libraryEntry.status;
+    switch (finalStatus) {
+        case "WANT_TO_PLAY":
+
+
+            if (libraryEntryData.startedAt !== undefined && libraryEntryData.startedAt !== null) {
+                throw new AppError("Um jogo com status WANT_TO_PLAY não pode possuir data de início", 400);
+            }
+
+            if (libraryEntryData.completedAt !== undefined && libraryEntryData.completedAt !== null) {
+                throw new AppError("Um jogo com status WANT_TO_PLAY não pode possuir data de conclusão", 400);
+            }
+
+            libraryEntryData.rating = null;
+            libraryEntryData.startedAt = null;
+            libraryEntryData.completedAt = null;
+
+            break;
+        case "PLAYING":
+
+            if (libraryEntryData.startedAt === null) {
+                throw new AppError("Um jogo com status PLAYING deve possuir uma data de início", 400);
+            }
+
+            if (libraryEntryData.completedAt !== undefined && libraryEntryData.completedAt !== null) {
+                throw new AppError("Um jogo com status PLAYING não pode possuir data de conclusão", 400);
+            }
+
+            if (libraryEntry.startedAt === null && libraryEntryData.startedAt === undefined) {
+                libraryEntryData.startedAt = normalizeDate(new Date());
+            }
+
+            libraryEntryData.completedAt = null;
+
+            break;
+        case "COMPLETED": {
+
+
+            if (libraryEntryData.completedAt === null) {
+                throw new AppError("Um jogo com status COMPLETED deve possuir uma data de conclusão", 400);
+            }
+
+            if (libraryEntry.completedAt === null && libraryEntryData.completedAt === undefined) {
+                libraryEntryData.completedAt = normalizeDate(new Date());
+            }
+
+            break;
+        }
+        case "ABANDONED":
+            if (libraryEntryData.completedAt !== undefined && libraryEntryData.completedAt !== null) {
+                throw new AppError("Um jogo com status ABANDONED não pode possuir data de conclusão", 400);
+            }
+
+            libraryEntryData.completedAt = null;
+
+            break;
+    }
+
+    const finalStartedAt = libraryEntryData.startedAt !== undefined ? libraryEntryData.startedAt : libraryEntry.startedAt;
+
+    const finalCompletedAt = libraryEntryData.completedAt !== undefined ? libraryEntryData.completedAt : libraryEntry.completedAt;
+
+    const today = normalizeDate(new Date());
+
+    const startedDay = finalStartedAt !== null ? normalizeDate(finalStartedAt) : null;
+
+    const completedDay = finalCompletedAt !== null ? normalizeDate(finalCompletedAt) : null;
+
+    if (startedDay !== null && startedDay > today) {
+        throw new AppError("A data de início não pode estar no futuro", 400);
+    }
+
+    if (completedDay !== null && completedDay > today) {
+        throw new AppError("A data de conclusão não pode estar no futuro", 400);
+    }
+
+    if (startedDay !== null && completedDay !== null && completedDay < startedDay) {
+        throw new AppError("A data de conclusão não pode ser anterior à data de início", 400);
+    }
+
+    // ... parte de platforms ⇣
+
+    const updatedLibraryEntry = await updateLibraryEntryByUserAndGameId(userId, gameId, libraryEntryData);
 }

@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import type { AddGameToLibraryRepositoryData } from "../types/library.types.js";
+import type { AddGameToLibraryRepositoryData, UpdateLibraryEntryData } from "../types/library.types.js";
 import { Prisma } from "@prisma/client";
 
 export const libraryEntrySelect = {
@@ -74,7 +74,7 @@ export function createLibraryEntryPlatform(userId: number, gameId: number, platf
     return createdLibraryEntryPlatform;
 }
 
-export async function findLibraryEntriesByUserId(userId: number) {
+export function findLibraryEntriesByUserId(userId: number) {
     return prisma.libraryEntry.findMany({
         where: {
             userId
@@ -92,5 +92,17 @@ export function findLibraryEntryByUserAndGameId(userId: number, gameId: number) 
             }
         },
         select: libraryEntrySelect
+    })
+}
+
+export function updateLibraryEntryByUserAndGameId(userId: number, gameId: number, data: UpdateLibraryEntryData) {
+    return prisma.libraryEntry.update({
+        where: {
+            userId_gameId: {
+                userId,
+                gameId
+            }
+        },
+        data
     })
 }
