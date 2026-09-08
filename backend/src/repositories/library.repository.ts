@@ -48,8 +48,8 @@ export async function gameInUserLibraryEntryExists(userId: number, externalId: n
     return entry !== null;
 }
 
-export function createLibraryEntry(data: AddGameToLibraryRepositoryData) {
-    const createdLibraryEntry = prisma.libraryEntry.create({
+export function createLibraryEntry(data: AddGameToLibraryRepositoryData, tx: Prisma.TransactionClient) {
+    const createdLibraryEntry = tx.libraryEntry.create({
         data: {
             userId: data.userId,
             gameId: data.gameId,
@@ -62,8 +62,8 @@ export function createLibraryEntry(data: AddGameToLibraryRepositoryData) {
     return createdLibraryEntry;
 }
 
-export function createLibraryEntryPlatform(userId: number, gameId: number, platformId: number) {
-    const createdLibraryEntryPlatform = prisma.libraryEntryPlatform.create({
+export function createLibraryEntryPlatform(userId: number, gameId: number, platformId: number, tx: Prisma.TransactionClient) {
+    const createdLibraryEntryPlatform = tx.libraryEntryPlatform.create({
         data: {
             userId,
             gameId,
