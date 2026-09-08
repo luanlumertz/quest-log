@@ -123,3 +123,14 @@ export async function replaceLibraryEntryPlatforms(userId: number,gameId: number
         }))
     });
 }
+
+export function deleteLibraryEntryByUserAndGameId(userId: number, gameId: number){
+    return prisma.libraryEntry.delete({
+        where: {
+            userId_gameId: {
+                userId,
+                gameId
+            }
+        }
+    })
+}
