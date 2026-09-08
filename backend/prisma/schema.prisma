@@ -80,7 +80,7 @@ model LibraryEntryPlatform {
   gameId     Int
   platformId Int
 
-  libraryEntry LibraryEntry @relation(fields: [userId, gameId], references: [userId, gameId])
+  libraryEntry LibraryEntry @relation(fields: [userId, gameId], references: [userId, gameId], onDelete: Cascade)
   platform     Platform     @relation(fields: [platformId], references: [id])
 
   @@id([userId, gameId, platformId])
