@@ -23,7 +23,7 @@ export const addGameToLibrarySchema = z
     })
     .strict();
 
-export const getLibraryEntryDetailsSchema = z
+export const gameIdParamsSchema = z
     .object({
         gameId: z
             .coerce
@@ -32,7 +32,7 @@ export const getLibraryEntryDetailsSchema = z
             .positive({ error: "O gameId deve ser maior que 0" })
     })
 
-export type GetLibraryEntryDetailsParams = z.infer<typeof getLibraryEntryDetailsSchema>;
+export type GameIdParams = z.infer<typeof gameIdParamsSchema>;
 
 export const updateLibraryEntrySchema = z
     .object({
