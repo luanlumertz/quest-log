@@ -19,3 +19,15 @@ export type AddGameToLibraryRepositoryData = {
 export type LibraryEntryData = Prisma.LibraryEntryGetPayload<{
     select: typeof libraryEntrySelect;
 }>;
+
+export type UpdateLibraryEntryData = {
+    status?: GameStatus;
+    rating?: number | null;
+    playtimeMinutes?: number;
+    startedAt?: Date | null;
+    completedAt?: Date | null;
+};
+
+export type UpdateLibraryEntryServiceData = UpdateLibraryEntryData & {
+    platforms?: number[];
+};

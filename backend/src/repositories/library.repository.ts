@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import type { AddGameToLibraryRepositoryData } from "../types/library.types.js";
+import type { AddGameToLibraryRepositoryData, UpdateLibraryEntryData } from "../types/library.types.js";
 import { Prisma } from "@prisma/client";
 
 export const libraryEntrySelect = {
@@ -48,8 +48,8 @@ export async function gameInUserLibraryEntryExists(userId: number, externalId: n
     return entry !== null;
 }
 
-export function createLibraryEntry(data: AddGameToLibraryRepositoryData) {
-    const createdLibraryEntry = prisma.libraryEntry.create({
+export function createLibraryEntry(data: AddGameToLibraryRepositoryData, tx: Prisma.TransactionClient) {
+    const createdLibraryEntry = tx.libraryEntry.create({
         data: {
             userId: data.userId,
             gameId: data.gameId,
@@ -62,8 +62,8 @@ export function createLibraryEntry(data: AddGameToLibraryRepositoryData) {
     return createdLibraryEntry;
 }
 
-export function createLibraryEntryPlatform(userId: number, gameId: number, platformId: number) {
-    const createdLibraryEntryPlatform = prisma.libraryEntryPlatform.create({
+export function createLibraryEntryPlatform(userId: number, gameId: number, platformId: number, tx: Prisma.TransactionClient) {
+    const createdLibraryEntryPlatform = tx.libraryEntryPlatform.create({
         data: {
             userId,
             gameId,
@@ -74,7 +74,7 @@ export function createLibraryEntryPlatform(userId: number, gameId: number, platf
     return createdLibraryEntryPlatform;
 }
 
-export async function findLibraryEntriesByUserId(userId: number) {
+export function findLibraryEntriesByUserId(userId: number) {
     return prisma.libraryEntry.findMany({
         where: {
             userId
@@ -93,4 +93,33 @@ export function findLibraryEntryByUserAndGameId(userId: number, gameId: number) 
         },
         select: libraryEntrySelect
     })
+}
+
+export function updateLibraryEntryByUserAndGameId(userId: number, gameId: number, data: UpdateLibraryEntryData, tx: Prisma.TransactionClient) {
+    return tx.libraryEntry.update({
+        where: {
+            userId_gameId: {
+                userId,
+                gameId
+            }
+        },
+        data
+    })
+}
+
+export async function replaceLibraryEntryPlatforms(userId: number,gameId: number,platformIds: number[], tx: Prisma.TransactionClient) {
+    await tx.libraryEntryPlatform.deleteMany({
+        where: {
+            userId,
+            gameId
+        }
+    });
+
+    return tx.libraryEntryPlatform.createMany({
+        data: platformIds.map(platformId => ({
+            userId,
+            gameId,
+            platformId
+        }))
+    });
 }

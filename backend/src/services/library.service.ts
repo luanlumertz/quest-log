@@ -1,83 +1,19 @@
-import type { Game, GameStatus, LibraryEntry } from "@prisma/client";
 import { AppError } from "../errors/AppError.js";
-import { getRawgGameById } from "../integrations/rawg.js";
-import { createGame, createGamePlatform, findGameByExternalId } from "../repositories/game.repository.js";
-import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
-import { createPlatform, findPlatformByName, findPlatformsByGameId } from "../repositories/platform.repository.js";
-import type { CreateGameData } from "../types/game.types.js";
-import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryEntryData } from "../types/library.types.js";
+import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId, updateLibraryEntryByUserAndGameId, replaceLibraryEntryPlatforms } from "../repositories/library.repository.js";
+import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, UpdateLibraryEntryServiceData } from "../types/library.types.js";
+import { runInTransaction } from "../repositories/transaction.repository.js";
+import { applyLibraryEntryStatusRules, formatLibraryEntry, getInitialDates, validateLibraryEntryDates } from "./library.helpers.js";
+import { getOrCreateGame } from "./library-game.service.js";
+import { validateLibraryEntryPlatformIds, validateSelectedPlatforms } from "./library-platform.service.js";
 
-async function getOrCreateGame(externalId: number) {
-    let game = await findGameByExternalId(externalId);
+async function findLibraryEntryOrThrow(userId: number, gameId: number) {
+    const libraryEntry = await findLibraryEntryByUserAndGameId(userId, gameId);
 
-    if (game) {
-        return game;
+    if (libraryEntry === null) {
+        throw new AppError("Jogo não encontrado na biblioteca do usuário", 404);
     }
 
-    const gameRawg = await getRawgGameById(externalId);
-
-    const createData: CreateGameData = {
-        externalId: gameRawg.externalId,
-        title: gameRawg.title,
-        coverUrl: gameRawg.coverUrl,
-        releaseDate: gameRawg.releaseDate ? new Date(gameRawg.releaseDate) : null
-    };
-
-    game = await createGame(createData);
-
-    const rawgPlatforms = [...new Set(gameRawg.platforms
-        .map(platform => platform.trim())
-        .filter(platform => platform !== "")
-    )
-    ];
-
-    for (const namePlatform of rawgPlatforms) {
-        let platform = await findPlatformByName(namePlatform);
-
-        if (!platform) {
-            platform = await createPlatform(namePlatform);
-        }
-
-        await createGamePlatform(game.id, platform.id);
-    }
-
-    return game;
-}
-
-async function validateSelectedPlatforms(gameId: number, selectedPlatforms: string[]) {
-    const availablePlatforms = await findPlatformsByGameId(gameId);
-
-    const unavailablePlatforms = selectedPlatforms.filter(namePlatform => !availablePlatforms.some(platform => platform.name === namePlatform));
-
-    if (unavailablePlatforms.length > 0) {
-        const platformsText = unavailablePlatforms.join(", ");
-
-        throw new AppError(`Plataforma(s) não disponível(is) para este jogo: ${platformsText}`, 400);
-    }
-
-    return availablePlatforms;
-}
-
-function getInitialDates(status: GameStatus) {
-    switch (status) {
-        case "PLAYING":
-            return {
-                startedAt: new Date(),
-                completedAt: null
-            };
-
-        case "COMPLETED":
-            return {
-                startedAt: null,
-                completedAt: new Date()
-            };
-
-        default:
-            return {
-                startedAt: null,
-                completedAt: null
-            };
-    }
+    return libraryEntry;
 }
 
 export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
@@ -101,32 +37,23 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
         completedAt
     };
 
-    const libraryEntry = await createLibraryEntry(createLibraryEntryData);
+    const libraryEntry = await runInTransaction(async (tx) => {
+        const createdLibraryEntry = await createLibraryEntry(createLibraryEntryData, tx);
 
-    for (const namePlatform of data.platforms) {
-        const platform = availablePlatforms.find(platform => platform.name === namePlatform);
+        for (const namePlatform of data.platforms) {
+            const platform = availablePlatforms.find(platform => platform.name === namePlatform);
 
-        if (!platform) {
-            throw new AppError("Erro ao associar plataforma à biblioteca", 500);
+            if (!platform) {
+                throw new AppError("Erro ao associar plataforma à biblioteca", 500);
+            }
+
+            await createLibraryEntryPlatform(data.userId, game.id, platform.id, tx);
         }
 
-        await createLibraryEntryPlatform(data.userId, game.id, platform.id);
-    }
+        return createdLibraryEntry;
+    });
 
     return { ...libraryEntry, platforms: data.platforms };
-}
-
-function formatLibraryEntry(entry: LibraryEntryData) {
-    const { libraryEntryPlatforms, ...rest } = entry;
-
-    return {
-        ...rest,
-        rating: rest.rating !== null ? Number(rest.rating) : null,
-        platforms: libraryEntryPlatforms.map(item => ({
-            id: item.platform.id,
-            name: item.platform.name
-        }))
-    };
 }
 
 export async function getLibraryEntries(userId: number) {
@@ -136,11 +63,33 @@ export async function getLibraryEntries(userId: number) {
 }
 
 export async function getLibraryEntryDetails(userId: number, gameId: number) {
-    const libraryDetails = await findLibraryEntryByUserAndGameId(userId, gameId);
-
-    if (libraryDetails == null) {
-        throw new AppError("Jogo não encontrado na biblioteca do usuário", 404)
-    }
+    const libraryDetails = await findLibraryEntryOrThrow(userId, gameId);
 
     return formatLibraryEntry(libraryDetails);
+}
+
+export async function updateLibraryEntry(userId: number, gameId: number, data: UpdateLibraryEntryServiceData) {
+    const { platforms, ...libraryEntryData } = data;
+
+    const libraryEntry = await findLibraryEntryOrThrow(userId, gameId);
+
+    const preparedLibraryEntryData = applyLibraryEntryStatusRules(libraryEntry, libraryEntryData);
+
+    validateLibraryEntryDates(libraryEntry, preparedLibraryEntryData);
+
+    if (platforms !== undefined) {
+        await validateLibraryEntryPlatformIds(gameId, platforms);
+    }
+
+    await runInTransaction(async (tx) => {
+        await updateLibraryEntryByUserAndGameId(userId, gameId, preparedLibraryEntryData, tx);
+
+        if (platforms !== undefined) {
+            await replaceLibraryEntryPlatforms(userId, gameId, platforms, tx);
+        }
+    });
+
+    const updatedLibraryEntry = await findLibraryEntryOrThrow(userId, gameId);
+
+    return formatLibraryEntry(updatedLibraryEntry);
 }
