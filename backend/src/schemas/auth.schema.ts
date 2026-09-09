@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const registerSchema = z
+export const registerUserSchema = z
   .object({
     name: z
       .string()
@@ -33,7 +33,7 @@ export const registerSchema = z
   )
   .transform(({ confirmPassword, ...data }) => data);
 
-export const loginSchema = z
+export const loginUserSchema = z
   .object({
     email: z
       .string()
@@ -45,3 +45,13 @@ export const loginSchema = z
       .min(1, { error: "Senha é obrigatória" })
       .max(70, { error: "Senha inválida" })
   })
+
+export const updateUserSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, { error: "Nome deve ter pelo menos 2 caracteres" })
+      .max(64, { error: "Nome muito grande. Máximo: 64 caracteres" }),
+  })
+  .strict()

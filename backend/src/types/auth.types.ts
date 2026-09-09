@@ -14,3 +14,7 @@ export type LoginUserData = {
     email: string,
     password: string
 }
+
+export type UpdateUserData = {
+    name: string
+}

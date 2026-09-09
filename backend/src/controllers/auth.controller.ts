@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
-import { loginUser, registerUser, getCurrentUser } from "../services/auth.service.js"
+import { loginUser, registerUser, getCurrentUser, updateUser } from "../services/auth.service.js"
+import type { UpdateUserData } from "../types/auth.types.js";
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -40,4 +41,13 @@ export async function getCurrentUserController(req: Request, res: Response) {
     const user = await getCurrentUser(userId);
 
     return res.status(200).json({ user })
+}
+
+export async function updateUserController(req: Request, res: Response) {
+    const userId = req.userId!
+    const data = req.body
+
+    const updatedUser = await updateUser(userId, data);
+
+    return res.status(200).json({ user: updatedUser })
 }
