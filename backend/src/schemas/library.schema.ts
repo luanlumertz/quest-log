@@ -85,3 +85,17 @@ export const updateLibraryEntrySchema = z
         data => Object.values(data).some(value => value !== undefined),
         { error: "Pelo menos um campo deve ser informado para atualização" }
     )
+
+export const libraryQuerySchema = z
+    .object({
+        search: z
+            .string({ error: "A busca deve ser um texto" })
+            .trim()
+            .nonempty({ error: "A busca não pode estar vazia" })
+            .optional(),
+
+        status: z
+            .enum(GameStatus, { error: "Status inválido" })
+            .optional()
+    })
+    .strict()

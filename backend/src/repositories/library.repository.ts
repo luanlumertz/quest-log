@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import type { AddGameToLibraryRepositoryData, UpdateLibraryEntryData } from "../types/library.types.js";
+import type { AddGameToLibraryRepositoryData, LibraryQueryData, UpdateLibraryEntryData } from "../types/library.types.js";
 import { Prisma } from "@prisma/client";
 
 export const libraryEntrySelect = {
@@ -74,10 +74,23 @@ export function createLibraryEntryPlatform(userId: number, gameId: number, platf
     return createdLibraryEntryPlatform;
 }
 
-export function findLibraryEntriesByUserId(userId: number) {
+export function findLibraryEntriesByUserId(userId: number, libraryQuery: LibraryQueryData) {
     return prisma.libraryEntry.findMany({
         where: {
-            userId
+            userId,
+
+            ...(libraryQuery.status && {
+                status: libraryQuery.status
+            }),
+
+            ...(libraryQuery.search && {
+                game: {
+                    title: {
+                        contains: libraryQuery.search,
+                        mode: "insensitive"
+                    }
+                }
+            })
         },
         select: libraryEntrySelect
     });
@@ -107,7 +120,7 @@ export function updateLibraryEntryByUserAndGameId(userId: number, gameId: number
     })
 }
 
-export async function replaceLibraryEntryPlatforms(userId: number,gameId: number,platformIds: number[], tx: Prisma.TransactionClient) {
+export async function replaceLibraryEntryPlatforms(userId: number, gameId: number, platformIds: number[], tx: Prisma.TransactionClient) {
     await tx.libraryEntryPlatform.deleteMany({
         where: {
             userId,
@@ -124,7 +137,7 @@ export async function replaceLibraryEntryPlatforms(userId: number,gameId: number
     });
 }
 
-export function deleteLibraryEntryByUserAndGameId(userId: number, gameId: number){
+export function deleteLibraryEntryByUserAndGameId(userId: number, gameId: number) {
     return prisma.libraryEntry.delete({
         where: {
             userId_gameId: {

@@ -31,3 +31,8 @@ export type UpdateLibraryEntryData = {
 export type UpdateLibraryEntryServiceData = UpdateLibraryEntryData & {
     platforms?: number[];
 };
+
+export type LibraryQueryData = {
+    search?: string;
+    status?: GameStatus;
+}

@@ -1,6 +1,6 @@
 import { AppError } from "../errors/AppError.js";
 import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId, updateLibraryEntryByUserAndGameId, replaceLibraryEntryPlatforms, deleteLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
-import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, UpdateLibraryEntryServiceData } from "../types/library.types.js";
+import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryQueryData, UpdateLibraryEntryServiceData } from "../types/library.types.js";
 import { runInTransaction } from "../repositories/transaction.repository.js";
 import { applyLibraryEntryStatusRules, formatLibraryEntry, getInitialDates, validateLibraryEntryDates } from "./library.helpers.js";
 import { getOrCreateGame } from "./library-game.service.js";
@@ -56,8 +56,8 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
     return { ...libraryEntry, platforms: data.platforms };
 }
 
-export async function getLibraryEntries(userId: number) {
-    const libraryEntries = await findLibraryEntriesByUserId(userId);
+export async function getLibraryEntries(userId: number, libraryQuery: LibraryQueryData) {
+    const libraryEntries = await findLibraryEntriesByUserId(userId, libraryQuery);
     return libraryEntries.map(formatLibraryEntry);
 }
 
