@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { getCurrentUserController, loginUserController, logoutUserController, registerUserController } from "../controllers/auth.controller.js";
+import { getCurrentUserController, loginUserController, logoutUserController, registerUserController, updateUserController } from "../controllers/auth.controller.js";
 import { validateBody } from "../middlewares/validate.middleware.js";
-import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
+import { loginUserSchema, registerUserSchema, updateUserSchema } from "../schemas/auth.schema.js";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
 
 export const userRoutes = Router();
 
-userRoutes.post("/register", validateBody(registerSchema), registerUserController)
-userRoutes.post("/login", validateBody(loginSchema), loginUserController)
+userRoutes.post("/register", validateBody(registerUserSchema), registerUserController)
+userRoutes.post("/login", validateBody(loginUserSchema), loginUserController)
 userRoutes.post("/logout", logoutUserController)
 userRoutes.get("/me", authenticateToken, getCurrentUserController)
+userRoutes.patch("/me", authenticateToken, validateBody(updateUserSchema), updateUserController)

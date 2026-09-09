@@ -1,7 +1,7 @@
-import { createUser, findUserByEmail, findUserById } from "../repositories/user.repository.js";
+import { createUser, findUserByEmail, findUserById, updateUserById } from "../repositories/user.repository.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { AppError } from "../errors/AppError.js";
-import type { LoginUserData, RegisterUserData } from "../types/auth.types.js";
+import type { LoginUserData, RegisterUserData, UpdateUserData } from "../types/auth.types.js";
 import { generateToken } from "../lib/jwt.js";
 
 export async function registerUser(data: RegisterUserData) {
@@ -58,5 +58,15 @@ export async function getCurrentUser(id: number) {
         id: user.id,
         name: user.name,
         email: user.email
+    }
+}
+
+export async function updateUser(id: number, data: UpdateUserData) {
+    const updatedUser = await updateUserById(id, data);
+
+    return {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email
     }
 }
