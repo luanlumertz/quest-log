@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail, findUserById, updateUserById } from "../repositories/user.repository.js";
+import { createUser, deleteUserById, findUserByEmail, findUserById, updateUserById } from "../repositories/user.repository.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { AppError } from "../errors/AppError.js";
 import type { LoginUserData, RegisterUserData, UpdateUserData } from "../types/auth.types.js";
@@ -69,4 +69,8 @@ export async function updateUser(id: number, data: UpdateUserData) {
         name: updatedUser.name,
         email: updatedUser.email
     }
+}
+
+export async function deleteUser(id: number) {
+    await deleteUserById(id);
 }

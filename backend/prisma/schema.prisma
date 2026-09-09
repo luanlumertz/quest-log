@@ -67,7 +67,7 @@ model LibraryEntry {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   game Game @relation(fields: [gameId], references: [id])
 
   libraryEntryPlatforms LibraryEntryPlatform[]
