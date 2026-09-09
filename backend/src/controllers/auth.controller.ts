@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
-import { loginUser, registerUser, getCurrentUser, updateUser } from "../services/auth.service.js"
-import type { UpdateUserData } from "../types/auth.types.js";
+import { loginUser, registerUser, getCurrentUser, updateUser, deleteUser } from "../services/auth.service.js"
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -50,4 +49,18 @@ export async function updateUserController(req: Request, res: Response) {
     const updatedUser = await updateUser(userId, data);
 
     return res.status(200).json({ user: updatedUser })
+}
+
+export async function deleteUserController(req: Request, res: Response) {
+    const userId = req.userId!
+
+    await deleteUser(userId);
+
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false, // enquanto estiver em desenvolvimento
+    })
+
+    return res.status(204).send()
 }

@@ -31,3 +31,11 @@ export function updateUserById(id: number, data: UpdateUserData) {
         data
     })
 }
+
+export function deleteUserById(id: number) {
+    return prisma.user.delete({
+        where: {
+            id
+        }
+    })
+}
