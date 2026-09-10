@@ -17,3 +17,38 @@ export function getLibraryStatsByUserId(userId: number) {
         }
     })
 }
+
+export function getRecentUpdatedGamesByUserId(userId: number) {
+    return prisma.libraryEntry.findMany({
+        where: {
+            userId
+        },
+        select: {
+            status: true,
+            rating: true,
+            playtimeMinutes: true,
+            updatedAt: true,
+            game: {
+                select: {
+                    id: true,
+                    title: true,
+                    coverUrl: true
+                }
+            },
+            libraryEntryPlatforms: {
+                select: {
+                    platform: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                }
+            }
+        },
+        take: 5,
+        orderBy: {
+            updatedAt: "desc"
+        }
+    })
+}
