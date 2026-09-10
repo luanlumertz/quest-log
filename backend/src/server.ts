@@ -3,10 +3,10 @@ import "dotenv/config";
 import app from "./app.js";
 import { prisma } from "./lib/prisma.js";
 
-const PORT = process.env.PORT_LOCAL;
+const PORT = process.env.PORT || process.env.PORT_LOCAL;
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running on port http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 async function shutdown() {
@@ -15,7 +15,7 @@ async function shutdown() {
   server.close(async () => {
     await prisma.$disconnect();
 
-    console.log("Server closed.");
+    console.log("Server closed successfully.");
     process.exit(0);
   });
 }

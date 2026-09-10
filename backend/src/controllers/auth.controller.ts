@@ -17,7 +17,7 @@ export async function loginUserController(req: Request, res: Response) {
     res.cookie("accessToken", result.token, {
         httpOnly: true,
         sameSite: "lax",
-        secure: false, // enquanto estiver em desenvolvimento
+        secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 1000
     })
 
@@ -28,7 +28,7 @@ export function logoutUserController(req: Request, res: Response) {
     res.clearCookie("accessToken", {
         httpOnly: true,
         sameSite: "lax",
-        secure: false, // enquanto estiver em desenvolvimento
+        secure: process.env.NODE_ENV === "production"
     })
 
     return res.status(204).send()
@@ -59,7 +59,7 @@ export async function deleteUserController(req: Request, res: Response) {
     res.clearCookie("accessToken", {
         httpOnly: true,
         sameSite: "lax",
-        secure: false, // enquanto estiver em desenvolvimento
+        secure: process.env.NODE_ENV === "production"
     })
 
     return res.status(204).send()
