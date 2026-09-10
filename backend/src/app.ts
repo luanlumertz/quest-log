@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import { routes } from "./routes/index.js"
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
+import { notFoundHandler } from "./middlewares/notFoundHandler.middleware.js";
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(routes);
+
+app.use(notFoundHandler);
 
 app.use(errorHandler);
 
