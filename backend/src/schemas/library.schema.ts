@@ -12,7 +12,9 @@ export const addGameToLibrarySchema = z
             .number({ error: "O externalId deve ser um número" })
             .int({ error: "O externalId deve ser um número inteiro" }),
 
-        status: z.enum(GameStatus, { error: "Status inválido" }),
+        status: z
+            .enum(GameStatus, { error: "Status inválido" })
+            .default(GameStatus.WANT_TO_PLAY),
 
         platforms: z
             .array(platformSchema, { error: "As plataformas devem ser enviadas em uma lista" })

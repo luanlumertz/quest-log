@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response } from "express";
 import type { ZodType } from "zod";
 
 export function validateBody<T extends ZodType>(schema: T) {
-
     return function middleware(req: Request, res: Response, next: NextFunction) {
 
         const result = schema.safeParse(req.body);
@@ -15,7 +14,6 @@ export function validateBody<T extends ZodType>(schema: T) {
 
         return next();
     };
-
 }
 
 export function validateQuery<T extends ZodType>(schema: T) {
