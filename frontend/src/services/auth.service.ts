@@ -31,3 +31,11 @@ export async function register(data: RegisterData): Promise<User> {
 
     return result.user;
 }
+
+export async function getCurrentUser(): Promise<User> {
+    const response = await apiRequest("/auth/me")
+
+    const result: AuthResponse = await response.json();
+
+    return result.user;
+}

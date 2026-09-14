@@ -8,9 +8,12 @@ import { login } from "../services/auth.service";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { AuthButton } from "../components/auth/AuthButton";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Login() {
     const navigate = useNavigate();
+
+    const { setUser } = useAuth();
 
     const {
         register,
@@ -24,7 +27,10 @@ export function Login() {
 
     async function onSubmit(data: LoginData) {
         try {
-            await login(data);
+            const user = await login(data);
+
+            setUser(user);
+            
             navigate("/dashboard");
         } catch (error) {
             if (error instanceof Error) {
