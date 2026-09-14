@@ -2,15 +2,12 @@ import { Link, useNavigate } from "react-router";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
-import { AuthLayout } from "../components/auth/AuthLayout";
-import { loginSchema } from "../schema/auth.schema";
+import { loginSchema, type LoginData } from "../schema/auth.schema";
 import { login } from "../services/auth.service";
+import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { AuthButton } from "../components/auth/AuthButton";
-
-type LoginFormData = z.infer<typeof loginSchema>;
 
 export function Login() {
     const navigate = useNavigate();
@@ -23,9 +20,9 @@ export function Login() {
             errors,
             isSubmitting
         }
-    } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+    } = useForm<LoginData>({ resolver: zodResolver(loginSchema) });
 
-    async function onSubmit(data: LoginFormData) {
+    async function onSubmit(data: LoginData) {
         try {
             await login(data);
             navigate("/dashboard");
@@ -85,7 +82,7 @@ export function Login() {
 
                 <div className="mt-8 text-center">
                     <p className="text-sm text-ink-dim">
-                        Não tem uma conta{" "}
+                        Não tem uma conta?{" "}
                         <Link
                             to="/register"
                             className="font-semibold text-brand hover:underline"

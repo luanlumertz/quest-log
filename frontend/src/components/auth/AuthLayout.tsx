@@ -24,13 +24,13 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     <Brand />
 
                     <h2 className="mt-8 max-w-md font-display text-4xl font-bold leading-tight text-white">
-                        Every game is a story
+                        Cada jogo é uma história
                         <br />
-                        worth remembering.
+                        que vale a pena lembrar.
                     </h2>
 
                     <p className="mt-4 text-lg text-ink-dim">
-                        Track your backlog. Rate what you play. Own your journey.
+                        Acompanhe sua lista de jogos. Avalie o que você joga. Assuma o controle da sua jornada.
                     </p>
                 </div>
             </aside>
