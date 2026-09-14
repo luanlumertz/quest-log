@@ -21,7 +21,7 @@ export async function loginUserController(req: Request, res: Response) {
         maxAge: 60 * 60 * 1000
     })
 
-    return res.status(200).json(result.user);
+    return res.status(200).json({ user: result.user });
 }
 
 export function logoutUserController(req: Request, res: Response) {

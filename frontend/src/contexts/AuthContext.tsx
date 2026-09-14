@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: Props) => {
                 const currentUser = await getCurrentUser();
 
                 setUser(currentUser);
-            } catch (error) {
+            } catch {
                 setUser(null);
             } finally {
                 setIsLoading(false);
