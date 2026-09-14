@@ -34,8 +34,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
         const message = data.message ?? data.error ?? "Ocorreu um erro na requisição";
 
-        throw new ApiError(message, response.status, data.issues
-        );
+        throw new ApiError(message, response.status, data.issues);
     }
 
     return response;
