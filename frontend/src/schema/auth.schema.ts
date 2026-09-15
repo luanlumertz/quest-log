@@ -4,9 +4,17 @@ export const registerSchema = z
     .object({
         name: z
             .string()
-            .trim()
-            .min(2, { error: "Nome deve ter pelo menos 2 caracteres" })
-            .max(64, { error: "Nome muito grande. Máximo: 64 caracteres" }),
+            .transform((name) => name.trim().replace(/\s+/g, " "))
+            .pipe(
+                z
+                    .string()
+                    .min(2, { error: "Nome deve ter pelo menos 2 caracteres" })
+                    .max(64, { error: "Nome muito grande. Máximo: 64 caracteres" })
+                    .regex(
+                        /^[\p{L}\p{M}'’-]+(?: [\p{L}\p{M}'’-]+)*$/u,
+                        { error: "Nome contém caracteres inválidos" }
+                    )
+            ),
 
         email: z
             .string()
