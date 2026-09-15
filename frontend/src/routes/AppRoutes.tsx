@@ -12,6 +12,7 @@ import { NotFound } from "../pages/NotFound";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { AppLayout } from "../components/layout/AppLayout";
+import { Profile } from "../pages/Profile";
 
 export function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ export function AppRoutes() {
           <Route path="/games/:externalId" element={<GameDetails />} />
           <Route path="/library" element={<Library />} />
           <Route path="/library/:gameId" element={<LibraryGameDetails />} />
+          <Route path="/profile" element={<Profile />}></Route>
         </Route>
       </Route>
 
