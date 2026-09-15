@@ -1,0 +1,33 @@
+export type GameStatus =
+    | "WANT_TO_PLAY"
+    | "PLAYING"
+    | "COMPLETED"
+    | "ABANDONED";
+
+export type DashboardData = {
+    stats: {
+        totalGames: number;
+        byStatus: {
+            WANT_TO_PLAY: number;
+            PLAYING: number;
+            COMPLETED: number;
+            ABANDONED: number;
+        };
+        totalPlaytimeMinutes: number;
+    };
+    recentGames: {
+        rating: number | null;
+        platforms: {
+            id: number;
+            name: string;
+        }[];
+        status: GameStatus;
+        playtimeMinutes: number;
+        updatedAt: string;
+        game: {
+            id: number;
+            title: string;
+            coverUrl: string | null;
+        };
+    }[];
+}
