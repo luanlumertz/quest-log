@@ -8,7 +8,7 @@ export function ProfileMenu() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
 
-    const { user } = useAuth();
+    const { user, signOut } = useAuth();
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -102,6 +102,7 @@ export function ProfileMenu() {
                     </Link>
 
                     <button
+                        onClick={signOut}
                         type="button"
                         className="
                             w-full
