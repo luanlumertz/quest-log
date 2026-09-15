@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Logo } from "../ui/Logo";
 
 type AuthLayoutProps = {
     children: ReactNode;
@@ -21,7 +22,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="absolute inset-0 bg-linear-to-b from-backdrop/55 via-backdrop/65 to-backdrop" />
 
                 <div className="relative z-10 max-w-xl">
-                    <Brand />
+                    <Logo />
 
                     <h2 className="mt-8 max-w-md font-display text-4xl font-bold leading-tight text-white">
                         Cada jogo é uma história
@@ -63,34 +64,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
                     {/* No desktop a marca já aparece do lado esquerdo */}
                     <div className="mb-12 lg:hidden">
-                        <Brand />
+                        <Logo />
                     </div>
 
                     {children}
                 </div>
             </main>
-        </div>
-    );
-}
-
-function Brand() {
-    return (
-        <div className="flex items-center gap-3">
-            <div
-                className="
-                    flex size-12 items-center justify-center
-                    rounded-xl bg-brand
-                    text-white
-                "
-            >
-                <span className="material-symbols-rounded text-white text-[32px]!">
-                    stadia_controller
-                </span>
-            </div>
-
-            <span className="font-display text-2xl font-bold text-white">
-                QuestLog
-            </span>
         </div>
     );
 }
