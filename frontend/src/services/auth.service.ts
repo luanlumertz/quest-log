@@ -39,3 +39,9 @@ export async function getCurrentUser(): Promise<User> {
 
     return result.user;
 }
+
+export async function logout() {
+    await apiRequest("/auth/logout", {
+        method: "POST"
+    })
+}

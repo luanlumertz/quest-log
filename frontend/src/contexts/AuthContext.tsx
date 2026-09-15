@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types/auth.types";
-import { getCurrentUser } from "../services/auth.service";
+import { getCurrentUser, logout } from "../services/auth.service";
 
 type AuthContextType = {
     user: User | null;
     isLoading: boolean;
     setUser: (user: User | null) => void;
+    signOut: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,8 +35,13 @@ export const AuthProvider = ({ children }: Props) => {
         loadCurrentUser();
     }, [])
 
+    async function signOut() {
+        await logout()
+        setUser(null);
+    }
+
     return (
-        <AuthContext.Provider value={{ user, isLoading, setUser }}>
+        <AuthContext.Provider value={{ user, isLoading, setUser, signOut }}>
             {children}
         </AuthContext.Provider>
     )
