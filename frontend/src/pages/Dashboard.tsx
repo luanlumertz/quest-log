@@ -1,4 +1,5 @@
 import { DashboardStats } from "../components/dashboard/DashboardStats";
+import { RecentGames } from "../components/dashboard/RecentGames";
 import { useAuth } from "../contexts/AuthContext";
 import { useDashboard } from "../hooks/dashboard.hook";
 import { formatPlayTime } from "../utils/formatPlayTime";
@@ -30,6 +31,10 @@ export function Dashboard() {
                 wantToPlay={data?.stats.byStatus.WANT_TO_PLAY ?? 0}
                 abandoned={data?.stats.byStatus.ABANDONED ?? 0}
                 totalPlaytime={data?.stats.totalPlaytimeMinutes ? formatPlayTime(data.stats.totalPlaytimeMinutes) : "0h"}
+            />
+
+            <RecentGames
+                games={data?.recentGames ?? []}
             />
         </div>
     );

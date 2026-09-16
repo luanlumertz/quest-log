@@ -50,7 +50,7 @@ export function DashboardStats({
             />
 
             <StatCard
-                label="Total de horas"
+                label="Tempo jogado"
                 content={`${totalPlaytime}`}
                 variant="orange"
             />

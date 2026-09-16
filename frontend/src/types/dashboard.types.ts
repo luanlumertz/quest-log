@@ -1,8 +1,5 @@
-export type GameStatus =
-    | "WANT_TO_PLAY"
-    | "PLAYING"
-    | "COMPLETED"
-    | "ABANDONED";
+import type { GameStatus, GameSummary } from "./game.types";
+import type { Platform } from "./platform.types";
 
 export type DashboardData = {
     stats: {
@@ -31,3 +28,12 @@ export type DashboardData = {
         };
     }[];
 }
+
+export type RecentGame = {
+    game: GameSummary;
+    platforms: Platform[];
+    status: GameStatus;
+    rating: number | null;
+    playtimeMinutes: number;
+    updatedAt: string;
+};
