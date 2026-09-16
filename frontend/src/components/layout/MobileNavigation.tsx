@@ -34,7 +34,7 @@ export function MobileNavigation() {
                         {item.icon}
                     </span>
 
-                    <span>
+                    <span className="text-center">
                         {item.mobileLabel}
                     </span>
                 </NavLink>

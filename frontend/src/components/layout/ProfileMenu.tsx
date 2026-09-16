@@ -110,6 +110,7 @@ export function ProfileMenu() {
                             text-left text-danger
                             transition-colors
                             hover:bg-surface-hover
+                            cursor-pointer
                         "
                     >
                         Sair
