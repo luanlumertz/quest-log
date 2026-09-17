@@ -1,9 +1,17 @@
-import type { GameStatus, GameSummary } from "./game.types";
+import type { GameStatus } from "./game.types";
 import type { Platform } from "./platform.types";
 
 export type LibraryFilters = {
     search?: string;
     status?: GameStatus;
+};
+
+export type LibraryGame = {
+    id: number;
+    externalId: number;
+    title: string;
+    coverUrl: string | null;
+    releaseDate: string | null;
 };
 
 export type LibraryEntry = {
@@ -15,7 +23,7 @@ export type LibraryEntry = {
     completedAt: string | null;
     createdAt: string;
     updatedAt: string;
-    game: GameSummary;
+    game: LibraryGame;
 };
 
 export type LibraryResponse = {
