@@ -10,7 +10,7 @@ export function StatCard({
     color,
 }: StatCardProps) {
     return (
-        <section className="overflow-x-hidden rounded-[20px] border border-white/5 bg-[#0D0F17] px-5 py-5">
+        <section className="overflow-x-hidden rounded-[20px] border border-white/5 bg-[#0D0F17] px-5 py-5 transition-transform hover:-translate-y-0.5">
             <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-mute">
                 {label}
             </h2>
