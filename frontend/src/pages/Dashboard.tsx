@@ -1,5 +1,6 @@
 import { DashboardStats } from "../components/dashboard/DashboardStats";
 import { RecentGames } from "../components/dashboard/RecentGames";
+import { StatusBreakdown } from "../components/dashboard/StatusBreakdown";
 import { useAuth } from "../contexts/AuthContext";
 import { useDashboard } from "../hooks/dashboard.hook";
 import { formatPlayTime } from "../utils/formatPlayTime";
@@ -26,16 +27,23 @@ export function Dashboard() {
 
             <DashboardStats
                 totalGames={data?.stats.totalGames ?? 0}
-                playing={data?.stats.byStatus.PLAYING ?? 0}
-                completed={data?.stats.byStatus.COMPLETED ?? 0}
-                wantToPlay={data?.stats.byStatus.WANT_TO_PLAY ?? 0}
-                abandoned={data?.stats.byStatus.ABANDONED ?? 0}
-                totalPlaytime={data?.stats.totalPlaytimeMinutes ? formatPlayTime(data.stats.totalPlaytimeMinutes) : "0h"}
+                byStatus={data?.stats.byStatus}
+                totalPlaytime={data?.stats.totalPlaytimeMinutes
+                    ? formatPlayTime(data.stats.totalPlaytimeMinutes)
+                    : "0h"
+                }
             />
 
-            <RecentGames
-                games={data?.recentGames ?? []}
-            />
+           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[2.3fr_1fr]">
+                <RecentGames
+                    games={data?.recentGames ?? []}
+                />
+
+                <StatusBreakdown
+                    byStatus={data?.stats.byStatus}
+                    totalGames={data?.stats.totalGames}
+                />
+            </div>
         </div>
     );
 }
