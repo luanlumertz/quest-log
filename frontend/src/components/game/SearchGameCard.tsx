@@ -54,6 +54,7 @@ export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
 
             <div className="p-3">
                 <h2
+                    title={game.title}
                     className="
                         line-clamp-1
                         font-display
