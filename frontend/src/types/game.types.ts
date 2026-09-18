@@ -17,3 +17,15 @@ export type GameSearchResult = {
     coverUrl: string | null;
     platforms: string[];
 }
+
+export type GameDetailsResult = {
+    externalId: number;
+    title: string;
+    coverUrl: string | null;
+    releaseDate: string | null;
+    description: string;
+    genres: string[];
+    platforms: string[];
+    developers: string[];
+    publishers: string[];
+};
