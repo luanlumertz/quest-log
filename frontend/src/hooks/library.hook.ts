@@ -1,10 +1,24 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LibraryFilters } from "../types/library.types";
-import { getLibrary } from "../services/library.service";
+import { addGameToLibrary, getLibrary } from "../services/library.service";
 
 export function useLibrary(filters?: LibraryFilters) {
     return useQuery({
         queryKey: ["library", filters],
         queryFn: () => getLibrary(filters)
     })
+}
+
+export function useAddGameToLibrary() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: addGameToLibrary,
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["library"]
+            });
+        }
+    });
 }

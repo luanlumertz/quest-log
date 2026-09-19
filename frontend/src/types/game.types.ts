@@ -1,8 +1,11 @@
-export type GameStatus =
-    | "WANT_TO_PLAY"
-    | "PLAYING"
-    | "COMPLETED"
-    | "ABANDONED";
+export const GAME_STATUSES = [
+    "WANT_TO_PLAY",
+    "PLAYING",
+    "COMPLETED",
+    "ABANDONED"
+] as const;
+
+export type GameStatus = typeof GAME_STATUSES[number];
 
 export type GameSummary = {
     id: number;

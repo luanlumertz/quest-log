@@ -29,3 +29,9 @@ export type LibraryEntry = {
 export type LibraryResponse = {
     libraryEntries: LibraryEntry[];
 };
+
+export type AddGameToLibraryData = {
+    externalId: number;
+    status: GameStatus;
+    platforms: string[];
+};

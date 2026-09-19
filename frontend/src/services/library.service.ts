@@ -1,4 +1,4 @@
-import type { LibraryEntry, LibraryFilters, LibraryResponse } from "../types/library.types";
+import type { AddGameToLibraryData, LibraryEntry, LibraryFilters, LibraryResponse } from "../types/library.types";
 import { apiRequest } from "./api";
 
 export async function getLibrary(filters?: LibraryFilters,): Promise<LibraryEntry[]> {
@@ -21,4 +21,11 @@ export async function getLibrary(filters?: LibraryFilters,): Promise<LibraryEntr
     const data: LibraryResponse = await response.json();
 
     return data.libraryEntries;
+}
+
+export async function addGameToLibrary(data: AddGameToLibraryData): Promise<void> {
+    await apiRequest("/library", {
+        method: "POST",
+        body: JSON.stringify(data)
+    });
 }
