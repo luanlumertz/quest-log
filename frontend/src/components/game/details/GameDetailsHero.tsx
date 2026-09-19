@@ -10,6 +10,9 @@ type GameDetailsHeroProps = {
     developers: string;
     libraryEntry?: LibraryEntry;
     isLibraryLoading: boolean;
+    isLibraryError: boolean;
+    isLibraryFetching: boolean;
+    onRetryLibrary: () => void;
     onBack: () => void;
 };
 
@@ -20,6 +23,9 @@ export function GameDetailsHero({
     developers,
     libraryEntry,
     isLibraryLoading,
+    isLibraryError,
+    isLibraryFetching,
+    onRetryLibrary,
     onBack
 }: GameDetailsHeroProps) {
     return (
@@ -182,6 +188,9 @@ export function GameDetailsHero({
                                 game={game}
                                 libraryEntry={libraryEntry}
                                 isLibraryLoading={isLibraryLoading}
+                                isLibraryError={isLibraryError}
+                                isLibraryFetching={isLibraryFetching}
+                                onRetryLibrary={onRetryLibrary}
                             />
                         </div>
                     </div>

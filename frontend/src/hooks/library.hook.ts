@@ -16,9 +16,15 @@ export function useAddGameToLibrary() {
         mutationFn: addGameToLibrary,
 
         onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ["library"]
-            });
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: ["library"]
+                }),
+
+                queryClient.invalidateQueries({
+                    queryKey: ["dashboard"]
+                })
+            ]);
         }
     });
 }

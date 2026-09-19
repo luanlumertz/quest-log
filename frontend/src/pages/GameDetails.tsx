@@ -11,7 +11,13 @@ export function GameDetails() {
     const navigate = useNavigate();
 
     const { data, isLoading, isError, error } = useGameDetails(externalId);
-    const { data: library = [], isLoading: isLibraryLoading } = useLibrary();
+    const {
+        data: library,
+        isLoading: isLibraryLoading,
+        isError: isLibraryError,
+        isFetching: isLibraryFetching,
+        refetch: refetchLibrary
+    } = useLibrary();
 
     if (isLoading) {
         return (
@@ -43,7 +49,9 @@ export function GameDetails() {
         );
     }
 
-    const libraryEntry = library.find((entry) => entry.game.externalId === data.externalId);
+    const libraryEntry = library?.find(
+        (entry) => entry.game.externalId === data.externalId
+    );
 
     const releaseYear = data.releaseDate
         ? data.releaseDate.slice(0, 4)
@@ -64,6 +72,9 @@ export function GameDetails() {
                 developers={developers}
                 libraryEntry={libraryEntry}
                 isLibraryLoading={isLibraryLoading}
+                isLibraryError={isLibraryError}
+                isLibraryFetching={isLibraryFetching}
+                onRetryLibrary={() => refetchLibrary()}
                 onBack={() => navigate(-1)}
             />
 

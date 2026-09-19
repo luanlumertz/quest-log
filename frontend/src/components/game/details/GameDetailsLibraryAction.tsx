@@ -11,11 +11,20 @@ type GameDetailsLibraryActionProps = {
     game: GameDetailsResult;
     libraryEntry?: LibraryEntry;
     isLibraryLoading: boolean;
+    isLibraryError: boolean;
+    isLibraryFetching: boolean;
+    onRetryLibrary: () => void;
 };
 
-export function GameDetailsLibraryAction({ game, libraryEntry, isLibraryLoading }: GameDetailsLibraryActionProps) {
-    const [isModalOpen, setIsModalOpen] =
-        useState(false);
+export function GameDetailsLibraryAction({
+    game,
+    libraryEntry,
+    isLibraryLoading,
+    isLibraryError,
+    isLibraryFetching,
+    onRetryLibrary
+}: GameDetailsLibraryActionProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     if (isLibraryLoading) {
         return (
@@ -28,6 +37,32 @@ export function GameDetailsLibraryAction({ game, libraryEntry, isLibraryLoading 
                 "
             >
                 Verificando biblioteca...
+            </div>
+        );
+    }
+
+    if (isLibraryError) {
+        return (
+            <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm text-danger">
+                    Não foi possível verificar sua biblioteca.
+                </span>
+
+                <button
+                    type="button"
+                    onClick={onRetryLibrary}
+                    disabled={isLibraryFetching}
+                    className="
+                    rounded-lg border border-divider-bright
+                    px-3 py-2
+                    text-sm font-medium text-ink
+                    transition-colors cursor-pointer
+                    hover:bg-surface-hover
+                    disabled:cursor-not-allowed disabled:opacity-50
+                "
+                >
+                    {isLibraryFetching ? "Tentando..." : "Tentar novamente"}
+                </button>
             </div>
         );
     }
