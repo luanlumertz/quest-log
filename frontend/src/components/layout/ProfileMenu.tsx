@@ -65,7 +65,7 @@ export function ProfileMenu() {
                     className={`
                         -m-1 shrink-0
                         text-2xl text-ink-mute
-                        transition-all
+                        transition-transform duration-200
                         ${isProfileOpen ? "rotate-180" : ""}
                     `}
                 >

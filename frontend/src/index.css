@@ -58,3 +58,12 @@ body,
 *::-webkit-scrollbar-thumb:hover {
   background: #2a3047;
 }
+
+img,
+a {
+    -webkit-user-drag: none;
+}
+
+img {
+    user-select: none;
+}

@@ -30,3 +30,6 @@ pnpm-debug.log*
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Pacotes
+*.zip

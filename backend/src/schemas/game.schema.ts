@@ -12,4 +12,5 @@ export const getRawgGameSchema = z.object({
         .coerce
         .number({ error: "Deve ser informado um id válido" })
         .int({ error: "O id deve ser um número inteiro" })
+        .positive({ error: "O id deve ser um numéro positivo" })
 });

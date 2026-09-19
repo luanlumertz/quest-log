@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import type { GameSearchResult } from "../../types/game.types";
+import type { GameSearchResult } from "../../../types/game.types";
 
 type SearchGameCardProps = {
     game: GameSearchResult;
@@ -7,9 +7,7 @@ type SearchGameCardProps = {
 };
 
 export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
-    const releaseYear = game.releaseDate
-        ? game.releaseDate.slice(0, 4)
-        : null;
+    const releaseYear = game.releaseDate ? game.releaseDate.slice(0, 4) : null;
 
     return (
         <Link
@@ -54,6 +52,7 @@ export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
 
             <div className="p-3">
                 <h2
+                    title={game.title}
                     className="
                         line-clamp-1
                         font-display

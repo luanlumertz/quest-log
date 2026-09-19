@@ -1,4 +1,4 @@
-import type { GameSearchResult } from "../../types/game.types";
+import type { GameSearchResult } from "../../../types/game.types";
 import { SearchGameCard } from "./SearchGameCard";
 
 type SearchGamesResultsProps = {
