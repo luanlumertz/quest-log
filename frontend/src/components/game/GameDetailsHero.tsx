@@ -178,6 +178,7 @@ export function GameDetailsHero({
 
                         <div className="mt-5 flex flex-wrap items-center gap-3">
                             <GameDetailsLibraryAction
+                                game={game}
                                 libraryEntry={libraryEntry}
                                 isLibraryLoading={isLibraryLoading}
                             />

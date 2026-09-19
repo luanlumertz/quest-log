@@ -1,13 +1,22 @@
+import { useState } from "react";
 import { Link } from "react-router";
+
+import type { GameDetailsResult } from "../../types/game.types";
 import type { LibraryEntry } from "../../types/library.types";
+
 import { GameStatusBadge } from "../ui/GameStatusBadge";
+import { AddGameToLibraryModal } from "./add-game-modal/AddGameToLibraryModal";
 
 type GameDetailsLibraryActionProps = {
+    game: GameDetailsResult;
     libraryEntry?: LibraryEntry;
     isLibraryLoading: boolean;
 };
 
-export function GameDetailsLibraryAction({ libraryEntry, isLibraryLoading }: GameDetailsLibraryActionProps) {
+export function GameDetailsLibraryAction({ game, libraryEntry, isLibraryLoading }: GameDetailsLibraryActionProps) {
+    const [isModalOpen, setIsModalOpen] =
+        useState(false);
+
     if (isLibraryLoading) {
         return (
             <div
@@ -46,31 +55,42 @@ export function GameDetailsLibraryAction({ libraryEntry, isLibraryLoading }: Gam
                     Ver na minha biblioteca
                 </Link>
 
-                <GameStatusBadge status={libraryEntry.status} />
+                <GameStatusBadge
+                    status={libraryEntry.status}
+                />
             </>
         );
     }
 
     return (
-        <button
-            type="button"
-            className="
-                flex items-center gap-2
-                rounded-xl
-                bg-brand
-                px-5 py-3
-                text-sm font-semibold
-                text-white
-                transition-colors
-                hover:bg-brand-dim
-                cursor-pointer
-            "
-        >
-            <span className="material-symbols-rounded text-xl!">
-                library_add
-            </span>
+        <>
+            <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="
+                    flex items-center gap-2
+                    rounded-xl
+                    bg-brand
+                    px-5 py-3
+                    text-sm font-semibold
+                    text-white
+                    transition-colors
+                    hover:bg-brand-dim
+                    cursor-pointer
+                "
+            >
+                <span className="material-symbols-rounded text-xl!">
+                    library_add
+                </span>
 
-            Adicionar à biblioteca
-        </button>
+                Adicionar à biblioteca
+            </button>
+
+            <AddGameToLibraryModal
+                game={game}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
+        </>
     );
 }
