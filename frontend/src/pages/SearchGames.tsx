@@ -1,8 +1,8 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useSearchParams } from "react-router";
 import { useSearchGames } from "../hooks/game.hook";
-import { SearchGamesForm } from "../components/game/SearchGamesForm";
-import { SearchGamesResults } from "../components/game/SearchGamesResults";
+import { SearchGamesForm } from "../components/game/search/SearchGamesForm";
+import { SearchGamesResults } from "../components/game/search/SearchGamesResults";
 import { useLibrary } from "../hooks/library.hook";
 
 export function SearchGames() {

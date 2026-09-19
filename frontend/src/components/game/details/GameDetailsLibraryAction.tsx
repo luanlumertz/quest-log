@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router";
 
-import type { GameDetailsResult } from "../../types/game.types";
-import type { LibraryEntry } from "../../types/library.types";
+import type { GameDetailsResult } from "../../../types/game.types";
+import type { LibraryEntry } from "../../../types/library.types";
 
-import { GameStatusBadge } from "../ui/GameStatusBadge";
-import { AddGameToLibraryModal } from "./add-game-modal/AddGameToLibraryModal";
+import { GameStatusBadge } from "../../ui/GameStatusBadge";
+import { AddGameToLibraryModal } from "../add-game-modal/AddGameToLibraryModal";
 
 type GameDetailsLibraryActionProps = {
     game: GameDetailsResult;

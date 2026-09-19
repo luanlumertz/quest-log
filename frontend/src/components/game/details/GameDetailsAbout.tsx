@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { normalizeGameDescription } from "../../utils/normalizeGameDescription";
+import { normalizeGameDescription } from "../../../utils/normalizeGameDescription";
 
 type GameDetailsAboutProps = {
     description: string;
@@ -18,16 +18,28 @@ export function GameDetailsAbout({ description, releaseYear, developers }: GameD
     );
 
     useEffect(() => {
-        if (showFullDescription) return;
-
         const descriptionElement = descriptionRef.current;
 
         if (!descriptionElement) return;
 
         const checkOverflow = () => {
-            setDescriptionOverflows(
-                descriptionElement.scrollHeight > descriptionElement.clientHeight
-            );
+            const isExpanded = showFullDescription;
+
+            if (isExpanded) {
+                descriptionElement.classList.add("line-clamp-4");
+            }
+
+            const overflows = descriptionElement.scrollHeight > descriptionElement.clientHeight;
+
+            if (isExpanded) {
+                descriptionElement.classList.remove("line-clamp-4");
+            }
+
+            setDescriptionOverflows(overflows);
+
+            if (!overflows && isExpanded) {
+                setShowFullDescription(false);
+            }
         };
 
         checkOverflow();

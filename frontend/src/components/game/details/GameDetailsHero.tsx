@@ -1,6 +1,7 @@
-import type { GameDetailsResult } from "../../types/game.types";
-import type { LibraryEntry } from "../../types/library.types";
+import type { GameDetailsResult } from "../../../types/game.types";
+import type { LibraryEntry } from "../../../types/library.types";
 import { GameDetailsLibraryAction } from "./GameDetailsLibraryAction";
+
 
 type GameDetailsHeroProps = {
     game: GameDetailsResult;
