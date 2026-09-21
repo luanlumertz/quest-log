@@ -35,12 +35,3 @@ export type AddGameToLibraryData = {
     status: GameStatus;
     platforms: string[];
 };
-
-export type UpdateLibraryEntryData = {
-    status?: GameStatus;
-    rating?: number | null;
-    playtimeMinutes?: number;
-    startedAt?: string | null;
-    completedAt?: string | null;
-    platforms?: number[];
-};

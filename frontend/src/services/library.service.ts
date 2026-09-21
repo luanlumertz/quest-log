@@ -1,4 +1,5 @@
-import type { AddGameToLibraryData, LibraryEntry, LibraryFilters, LibraryResponse, UpdateLibraryEntryData } from "../types/library.types";
+import type { AddGameToLibraryData, LibraryEntry, LibraryFilters, LibraryResponse } from "../types/library.types";
+import type { UpdateLibraryEntryData } from "../schema/library.schema";
 import { apiRequest } from "./api";
 
 export async function getLibrary(filters?: LibraryFilters,): Promise<LibraryEntry[]> {

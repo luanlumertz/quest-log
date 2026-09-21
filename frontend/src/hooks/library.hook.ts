@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { LibraryFilters, UpdateLibraryEntryData } from "../types/library.types";
 import { addGameToLibrary, getLibrary, getLibraryEntry, updateLibraryEntry } from "../services/library.service";
+import type { LibraryFilters } from "../types/library.types";
+import type { UpdateLibraryEntryData } from "../schema/library.schema";
 
 export function useLibrary(filters?: LibraryFilters) {
     return useQuery({
