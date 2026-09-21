@@ -4,6 +4,7 @@ import { formatDate } from "../../utils/formatDate";
 import { formatPlayTime } from "../../utils/formatPlayTime";
 import { RatingStars } from "../ui/RatingStars";
 import { GameStatusBadge } from "../ui/GameStatusBadge";
+import { DEFAULT_GAME_COVER_URL } from "../../config/game.config";
 
 type RecentGameItemProps = {
     game: GameSummary;
@@ -26,7 +27,7 @@ export function RecentGameItem({
     return (
         <div className="flex items-center gap-4 py-4">
             <img
-                src={game.coverUrl ?? "/images/default-game-cover.png"}
+                src={game.coverUrl ?? DEFAULT_GAME_COVER_URL}
                 alt={`Capa de ${game.title}`}
                 className="h-15 w-11 shrink-0 rounded-lg object-cover"
             />
