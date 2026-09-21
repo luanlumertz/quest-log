@@ -42,5 +42,5 @@ export type UpdateLibraryEntryData = {
     playtimeMinutes?: number;
     startedAt?: string | null;
     completedAt?: string | null;
-    platformIds?: number[];
+    platforms?: number[];
 };

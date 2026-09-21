@@ -58,9 +58,14 @@ export function useUpdateLibraryEntry(gameIdParam?: string) {
         },
 
         onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ["library"]
-            });
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: ["library"]
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: ["dashboard"]
+                })
+            ]);
         }
     });
 }
