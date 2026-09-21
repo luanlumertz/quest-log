@@ -1,3 +1,4 @@
+import { DEFAULT_GAME_COVER_URL } from "../../config/game.config";
 import type { LibraryEntry } from "../../types/library.types";
 import { formatPlayTime } from "../../utils/formatPlayTime";
 import { GameStatusBadge } from "../ui/GameStatusBadge";
@@ -31,10 +32,7 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
         <article className="overflow-hidden rounded-[20px] border border-divider bg-surface transition-transform hover:-translate-y-1">
             <div className="relative h-45 overflow-hidden">
                 <img
-                    src={
-                        game.coverUrl ??
-                        "/images/default-game-cover.png"
-                    }
+                    src={game.coverUrl ?? DEFAULT_GAME_COVER_URL}
                     alt={`Capa de ${game.title}`}
                     className="absolute inset-0 size-full object-cover"
                 />

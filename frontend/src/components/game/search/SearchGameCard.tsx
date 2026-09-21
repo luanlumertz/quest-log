@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import type { GameSearchResult } from "../../../types/game.types";
+import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
 
 type SearchGameCardProps = {
     game: GameSearchResult;
@@ -39,7 +40,7 @@ export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
                 )}
 
                 <img
-                    src={game.coverUrl ?? "/images/default-game-cover.png"}
+                    src={game.coverUrl ?? DEFAULT_GAME_COVER_URL}
                     alt={`Capa de ${game.title}`}
                     className="
                         size-full object-cover

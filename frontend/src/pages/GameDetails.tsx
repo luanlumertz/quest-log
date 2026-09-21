@@ -5,6 +5,7 @@ import { useLibrary } from "../hooks/library.hook";
 
 import { GameDetailsHero } from "../components/game/details/GameDetailsHero";
 import { GameDetailsAbout } from "../components/game/details/GameDetailsAbout";
+import { DEFAULT_GAME_COVER_URL } from "../config/game.config";
 
 export function GameDetails() {
     const { externalId } = useParams();
@@ -61,7 +62,7 @@ export function GameDetails() {
         ? data.developers.join(", ")
         : "Não informado";
 
-    const coverUrl = data.coverUrl ?? "/images/default-game-cover.png";
+    const coverUrl = data.coverUrl ?? DEFAULT_GAME_COVER_URL;
 
     return (
         <div>

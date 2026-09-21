@@ -32,9 +32,8 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
                     type="search"
                     aria-label="Pesquisar jogos"
                     value={inputValue}
-                    onChange={(event) =>
-                        onInputChange(event.target.value)
-                    }
+                    onChange={(event) => onInputChange(event.target.value)}
+                    spellCheck={false}
                     placeholder="Digite o nome de um jogo..."
                     className="
                         w-full rounded-2xl
