@@ -1,10 +1,10 @@
 import { Link } from "react-router";
 
-import type { LibraryEntry } from "../../types/library.types";
-import { formatPlayTime } from "../../utils/formatPlayTime";
-import { GameStatusBadge } from "../ui/GameStatusBadge";
+import type { LibraryEntry } from "../../../types/library.types";
+import { formatPlayTime } from "../../../utils/formatPlayTime";
+import { GameStatusBadge } from "../../ui/GameStatusBadge";
 import { PlatformBadges } from "./PlatformBadges";
-import { DEFAULT_GAME_COVER_URL } from "../../config/game.config";
+import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
 
 type LibraryGameCardProps = {
     entry: LibraryEntry;
@@ -29,27 +29,36 @@ export function LibraryGameCard({ entry }: LibraryGameCardProps) {
             "
         >
             <div className="relative aspect-3/4 overflow-hidden">
-                <img
-                    src={coverUrl}
-                    alt={`Capa de ${game.title}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="
-                            size-full object-cover
-                            transition-transform duration-300
-                            group-hover:scale-105
-                        "
-                />
-
                 <div
                     className="
+                        absolute inset-0
+                        transition-transform
+                        duration-300
+                        group-hover:scale-105
+                    "
+                >
+                    <img
+                        src={coverUrl}
+                        alt={`Capa de ${game.title}`}
+                        loading="lazy"
+                        decoding="async"
+                        className="
+                            block
+                            size-full
+                            object-cover
+                        "
+                    />
+
+                    <div
+                        className="
                             absolute inset-0
                             bg-linear-to-t
-                            from-backdrop/90
+                          from-backdrop/90
                             via-transparent
-                            to-black/20
+                          to-black/20
                         "
-                />
+                    />
+                </div>
 
                 <div className="absolute left-2 top-2">
                     <GameStatusBadge
