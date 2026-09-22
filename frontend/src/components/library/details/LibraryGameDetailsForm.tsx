@@ -12,10 +12,18 @@ import { useLibraryGameDetailsForm } from "./useLibraryGameDetailsForm";
 type LibraryGameDetailsFormProps = {
     entry: LibraryEntryDetails;
     isSaving: boolean;
+    isDeleting: boolean;
     onSave: (data: UpdateLibraryEntryData) => Promise<LibraryEntry>;
+    onRemove: () => void;
 };
 
-export function LibraryGameDetailsForm({ entry, isSaving, onSave }: LibraryGameDetailsFormProps) {
+export function LibraryGameDetailsForm({
+    entry,
+    isSaving,
+    isDeleting,
+    onSave,
+    onRemove
+}: LibraryGameDetailsFormProps) {
     const {
         status,
         rating,
@@ -131,9 +139,11 @@ export function LibraryGameDetailsForm({ entry, isSaving, onSave }: LibraryGameD
 
                 <LibraryGameDetailsFormActions
                     isSaving={isSaving}
+                    isDeleting={isDeleting}
                     isDirty={isDirty}
                     isSaved={isSaved}
                     onDiscardChanges={handleDiscardChanges}
+                    onRemove={onRemove}
                 />
             </form>
 

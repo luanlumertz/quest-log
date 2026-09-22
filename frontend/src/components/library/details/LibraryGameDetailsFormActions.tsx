@@ -1,15 +1,19 @@
 type LibraryGameDetailsFormActionsProps = {
     isSaving: boolean;
+    isDeleting: boolean;
     isDirty: boolean;
     isSaved: boolean;
     onDiscardChanges: () => void;
+    onRemove: () => void;
 };
 
 export function LibraryGameDetailsFormActions({
     isSaving,
+    isDeleting,
     isDirty,
     isSaved,
-    onDiscardChanges
+    onDiscardChanges,
+    onRemove
 }: LibraryGameDetailsFormActionsProps) {
     return (
         <div className="mt-7 border-t border-divider pt-5">
@@ -79,26 +83,31 @@ export function LibraryGameDetailsFormActions({
 
                 <button
                     type="button"
-                    disabled
+                    disabled={isSaving || isDeleting}
+                    onClick={onRemove}
                     className="
                         flex min-h-11
+                        cursor-pointer
                         items-center gap-2
                         rounded-xl
                         border
-                        border-divider-bright
+                      border-divider-bright
                         px-4
                         text-sm
                         font-medium
-                        text-ink-mute
-                        opacity-50
-                        cursor-not-allowed
+                       text-ink-mute
+                        transition-colors
+                       hover:border-danger/50
+                       hover:text-danger
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                     "
                 >
                     <span className="material-symbols-rounded text-lg!">
                         delete
                     </span>
 
-                    Remover
+                    {isDeleting ? "Removendo..." : "Remover"}
                 </button>
             </div>
         </div>
