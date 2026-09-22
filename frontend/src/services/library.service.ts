@@ -47,3 +47,9 @@ export async function updateLibraryEntry(gameId: number, data: UpdateLibraryEntr
 
     return result.updatedLibraryEntry;
 }
+
+export async function deleteLibraryEntry(gameId: number): Promise<void> {
+    await apiRequest(`/library/${gameId}`, {
+        method: "DELETE"
+    })
+}

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addGameToLibrary, getLibrary, getLibraryEntry, updateLibraryEntry } from "../services/library.service";
+import { addGameToLibrary, deleteLibraryEntry, getLibrary, getLibraryEntry, updateLibraryEntry } from "../services/library.service";
 import type { LibraryFilters } from "../types/library.types";
 import type { UpdateLibraryEntryData } from "../schema/library.schema";
 
@@ -56,6 +56,35 @@ export function useUpdateLibraryEntry(gameIdParam?: string) {
             }
 
             return updateLibraryEntry(gameId, data);
+        },
+
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: ["library"]
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: ["dashboard"]
+                })
+            ]);
+        }
+    });
+}
+
+export function useDeleteLibraryEntry(gameIdParam?: string) {
+    const queryClient = useQueryClient();
+
+    const gameId = Number(gameIdParam);
+
+    const isValidGameId = Number.isInteger(gameId) && gameId > 0;
+
+    return useMutation({
+        mutationFn: () => {
+            if (!isValidGameId) {
+                throw new Error("ID do jogo inválido");
+            }
+
+            return deleteLibraryEntry(gameId);
         },
 
         onSuccess: async () => {
