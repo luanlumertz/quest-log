@@ -7,10 +7,10 @@ import { useLibrary } from "../hooks/library.hook";
 import type { GameStatus } from "../types/game.types";
 import type { LibraryEntry } from "../types/library.types";
 
-import { LibraryEmptyState } from "../components/library/LibraryEmptyState";
-import { LibraryFilters } from "../components/library/LibraryFilters";
-import { LibraryGrid } from "../components/library/LibraryGrid";
-import { LibraryNoResults } from "../components/library/LibraryNoResults";
+import { LibraryEmptyState } from "../components/library/list/LibraryEmptyState";
+import { LibraryGrid } from "../components/library/list/LibraryGrid";
+import { LibraryNoResults } from "../components/library/list/LibraryNoResults";
+import { LibraryFilters } from "../components/library/list/LibraryFilters";
 
 function isGameStatus(value: string | null): value is GameStatus {
     return (

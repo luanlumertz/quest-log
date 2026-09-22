@@ -1,4 +1,5 @@
-import type { AddGameToLibraryData, LibraryEntry, LibraryFilters, LibraryResponse } from "../types/library.types";
+import type { AddGameToLibraryData, LibraryEntry, LibraryEntryDetails, LibraryFilters, LibraryResponse } from "../types/library.types";
+import type { UpdateLibraryEntryData } from "../schema/library.schema";
 import { apiRequest } from "./api";
 
 export async function getLibrary(filters?: LibraryFilters,): Promise<LibraryEntry[]> {
@@ -14,9 +15,7 @@ export async function getLibrary(filters?: LibraryFilters,): Promise<LibraryEntr
 
     const query = params.toString();
 
-    const response = await apiRequest(
-        `/library${query ? `?${query}` : ""}`,
-    );
+    const response = await apiRequest(`/library${query ? `?${query}` : ""}`);
 
     const data: LibraryResponse = await response.json();
 
@@ -28,4 +27,29 @@ export async function addGameToLibrary(data: AddGameToLibraryData): Promise<void
         method: "POST",
         body: JSON.stringify(data)
     });
+}
+
+export async function getLibraryEntry(gameId: number): Promise<LibraryEntryDetails> {
+    const response = await apiRequest(`/library/${gameId}`);
+
+    const data: { libraryEntry: LibraryEntryDetails; } = await response.json();
+
+    return data.libraryEntry;
+}
+
+export async function updateLibraryEntry(gameId: number, data: UpdateLibraryEntryData): Promise<LibraryEntry> {
+    const response = await apiRequest(`/library/${gameId}`, {
+        method: "PATCH",
+        body: JSON.stringify(data)
+    });
+
+    const result: { updatedLibraryEntry: LibraryEntry; } = await response.json();
+
+    return result.updatedLibraryEntry;
+}
+
+export async function deleteLibraryEntry(gameId: number): Promise<void> {
+    await apiRequest(`/library/${gameId}`, {
+        method: "DELETE"
+    })
 }

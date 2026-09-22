@@ -1,4 +1,4 @@
-import type { LibraryEntry } from "../../types/library.types";
+import type { LibraryEntry } from "../../../types/library.types";
 import { LibraryGameCard } from "./LibraryGameCard";
 
 type LibraryGridProps = {

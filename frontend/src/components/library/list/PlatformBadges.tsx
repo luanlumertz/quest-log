@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import type { LibraryEntry } from "../../types/library.types";
+import type { LibraryEntry } from "../../../types/library.types";
 
 type Platform = LibraryEntry["platforms"][number];
 

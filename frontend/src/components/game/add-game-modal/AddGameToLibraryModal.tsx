@@ -6,7 +6,7 @@ import { addGameToLibraryFormSchema, type AddGameToLibraryFormData } from "../..
 import { useAddGameToLibrary } from "../../../hooks/library.hook";
 import type { GameDetailsResult } from "../../../types/game.types";
 import { AddGameModalHeader } from "./AddGameModalHeader";
-import { GameStatusSelector } from "./GameStatusSelector";
+import { GameStatusSelector } from "../../ui/GameStatusSelector";
 import { GamePlatformSelector } from "./GamePlatformSelector";
 
 type AddGameToLibraryModalProps = {

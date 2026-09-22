@@ -1,5 +1,6 @@
-import type { GameStatus } from "../../types/game.types";
-import { GAME_STATUS_CONFIG } from "../../config/gameStatus.config";
+import { GAME_STATUS_CONFIG } from "../../../config/gameStatus.config";
+import type { GameStatus } from "../../../types/game.types";
+
 
 type LibraryCounts = {
     all: number;
