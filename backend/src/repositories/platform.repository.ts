@@ -26,6 +26,10 @@ export function findPlatformsByGameId(gameId: number) {
                     gameId
                 }
             }
+        },
+        select: {
+            id: true,
+            name: true
         }
-    })
+    });
 }

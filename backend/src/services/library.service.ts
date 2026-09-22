@@ -5,6 +5,7 @@ import { runInTransaction } from "../repositories/transaction.repository.js";
 import { applyLibraryEntryStatusRules, formatLibraryEntry, getInitialDates, validateLibraryEntryDates } from "./library.helpers.js";
 import { getOrCreateGame } from "./library-game.service.js";
 import { validateLibraryEntryPlatformIds, validateSelectedPlatforms } from "./library-platform.service.js";
+import { findPlatformsByGameId } from "../repositories/platform.repository.js";
 
 async function findLibraryEntryOrThrow(userId: number, gameId: number) {
     const libraryEntry = await findLibraryEntryByUserAndGameId(userId, gameId);
@@ -52,7 +53,7 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
 
         return createdLibraryEntry;
     });
-    
+
     return { ...libraryEntry, platforms: data.platforms };
 }
 
@@ -63,7 +64,13 @@ export async function getLibraryEntries(userId: number, libraryQuery: LibraryQue
 
 export async function getLibraryEntryDetails(userId: number, gameId: number) {
     const libraryDetails = await findLibraryEntryOrThrow(userId, gameId);
-    return formatLibraryEntry(libraryDetails);
+
+    const availablePlatforms = await findPlatformsByGameId(gameId);
+
+    return {
+        ...formatLibraryEntry(libraryDetails),
+        availablePlatforms
+    };
 }
 
 export async function updateLibraryEntry(userId: number, gameId: number, data: UpdateLibraryEntryServiceData) {
