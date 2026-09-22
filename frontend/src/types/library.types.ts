@@ -26,6 +26,10 @@ export type LibraryEntry = {
     game: LibraryGame;
 };
 
+export type LibraryEntryDetails = LibraryEntry & {
+    availablePlatforms: Platform[];
+};
+
 export type LibraryResponse = {
     libraryEntries: LibraryEntry[];
 };

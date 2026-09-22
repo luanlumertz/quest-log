@@ -1,4 +1,4 @@
-import type { AddGameToLibraryData, LibraryEntry, LibraryFilters, LibraryResponse } from "../types/library.types";
+import type { AddGameToLibraryData, LibraryEntry, LibraryEntryDetails, LibraryFilters, LibraryResponse } from "../types/library.types";
 import type { UpdateLibraryEntryData } from "../schema/library.schema";
 import { apiRequest } from "./api";
 
@@ -29,10 +29,10 @@ export async function addGameToLibrary(data: AddGameToLibraryData): Promise<void
     });
 }
 
-export async function getLibraryEntry(gameId: number): Promise<LibraryEntry> {
+export async function getLibraryEntry(gameId: number): Promise<LibraryEntryDetails> {
     const response = await apiRequest(`/library/${gameId}`);
 
-    const data: { libraryEntry: LibraryEntry } = await response.json();
+    const data: { libraryEntry: LibraryEntryDetails; } = await response.json();
 
     return data.libraryEntry;
 }
