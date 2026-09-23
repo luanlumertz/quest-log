@@ -1,4 +1,4 @@
-import type { LoginData, RegisterData } from "../schema/auth.schema";
+import type { LoginData, RegisterData, UpdateData } from "../schema/auth.schema";
 import type { AuthResponse, User } from "../types/auth.types";
 import { apiRequest } from "./api";
 
@@ -32,6 +32,12 @@ export async function register(data: RegisterData): Promise<User> {
     return result.user;
 }
 
+export async function logout() {
+    await apiRequest("/auth/logout", {
+        method: "POST"
+    })
+}
+
 export async function getCurrentUser(): Promise<User> {
     const response = await apiRequest("/auth/me")
 
@@ -40,8 +46,21 @@ export async function getCurrentUser(): Promise<User> {
     return result.user;
 }
 
-export async function logout() {
-    await apiRequest("/auth/logout", {
-        method: "POST"
+export async function updateCurrentUser(data: UpdateData): Promise<User> {
+    const response = await apiRequest("/auth/me", {
+        method: "PATCH",
+        body: JSON.stringify({
+            name: data.name
+        })
+    });
+
+    const result: AuthResponse = await response.json();
+
+    return result.user;
+}
+
+export async function deleteCurrentUser(): Promise<void> {
+    await apiRequest("/auth/me", {
+        method: "DELETE"
     })
 }

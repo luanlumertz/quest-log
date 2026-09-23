@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types/auth.types";
 import { getCurrentUser, logout } from "../services/auth.service";
+import { useQueryClient } from "@tanstack/react-query";
 
 type AuthContextType = {
     user: User | null;
@@ -18,6 +19,7 @@ type Props = {
 export const AuthProvider = ({ children }: Props) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         async function loadCurrentUser() {
@@ -36,7 +38,9 @@ export const AuthProvider = ({ children }: Props) => {
     }, [])
 
     async function signOut() {
-        await logout()
+        await logout();
+
+        queryClient.clear();
         setUser(null);
     }
 
