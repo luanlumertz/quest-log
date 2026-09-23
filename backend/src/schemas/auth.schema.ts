@@ -57,10 +57,14 @@ export const loginUserSchema = z
 
 export const updateUserSchema = z
   .object({
-    name: z
-      .string()
-      .trim()
-      .min(2, { error: "Nome deve ter pelo menos 2 caracteres" })
-      .max(64, { error: "Nome muito grande. Máximo: 64 caracteres" }),
-  })
-  .strict()
+        name: z
+            .string()
+            .trim()
+            .transform((name) => name.replace(/\s+/g, " "))
+            .pipe(
+                z.string()
+                    .min(2, "Nome deve ter pelo menos 2 caracteres")
+                    .max(64, "Nome muito grande. Máximo: 64 caracteres")
+            )
+    })
+    .strict();

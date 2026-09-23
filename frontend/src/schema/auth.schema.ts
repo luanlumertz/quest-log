@@ -55,5 +55,20 @@ export const loginSchema = z
             .max(70, { error: "Senha inválida" })
     })
 
+export const updateSchema = z
+    .object({
+        name: z
+            .string()
+            .trim()
+            .transform((name) => name.replace(/\s+/g, " "))
+            .pipe(
+                z.string()
+                    .min(2, "Nome deve ter pelo menos 2 caracteres")
+                    .max(64, "Nome muito grande. Máximo: 64 caracteres")
+            )
+    })
+    .strict();
+
 export type RegisterData = z.infer<typeof registerSchema>
 export type LoginData = z.infer<typeof loginSchema>;
+export type UpdateData = z.infer<typeof updateSchema>
