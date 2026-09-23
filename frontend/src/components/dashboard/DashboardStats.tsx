@@ -18,6 +18,7 @@ export function DashboardStats({
             <StatCard
                 label="Total de jogos"
                 content={totalGames}
+                to="/library"
             />
 
             {GAME_STATUS_ENTRIES.map(([status, config]) => (
@@ -26,12 +27,14 @@ export function DashboardStats({
                     label={config.label}
                     content={byStatus?.[status] ?? 0}
                     color={config.color}
+                    to={`/library?status=${status}`}
                 />
             ))}
 
             <StatCard
                 label="Tempo jogado"
                 content={totalPlaytime}
+                fontSize="text-[22px]"
             />
         </div>
     );
