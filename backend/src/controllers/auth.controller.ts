@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { loginUser, registerUser, getCurrentUser, updateUser, deleteUser } from "../services/auth.service.js"
-import { ACCESS_TOKEN_EXPIRES_IN_MS, REFRESH_TOKEN_EXPIRES_IN_MS } from "../constants/auth.js";
+import { clearAccessTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from "../lib/authCookies.js";
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -15,31 +15,14 @@ export async function loginUserController(req: Request, res: Response) {
 
     const result = await loginUser(data);
 
-    res.cookie("accessToken", result.accessToken, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: ACCESS_TOKEN_EXPIRES_IN_MS,
-        path: "/"
-    })
-
-    res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: REFRESH_TOKEN_EXPIRES_IN_MS,
-        path: "/auth"
-    })
+    setAccessTokenCookie(res, result.accessToken);
+    setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(200).json({ user: result.user });
 }
 
 export function logoutUserController(req: Request, res: Response) {
-    res.clearCookie("accessToken", {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
-    })
+    clearAccessTokenCookie(res);
 
     return res.status(204).send()
 }
@@ -66,11 +49,7 @@ export async function deleteUserController(req: Request, res: Response) {
 
     await deleteUser(userId);
 
-    res.clearCookie("accessToken", {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
-    })
+    clearAccessTokenCookie(res);
 
     return res.status(204).send()
 }
