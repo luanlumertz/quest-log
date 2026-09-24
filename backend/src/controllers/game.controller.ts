@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { AppError } from "../errors/AppError.js";
 import { getRawgGame, searchGame } from "../services/game.service.js";
 
 export async function searchGameController(req: Request, res: Response) {

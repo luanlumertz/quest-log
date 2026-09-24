@@ -22,7 +22,7 @@ export function RecentGames({ games }: RecentGamesProps) {
                 </Link>
             </div>
 
-            <div className="px-5">
+            <div className="px-5 py-3.5">
                 {games.length === 0 ? (
                     <div className="py-10 text-center">
                         <p className="text-sm text-ink-mute">

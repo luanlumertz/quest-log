@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { DEFAULT_GAME_COVER_URL } from "../../config/game.config";
 import type { LibraryEntry } from "../../types/library.types";
 import { formatPlayTime } from "../../utils/formatPlayTime";
@@ -21,38 +22,66 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
         ? new Date(game.releaseDate).getFullYear()
         : null;
 
+    const visiblePlatforms = platforms.slice(0, 3);
+    const remainingPlatforms = platforms.length - visiblePlatforms.length;
+
     const metadata = [
         releaseYear,
-        ...platforms.map((platform) => platform.name),
+        ...visiblePlatforms.map((platform) => platform.name),
+        remainingPlatforms > 0 ? `+${remainingPlatforms}` : null,
     ]
         .filter(Boolean)
         .join(" · ");
 
     return (
-        <article className="overflow-hidden rounded-[20px] border border-divider bg-surface transition-transform hover:-translate-y-1">
+        <Link
+            to={`/library/${game.id}`}
+            className="
+            group block overflow-hidden
+            rounded-[20px]
+            border border-divider
+            bg-surface
+            transition-transform
+            hover:-translate-y-1
+            focus-visible:outline-2
+            focus-visible:outline-brand
+        "
+        >
             <div className="relative h-45 overflow-hidden">
-                <img
-                    src={game.coverUrl ?? DEFAULT_GAME_COVER_URL}
-                    alt={`Capa de ${game.title}`}
-                    className="absolute inset-0 size-full object-cover"
-                />
+                <div
+                    className="
+                    absolute inset-0
+                    transition-transform duration-300
+                    group-hover:scale-105
+                "
+                >
+                    <img
+                        src={game.coverUrl ?? DEFAULT_GAME_COVER_URL}
+                        alt={`Capa de ${game.title}`}
+                        className="absolute inset-0 size-full object-cover"
+                    />
 
-                <div className="absolute inset-0 bg-linear-to-t from-[#0D0F17] via-[#0D0F17]/45 to-black/20" />
+                    <div className="absolute inset-0 bg-linear-to-t from-[#0D0F17] via-[#0D0F17]/45 to-black/20" />
+                </div>
 
                 <div className="absolute right-4 top-4">
-                    <GameStatusBadge status={status} />
+                    <GameStatusBadge
+                        status={status}
+                        backgroundOpacity="99"
+                        textColor="white"
+                    />
                 </div>
 
                 <div className="absolute inset-x-5 bottom-5">
-                    {metadata && (
-                        <p className="mb-2 text-xs uppercase tracking-[0.14em] text-ink-mute">
-                            {metadata}
-                        </p>
-                    )}
-
                     <h3 className="line-clamp-2 font-display text-lg font-bold text-ink">
                         {game.title}
                     </h3>
+
+                    {metadata && (
+                        <p className="mt-1.5 truncate text-xs text-ink-dim">
+                            {metadata}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -75,6 +104,6 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
                     </span>
                 )}
             </div>
-        </article>
+        </Link>
     );
 }

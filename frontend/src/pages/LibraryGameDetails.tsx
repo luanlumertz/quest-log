@@ -106,8 +106,23 @@ export function LibraryGameDetails() {
 
     const releaseYear = entry.game.releaseDate ? entry.game.releaseDate.slice(0, 4) : null;
 
-    const developers = isGameDetailsLoading ? "Carregando..." : gameDetails?.developers.length
-        ? gameDetails.developers.join(", ") : "Não informado";
+    const developers = isGameDetailsLoading
+        ? "Carregando..."
+        : gameDetails?.developers.length
+            ? gameDetails.developers.join(", ")
+            : "Não informado";
+
+    const genres = isGameDetailsLoading
+        ? "Carregando..."
+        : gameDetails?.genres.length
+            ? gameDetails.genres.join(", ")
+            : "Não informado";
+
+    const publishers = isGameDetailsLoading
+        ? "Carregando..."
+        : gameDetails?.publishers.length
+            ? gameDetails.publishers.join(", ")
+            : "Não informado";
 
     function handleRemove() {
         resetDelete();
@@ -165,6 +180,8 @@ export function LibraryGameDetails() {
                     <LibraryGameSummary
                         entry={entry}
                         developers={developers}
+                        genres={genres}
+                        publishers={publishers}
                     />
 
                     <section className="min-w-0">

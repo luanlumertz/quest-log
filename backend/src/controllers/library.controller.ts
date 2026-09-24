@@ -5,7 +5,6 @@ import type { GameIdParams } from "../schemas/library.schema.js";
 
 export async function addGameToLibraryEntryController(req: Request, res: Response) {
     const body = req.body
-    
     const userId = req.userId
 
     const data: AddGameToLibraryServiceData = {
