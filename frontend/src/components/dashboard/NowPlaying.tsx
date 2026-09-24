@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { GAME_STATUS_CONFIG } from "../../config/gameStatus.config";
 import type { LibraryEntry } from "../../types/library.types";
 import { NowPlayingCard } from "./NowPlayingCard";
@@ -42,9 +43,18 @@ export function NowPlaying({ games }: NowPlayingProps) {
                 </div>
 
                 {games.length > 3 && (
-                    <span className="text-sm text-ink-mute">
+                    <Link
+                        to="/library?status=PLAYING"
+                        className="
+                            text-sm
+                          text-ink-mute
+                            transition-colors
+                          hover:text-ink
+                            hover:underline
+                        "
+                    >
                         Mostrando 3 de {games.length}
-                    </span>
+                    </Link>
                 )}
             </div>
 
