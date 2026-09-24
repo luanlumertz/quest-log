@@ -73,50 +73,63 @@ export function ProfileMenu() {
                 </span>
             </button>
 
-            {isProfileOpen && (
-                <div
+            <div
+                className={`
+                    absolute right-0 top-[calc(100%+8px)]
+                    z-50
+                    w-47.5
+                    overflow-hidden
+                    rounded-xl
+                    border border-divider
+                  bg-surface-raised
+                    origin-top-right
+                    transition-all duration-200 ease-out
+                    ${isProfileOpen
+                        ? "visible translate-y-0 scale-100 opacity-100"
+                        : "invisible -translate-y-1 scale-95 opacity-0"
+                    }
+                `}
+            >
+                <Link
+                    to="/profile"
+                    onClick={() => setIsProfileOpen(false)}
                     className="
-                        absolute right-0 top-[calc(100%+8px)]
-                        z-50
-                        w-47.5
-                        overflow-hidden
-                        rounded-xl
-                        border border-divider
-                        bg-surface-raised
+                        flex items-center gap-1.5
+                        border-b border-divider
+                        px-4 py-3
+                      text-ink-dim
+                        transition-colors
+                      hover:bg-surface-hover
+                      hover:text-ink
                     "
                 >
-                    <Link
-                        to="/profile"
-                        onClick={() => setIsProfileOpen(false)}
-                        className="
-                            block
-                            border-b border-divider
-                            px-5 py-3.5
-                            text-ink-dim
-                            transition-colors
-                            hover:bg-surface-hover
-                            hover:text-ink
-                        "
-                    >
-                        Perfil
-                    </Link>
+                    <span className="material-symbols-rounded">
+                        person
+                    </span>
 
-                    <button
-                        onClick={signOut}
-                        type="button"
-                        className="
-                            w-full
-                            px-5 py-3.5
-                            text-left text-danger
-                            transition-colors
-                            hover:bg-surface-hover
-                            cursor-pointer
-                        "
-                    >
-                        Sair
-                    </button>
-                </div>
-            )}
+                    <span>Perfil</span>
+                </Link>
+
+                <button
+                    onClick={signOut}
+                    type="button"
+                    className="
+                        flex w-full items-center gap-1.5
+                        px-4 py-3
+                        text-left text-danger
+                        transition-colors
+                      hover:bg-surface-hover
+                        cursor-pointer
+                    "
+                >
+                    <span className="material-symbols-rounded">
+                        logout
+                    </span>
+
+                    <span>Sair</span>
+                </button>
+            </div>
+
         </div>
     );
 }

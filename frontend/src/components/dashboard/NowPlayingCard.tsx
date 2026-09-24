@@ -65,7 +65,11 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
                 </div>
 
                 <div className="absolute right-4 top-4">
-                    <GameStatusBadge status={status} />
+                    <GameStatusBadge
+                        status={status}
+                        backgroundOpacity="99"
+                        textColor="white"
+                    />
                 </div>
 
                 <div className="absolute inset-x-5 bottom-5">
