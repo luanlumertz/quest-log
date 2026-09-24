@@ -10,7 +10,8 @@ export const addGameToLibrarySchema = z
     .object({
         externalId: z
             .number({ error: "O externalId deve ser um número" })
-            .int({ error: "O externalId deve ser um número inteiro" }),
+            .int({ error: "O externalId deve ser um número inteiro" })
+            .positive({ error: "O externalId deve ser um número positivo" }),
 
         status: z
             .enum(GameStatus, { error: "Status inválido" })
