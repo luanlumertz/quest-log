@@ -5,9 +5,16 @@ import { formatDate } from "../../../utils/formatDate";
 type LibraryGameSummaryProps = {
     entry: LibraryEntryDetails;
     developers: string;
+    genres: string;
+    publishers: string;
 };
 
-export function LibraryGameSummary({ entry, developers }: LibraryGameSummaryProps) {
+export function LibraryGameSummary({
+    entry,
+    developers,
+    genres,
+    publishers
+}: LibraryGameSummaryProps) {
     const coverUrl = entry.game.coverUrl ?? DEFAULT_GAME_COVER_URL;
 
     return (
@@ -58,7 +65,7 @@ export function LibraryGameSummary({ entry, developers }: LibraryGameSummaryProp
                         Desenvolvedor
                     </p>
 
-                    <p className="mt-1 text-sm sm:text-base lg:text-sm text-ink-dim wrap-anywhere">
+                    <p className="mt-1 wrap-anywhere text-sm text-ink-dim sm:text-base lg:text-sm">
                         {developers}
                     </p>
                 </div>
@@ -71,12 +78,48 @@ export function LibraryGameSummary({ entry, developers }: LibraryGameSummaryProp
                           text-ink-mute
                             sm:text-xs
                             lg:text-[10px]
-                    "
+                        "
+                    >
+                        Gêneros
+                    </p>
+
+                    <p className="mt-1 wrap-anywhere text-sm text-ink-dim sm:text-base lg:text-sm">
+                        {genres}
+                    </p>
+                </div>
+
+                <div>
+                    <p
+                        className="
+                            text-[10px] font-semibold
+                            uppercase tracking-widest
+                          text-ink-mute
+                            sm:text-xs
+                            lg:text-[10px]
+                        "
+                    >
+                        Publicadora
+                    </p>
+
+                    <p className="mt-1 wrap-anywhere text-sm text-ink-dim sm:text-base lg:text-sm">
+                        {publishers}
+                    </p>
+                </div>
+
+                <div>
+                    <p
+                        className="
+                            text-[10px] font-semibold
+                            uppercase tracking-widest
+                          text-ink-mute
+                            sm:text-xs
+                            lg:text-[10px]
+                        "
                     >
                         Adicionado em
                     </p>
 
-                    <p className="mt-1 text-sm sm:text-base lg:text-sm text-ink-dim">
+                    <p className="mt-1 text-sm text-ink-dim sm:text-base lg:text-sm">
                         {formatDate(entry.createdAt)}
                     </p>
                 </div>
