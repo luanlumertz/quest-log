@@ -1,4 +1,5 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
+import { ACCESS_TOKEN_EXPIRES_IN_SECONDS } from "../constants/auth.js";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -7,7 +8,7 @@ if (!JWT_SECRET) {
 };
 
 export function generateToken(userId: number) {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1h" });
+    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN_SECONDS });
 };
 
 export function verifyToken(token: string) {

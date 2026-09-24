@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { loginUser, registerUser, getCurrentUser, updateUser, deleteUser } from "../services/auth.service.js"
+import { ACCESS_TOKEN_EXPIRES_IN_MS, REFRESH_TOKEN_EXPIRES_IN_MS } from "../constants/auth.js";
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -14,11 +15,20 @@ export async function loginUserController(req: Request, res: Response) {
 
     const result = await loginUser(data);
 
-    res.cookie("accessToken", result.token, {
+    res.cookie("accessToken", result.accessToken, {
         httpOnly: true,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 1000
+        maxAge: ACCESS_TOKEN_EXPIRES_IN_MS,
+        path: "/"
+    })
+
+    res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: REFRESH_TOKEN_EXPIRES_IN_MS,
+        path: "/auth"
     })
 
     return res.status(200).json({ user: result.user });

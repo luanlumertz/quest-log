@@ -3,6 +3,7 @@ import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { AppError } from "../errors/AppError.js";
 import type { LoginUserData, RegisterUserData, UpdateUserData } from "../types/auth.types.js";
 import { generateToken } from "../lib/jwt.js";
+import { createRefreshSessionForUser } from "./refreshSession.service.js";
 
 export async function registerUser(data: RegisterUserData) {
     const existingUser = await findUserByEmail(data.email);
@@ -35,7 +36,9 @@ export async function loginUser(data: LoginUserData) {
         throw new AppError("Email ou senha inválidos", 401);
     }
 
-    const token = generateToken(user.id);
+    const accessToken = generateToken(user.id);
+
+    const refreshToken = await createRefreshSessionForUser(user.id);
 
     return {
         user: {
@@ -43,7 +46,8 @@ export async function loginUser(data: LoginUserData) {
             name: user.name,
             email: user.email,
         },
-        token
+        accessToken,
+        refreshToken
     };
 }
 
