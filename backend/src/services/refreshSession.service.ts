@@ -35,3 +35,15 @@ export async function refreshAccessToken(refreshToken?: string) {
 
     return generateToken(session.userId);
 }
+
+export async function revokeRefreshSession(refreshToken?: string) {
+    if (!refreshToken) return;
+
+    const tokenHash = hashRefreshToken(refreshToken);
+
+    const session = await findRefreshSessionByTokenHash(tokenHash);
+
+    if (!session) return;
+
+    await deleteRefreshSessionById(session.id);
+}

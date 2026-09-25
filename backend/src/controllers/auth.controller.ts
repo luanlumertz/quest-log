@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { loginUser, registerUser, getCurrentUser, updateUser, deleteUser } from "../services/auth.service.js"
-import { clearAccessTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from "../lib/authCookies.js";
-import { refreshAccessToken } from "../services/refreshSession.service.js";
+import { clearAccessTokenCookie, clearRefreshTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from "../lib/authCookies.js";
+import { refreshAccessToken, revokeRefreshSession } from "../services/refreshSession.service.js";
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -22,10 +22,15 @@ export async function loginUserController(req: Request, res: Response) {
     return res.status(200).json({ user: result.user });
 }
 
-export function logoutUserController(req: Request, res: Response) {
-    clearAccessTokenCookie(res);
+export async function logoutUserController(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken;
 
-    return res.status(204).send()
+    await revokeRefreshSession(refreshToken);
+
+    clearAccessTokenCookie(res);
+    clearRefreshTokenCookie(res);
+
+    return res.status(204).send();
 }
 
 export async function getCurrentUserController(req: Request, res: Response) {
@@ -51,6 +56,7 @@ export async function deleteUserController(req: Request, res: Response) {
     await deleteUser(userId);
 
     clearAccessTokenCookie(res);
+    clearRefreshTokenCookie(res);
 
     return res.status(204).send()
 }
