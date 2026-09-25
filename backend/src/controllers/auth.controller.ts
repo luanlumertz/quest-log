@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { loginUser, registerUser, getCurrentUser, updateUser, deleteUser } from "../services/auth.service.js"
 import { clearAccessTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from "../lib/authCookies.js";
+import { refreshAccessToken } from "../services/refreshSession.service.js";
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -50,6 +51,16 @@ export async function deleteUserController(req: Request, res: Response) {
     await deleteUser(userId);
 
     clearAccessTokenCookie(res);
+
+    return res.status(204).send()
+}
+
+export async function refreshTokenController(req: Request, res: Response){
+    const refreshToken = req.cookies.refreshToken
+
+    const result = await refreshAccessToken(refreshToken);
+
+    setAccessTokenCookie(res, result);
 
     return res.status(204).send()
 }

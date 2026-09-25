@@ -15,7 +15,11 @@ export async function createRefreshSessionForUser(userId: number) {
     return refreshToken;
 }
 
-export async function refreshAccessToken(refreshToken: string) {
+export async function refreshAccessToken(refreshToken?: string) {
+    if (!refreshToken) {
+        throw new AppError("Sessão inválida", 401);
+    }
+
     const tokenHash = hashRefreshToken(refreshToken);
 
     const session = await findRefreshSessionByTokenHash(tokenHash);
@@ -24,7 +28,7 @@ export async function refreshAccessToken(refreshToken: string) {
         throw new AppError("Sessão inválida", 401);
     }
 
-    if(session.expiresAt <= new Date()){
+    if (session.expiresAt <= new Date()) {
         await deleteRefreshSessionById(session.id);
         throw new AppError("Sessão inválida", 401);
     }
