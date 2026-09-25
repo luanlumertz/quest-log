@@ -22,6 +22,25 @@ export const AuthProvider = ({ children }: Props) => {
     const queryClient = useQueryClient();
 
     useEffect(() => {
+        function handleSessionExpired() {
+            queryClient.clear();
+            setUser(null);
+        }
+
+        window.addEventListener(
+            "auth:session-expired",
+            handleSessionExpired
+        );
+
+        return () => {
+            window.removeEventListener(
+                "auth:session-expired",
+                handleSessionExpired
+            );
+        };
+    }, [queryClient]);
+
+    useEffect(() => {
         async function loadCurrentUser() {
             try {
                 const currentUser = await getCurrentUser();
