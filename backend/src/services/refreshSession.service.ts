@@ -33,7 +33,17 @@ export async function refreshAccessToken(refreshToken?: string) {
         throw new AppError("Sessão inválida", 401);
     }
 
-    return generateToken(session.userId);
+    const userId = session.userId;
+
+    await deleteRefreshSessionById(session.id);
+
+    const newRefreshToken = await createRefreshSessionForUser(userId);
+    const accessToken = generateToken(userId);
+
+    return {
+        accessToken,
+        refreshToken: newRefreshToken
+    }
 }
 
 export async function revokeRefreshSession(refreshToken?: string) {

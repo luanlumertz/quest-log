@@ -66,7 +66,8 @@ export async function refreshTokenController(req: Request, res: Response){
 
     const result = await refreshAccessToken(refreshToken);
 
-    setAccessTokenCookie(res, result);
+    setAccessTokenCookie(res, result.accessToken);
+    setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(204).send()
 }
