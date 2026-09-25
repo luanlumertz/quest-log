@@ -2,7 +2,7 @@ import { REFRESH_TOKEN_EXPIRES_IN_MS } from "../constants/auth.js";
 import { AppError } from "../errors/AppError.js";
 import { generateToken } from "../lib/jwt.js";
 import { generateRefreshToken, hashRefreshToken } from "../lib/refreshToken.js";
-import { createRefreshSession, deleteRefreshSessionById, findRefreshSessionByTokenHash } from "../repositories/refreshSession.repository.js";
+import { createRefreshSession, deleteRefreshSessionById, findRefreshSessionByTokenHash, rotateRefreshSession } from "../repositories/refreshSession.repository.js";
 
 export async function createRefreshSessionForUser(userId: number) {
     const refreshToken = generateRefreshToken();
@@ -33,17 +33,20 @@ export async function refreshAccessToken(refreshToken?: string) {
         throw new AppError("Sessão inválida", 401);
     }
 
-    const userId = session.userId;
+    const newRefreshToken = generateRefreshToken();
 
-    await deleteRefreshSessionById(session.id);
+    const newTokenHash = hashRefreshToken(newRefreshToken);
 
-    const newRefreshToken = await createRefreshSessionForUser(userId);
-    const accessToken = generateToken(userId);
+    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_MS);
+
+    await rotateRefreshSession(session.id, session.userId, newTokenHash, expiresAt);
+
+    const accessToken = generateToken(session.userId);
 
     return {
         accessToken,
         refreshToken: newRefreshToken
-    }
+    };
 }
 
 export async function revokeRefreshSession(refreshToken?: string) {

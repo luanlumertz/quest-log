@@ -33,3 +33,26 @@ export function deleteRefreshSessionsByUserId(userId: number) {
         }
     })
 }
+
+export function rotateRefreshSession(
+    oldSessionId: number,
+    userId: number,
+    newTokenHash: string,
+    expiresAt: Date
+) {
+    return prisma.$transaction(async (tx) => {
+        await tx.refreshSession.delete({
+            where: {
+                id: oldSessionId
+            }
+        });
+
+        return tx.refreshSession.create({
+            data: {
+                userId,
+                tokenHash: newTokenHash,
+                expiresAt
+            }
+        });
+    });
+}
