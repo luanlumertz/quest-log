@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { loginUser, registerUser, getCurrentUser, updateUser, deleteUser } from "../services/auth.service.js"
+import { clearAccessTokenCookie, clearRefreshTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from "../lib/authCookies.js";
+import { refreshAccessToken, revokeRefreshSession } from "../services/refreshSession.service.js";
 
 export async function registerUserController(req: Request, res: Response) {
     const data = req.body;
@@ -14,24 +16,21 @@ export async function loginUserController(req: Request, res: Response) {
 
     const result = await loginUser(data);
 
-    res.cookie("accessToken", result.token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 1000
-    })
+    setAccessTokenCookie(res, result.accessToken);
+    setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(200).json({ user: result.user });
 }
 
-export function logoutUserController(req: Request, res: Response) {
-    res.clearCookie("accessToken", {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
-    })
+export async function logoutUserController(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken;
 
-    return res.status(204).send()
+    await revokeRefreshSession(refreshToken);
+
+    clearAccessTokenCookie(res);
+    clearRefreshTokenCookie(res);
+
+    return res.status(204).send();
 }
 
 export async function getCurrentUserController(req: Request, res: Response) {
@@ -56,11 +55,19 @@ export async function deleteUserController(req: Request, res: Response) {
 
     await deleteUser(userId);
 
-    res.clearCookie("accessToken", {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
-    })
+    clearAccessTokenCookie(res);
+    clearRefreshTokenCookie(res);
+
+    return res.status(204).send()
+}
+
+export async function refreshTokenController(req: Request, res: Response){
+    const refreshToken = req.cookies.refreshToken
+
+    const result = await refreshAccessToken(refreshToken);
+
+    setAccessTokenCookie(res, result.accessToken);
+    setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(204).send()
 }

@@ -15,7 +15,8 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  libraryEntries LibraryEntry[]
+  libraryEntries  LibraryEntry[]
+  refreshSessions RefreshSession[]
 }
 
 model Game {
@@ -84,4 +85,14 @@ model LibraryEntryPlatform {
   platform     Platform     @relation(fields: [platformId], references: [id])
 
   @@id([userId, gameId, platformId])
+}
+
+model RefreshSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
