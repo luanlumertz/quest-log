@@ -20,6 +20,23 @@ export class ApiError extends Error {
     }
 }
 
+let refreshPromise: Promise<boolean> | null = null;
+
+async function tryRefreshSession(): Promise<boolean> {
+    if (!refreshPromise) {
+        refreshPromise = fetch(`${API_URL}/auth/refresh`, {
+            method: "POST",
+            credentials: "include"
+        })
+            .then(response => response.ok)
+            .finally(() => {
+                refreshPromise = null;
+            });
+    }
+
+    return refreshPromise;
+}
+
 export async function apiRequest(endpoint: string, options: RequestInit = {}, canRetry = true) {
     const response = await fetch(`${API_URL}${endpoint}`, {
         ...options,
@@ -33,18 +50,15 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}, ca
     const shouldTryRefresh = response.status === 401 && canRetry && !NO_REFRESH_ENDPOINTS.includes(endpoint);
 
     if (shouldTryRefresh) {
-        const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
-            method: "POST",
-            credentials: "include"
-        });
+        const refreshed = await tryRefreshSession();
 
-        if (refreshResponse.ok) {
+        if (refreshed) {
             return apiRequest(endpoint, options, false);
         }
 
         window.dispatchEvent(new Event("auth:session-expired"));
 
-        throw new ApiError("Sessão inválida", refreshResponse.status);
+        throw new ApiError("Sessão inválida", 401);
     }
 
     if (!response.ok) {
