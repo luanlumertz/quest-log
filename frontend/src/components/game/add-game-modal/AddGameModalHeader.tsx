@@ -1,3 +1,5 @@
+import { MaterialIcon } from "../../ui/MaterialIcon";
+
 type AddGameModalHeaderProps = {
     title: string;
     coverUrl: string | null;
@@ -56,9 +58,10 @@ export function AddGameModalHeader({
                         disabled:cursor-not-allowed disabled:opacity-50
                     "
                 >
-                    <span className="material-symbols-rounded text-xl!">
-                        close
-                    </span>
+                    <MaterialIcon
+                        name="close"
+                        className="text-xl!"
+                    />
                 </button>
             </div>
         </div>

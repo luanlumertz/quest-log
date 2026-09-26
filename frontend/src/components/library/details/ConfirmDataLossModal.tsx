@@ -1,4 +1,5 @@
 import type { DataLossField } from "./libraryGameDetailsForm.rules";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type ConfirmDataLossModalProps = {
     fields: DataLossField[];
@@ -50,9 +51,9 @@ export function ConfirmDataLossModal({ fields, onConfirm, onCancel }: ConfirmDat
                             text-danger
                         "
                     >
-                        <span className="material-symbols-rounded">
-                            error
-                        </span>
+                        <MaterialIcon
+                            name="error"
+                        />
                     </div>
 
                     <div>

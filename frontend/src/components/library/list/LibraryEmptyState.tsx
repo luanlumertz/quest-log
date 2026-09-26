@@ -1,14 +1,13 @@
 import { Link } from "react-router";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 export function LibraryEmptyState() {
     return (
         <div className="mt-16 text-center">
-            <span
-                aria-hidden="true"
-                className="material-symbols-rounded text-5xl! text-ink-mute"
-            >
-                library_books
-            </span>
+            <MaterialIcon
+                name="library_books"
+                className="text-5xl! text-ink-mute"
+            />
 
             <h2 className="mt-3 font-display text-xl font-bold text-ink">
                 Sua biblioteca está vazia

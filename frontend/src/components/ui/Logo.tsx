@@ -1,3 +1,5 @@
+import { MaterialIcon } from "./MaterialIcon";
+
 export function Logo() {
     return (
         <div className="flex items-center gap-3">
@@ -8,9 +10,10 @@ export function Logo() {
                     text-white
                 "
             >
-                <span className="material-symbols-rounded text-white text-[32px]!">
-                    stadia_controller
-                </span>
+                <MaterialIcon
+                    name="stadia_controller"
+                    className="text-[32px]! text-white"
+                />
             </div>
 
             <span className="font-display text-2xl font-bold text-white">

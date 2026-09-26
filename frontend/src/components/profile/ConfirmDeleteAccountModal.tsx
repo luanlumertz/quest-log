@@ -1,3 +1,5 @@
+import { MaterialIcon } from "../ui/MaterialIcon";
+
 type ConfirmDeleteAccountModalProps = {
     isDeleting: boolean;
     error?: string;
@@ -48,9 +50,9 @@ export function ConfirmDeleteAccountModal({
                         text-red-300
                     "
                 >
-                    <span className="material-symbols-rounded">
-                        delete
-                    </span>
+                    <MaterialIcon
+                        name="delete"
+                    />
                 </div>
 
                 <h2

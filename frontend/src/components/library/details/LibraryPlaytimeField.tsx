@@ -1,5 +1,6 @@
 import { formatPlayTime } from "../../../utils/formatPlayTime";
 import { hoursInputToMinutes, normalizeHoursInput } from "./libraryGameDetailsForm.utils";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type LibraryPlaytimeFieldProps = {
     value: string;
@@ -43,21 +44,15 @@ export function LibraryPlaytimeField({
             </label>
 
             <div className="relative mt-3">
-                <span
-                    aria-hidden="true"
+                <MaterialIcon
+                    name="schedule"
                     className="
-                        material-symbols-rounded
-                        pointer-events-none
-                        absolute
-                        left-3
-                        top-1/2
-                        -translate-y-1/2
-                        text-lg!
-                        text-ink-mute
+                        pointer-events-none 
+                        absolute left-3 
+                        top-1/2 -translate-y-1/2 
+                        text-lg! text-ink-mute
                     "
-                >
-                    schedule
-                </span>
+                />
 
                 <input
                     id="playtimeHours"
@@ -109,9 +104,10 @@ export function LibraryPlaytimeField({
                                 hover:text-danger
                             "
                         >
-                            <span className="material-symbols-rounded text-lg!">
-                                close
-                            </span>
+                            <MaterialIcon
+                                name="close"
+                                className="text-lg!"
+                            />
                         </button>
                     )}
             </div>

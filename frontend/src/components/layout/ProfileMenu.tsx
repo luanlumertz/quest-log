@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { getUserInitials } from "../../utils/getUserInitials";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 export function ProfileMenu() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -103,9 +104,9 @@ export function ProfileMenu() {
                       hover:text-ink
                     "
                 >
-                    <span className="material-symbols-rounded">
-                        person
-                    </span>
+                    <MaterialIcon
+                        name="person"
+                    />
 
                     <span>Perfil</span>
                 </Link>
@@ -122,9 +123,9 @@ export function ProfileMenu() {
                         cursor-pointer
                     "
                 >
-                    <span className="material-symbols-rounded">
-                        logout
-                    </span>
+                    <MaterialIcon
+                        name="logout"
+                    />
 
                     <span>Sair</span>
                 </button>

@@ -1,4 +1,5 @@
 import type { Platform } from "../../../types/platform.types";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type LibraryPlatformSelectorProps = {
     platforms: Platform[];
@@ -63,9 +64,10 @@ export function LibraryPlatformSelector({
                             `}
                         >
                             {isSelected && (
-                                <span className="material-symbols-rounded text-sm!">
-                                    check
-                                </span>
+                                <MaterialIcon
+                                    name="check"
+                                    className="text-sm!"
+                                />
                             )}
 
                             {platform.name}

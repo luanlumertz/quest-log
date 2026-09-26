@@ -1,4 +1,5 @@
 import type { GameSearchResult } from "../../../types/game.types";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 import { SearchGameCard } from "./SearchGameCard";
 
 type SearchGamesResultsProps = {
@@ -19,9 +20,10 @@ export function SearchGamesResults({
     if (!searchedQuery) {
         return (
             <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <span className="material-symbols-rounded text-5xl! text-ink-mute">
-                    search
-                </span>
+                <MaterialIcon
+                    name="search"
+                    className="text-5xl! text-ink-mute"
+                />
 
                 <h2 className="mt-4 font-display text-xl font-semibold text-ink">
                     Encontre seu próximo jogo
@@ -47,9 +49,10 @@ export function SearchGamesResults({
     if (isError) {
         return (
             <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <span className="material-symbols-rounded text-5xl! text-danger">
-                    error
-                </span>
+                <MaterialIcon
+                    name="error"
+                    className="text-5xl! text-danger"
+                />
 
                 <p className="mt-4 text-sm text-ink-dim">
                     Não foi possível buscar os jogos.
@@ -61,9 +64,10 @@ export function SearchGamesResults({
     if (games.length === 0) {
         return (
             <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <span className="material-symbols-rounded text-5xl! text-ink-mute">
-                    search_off
-                </span>
+                <MaterialIcon
+                    name="search_off"
+                    className="text-5xl! text-ink-mute"
+                />
 
                 <h2 className="mt-4 font-display text-xl font-semibold text-ink">
                     Nenhum jogo encontrado

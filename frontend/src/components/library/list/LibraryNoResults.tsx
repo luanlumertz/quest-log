@@ -1,3 +1,5 @@
+import { MaterialIcon } from "../../ui/MaterialIcon";
+
 type LibraryNoResultsProps = {
     onClearFilters: () => void;
 };
@@ -5,12 +7,10 @@ type LibraryNoResultsProps = {
 export function LibraryNoResults({ onClearFilters }: LibraryNoResultsProps) {
     return (
         <div className="mt-16 text-center">
-            <span
-                aria-hidden="true"
-                className="material-symbols-rounded text-5xl! text-ink-mute"
-            >
-                search_off
-            </span>
+            <MaterialIcon
+                name="search_off"
+                className="text-5xl! text-ink-mute"
+            />
 
             <h2 className="mt-3 font-display text-xl font-bold text-ink">
                 Nenhum jogo encontrado

@@ -6,6 +6,7 @@ import type { LibraryEntry } from "../../../types/library.types";
 
 import { GameStatusBadge } from "../../ui/GameStatusBadge";
 import { AddGameToLibraryModal } from "../add-game-modal/AddGameToLibraryModal";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type GameDetailsLibraryActionProps = {
     game: GameDetailsResult;
@@ -83,9 +84,10 @@ export function GameDetailsLibraryAction({
                         hover:bg-brand-dim
                     "
                 >
-                    <span className="material-symbols-rounded text-xl!">
-                        library_books
-                    </span>
+                    <MaterialIcon
+                        name="library_books"
+                        className="text-xl!"
+                    />
 
                     Ver na minha biblioteca
                 </Link>
@@ -114,9 +116,10 @@ export function GameDetailsLibraryAction({
                     cursor-pointer
                 "
             >
-                <span className="material-symbols-rounded text-xl!">
-                    library_add
-                </span>
+                <MaterialIcon
+                    name="library_add"
+                    className="text-xl!"
+                />
 
                 Adicionar à biblioteca
             </button>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { HTMLInputTypeAttribute } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 type AuthInputProps = {
     label: string;
@@ -81,9 +82,10 @@ export function AuthInput({
                           cursor-pointer
                         "
                     >
-                        <span className="material-symbols-rounded text-[20px] leading-none">
-                            {showPassword ? "visibility_off" : "visibility"}
-                        </span>
+                        <MaterialIcon
+                            name={showPassword ? "visibility_off" : "visibility"}
+                            className="text-[20px] leading-none"
+                        />
                     </button>
                 )}
             </div>

@@ -1,4 +1,5 @@
 import type { SubmitEvent } from "react";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type SearchGamesFormProps = {
     inputValue: string;
@@ -17,16 +18,14 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
             "
         >
             <div className="relative min-w-0 flex-1">
-                <span
+                <MaterialIcon
+                    name="search"
                     className="
-                        material-symbols-rounded
-                        absolute left-4 top-1/2
-                        -translate-y-1/2
+                        absolute left-4 
+                        top-1/2 -translate-y-1/2 
                         text-[22px]! text-ink-mute
                     "
-                >
-                    search
-                </span>
+                />
 
                 <input
                     type="search"
@@ -63,9 +62,9 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
                             hover:text-white
                         "
                     >
-                        <span className="material-symbols-rounded">
-                            close
-                        </span>
+                        <MaterialIcon
+                            name="close"
+                        />
                     </button>
                 )}
             </div>

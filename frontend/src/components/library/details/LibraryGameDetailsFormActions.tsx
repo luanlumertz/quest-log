@@ -1,3 +1,5 @@
+import { MaterialIcon } from "../../ui/MaterialIcon";
+
 type LibraryGameDetailsFormActionsProps = {
     isSaving: boolean;
     isDeleting: boolean;
@@ -40,9 +42,10 @@ export function LibraryGameDetailsFormActions({
                 >
                     {isSaving ? ("Salvando...") : isSaved ? (
                         <>
-                            <span className="material-symbols-rounded text-lg!">
-                                check
-                            </span>
+                            <MaterialIcon
+                                name="check"
+                                className="text-lg!"
+                            />
 
                             Salvo!
                         </>
@@ -73,9 +76,10 @@ export function LibraryGameDetailsFormActions({
                             disabled:opacity-50
                         "
                     >
-                        <span className="material-symbols-rounded text-lg!">
-                            undo
-                        </span>
+                        <MaterialIcon
+                            name="undo"
+                            className="text-lg!"
+                        />
 
                         Descartar alterações
                     </button>
@@ -103,9 +107,10 @@ export function LibraryGameDetailsFormActions({
                         disabled:opacity-50
                     "
                 >
-                    <span className="material-symbols-rounded text-lg!">
-                        delete
-                    </span>
+                    <MaterialIcon
+                        name="delete"
+                        className="text-lg!"
+                    />
 
                     {isDeleting ? "Removendo..." : "Remover"}
                 </button>

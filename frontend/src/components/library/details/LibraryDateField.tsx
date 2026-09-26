@@ -1,3 +1,5 @@
+import { MaterialIcon } from "../../ui/MaterialIcon";
+
 type LibraryDateFieldProps = {
     id: string;
     label: string;
@@ -37,21 +39,14 @@ export function LibraryDateField({
             </label>
 
             <div className="relative mt-3">
-                <span
-                    aria-hidden="true"
+                <MaterialIcon
+                    name="calendar_month"
                     className="
-                        material-symbols-rounded
-                        pointer-events-none
-                        absolute
-                        left-3
-                        top-1/2
-                        -translate-y-1/2
-                        text-lg!
-                        text-ink-mute
+                        pointer-events-none 
+                        absolute left-3 top-1/2 -translate-y-1/2 
+                        text-lg! text-ink-mute
                     "
-                >
-                    calendar_month
-                </span>
+                />
 
                 <input
                     id={id}
@@ -108,9 +103,10 @@ export function LibraryDateField({
                             hover:text-danger
                         "
                     >
-                        <span className="material-symbols-rounded text-lg!">
-                            close
-                        </span>
+                        <MaterialIcon
+                            name="close"
+                            className="text-lg!"
+                        />
                     </button>
                 )}
             </div>

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { Logo } from "../components/ui/Logo";
+import { MaterialIcon } from "../components/ui/MaterialIcon";
 
 export function NotFound() {
     return (
@@ -48,12 +49,10 @@ export function NotFound() {
                             focus-visible:outline-brand sm:w-auto
                         "
                     >
-                        <span
-                            aria-hidden="true"
-                            className="material-symbols-rounded text-[22px]!"
-                        >
-                            arrow_back
-                        </span>
+                        <MaterialIcon
+                            name="arrow_back"
+                            className="text-[22px]!"
+                        />
                         Voltar ao início
                     </Link>
                 </section>

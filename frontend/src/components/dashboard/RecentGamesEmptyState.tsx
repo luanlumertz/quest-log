@@ -1,14 +1,13 @@
 import { Link } from "react-router";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 export function RecentGamesEmptyState() {
     return (
         <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
-            <span
-                aria-hidden="true"
-                className="material-symbols-rounded text-5xl! text-ink-mute"
-            >
-                stadia_controller
-            </span>
+            <MaterialIcon
+                name="stadia_controller"
+                className="text-5xl! text-ink-mute"
+            />
 
             <h3 className="mt-3 font-display text-xl font-bold text-ink">
                 Sua biblioteca está vazia

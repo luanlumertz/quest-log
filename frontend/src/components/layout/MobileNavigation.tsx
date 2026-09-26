@@ -1,6 +1,7 @@
 import { NavLink } from "react-router";
 
 import { navigationItems } from "./navigationItems";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 export function MobileNavigation() {
     return (
@@ -30,9 +31,10 @@ export function MobileNavigation() {
                         }`
                     }
                 >
-                    <span className="material-symbols-rounded text-[21px]!">
-                        {item.icon}
-                    </span>
+                    <MaterialIcon
+                        name={item.icon}
+                        className="text-[21px]!"
+                    />
 
                     <span className="text-center">
                         {item.mobileLabel}
@@ -55,9 +57,10 @@ export function MobileNavigation() {
                     `
                 }
             >
-                <span className="material-symbols-rounded text-[21px]!">
-                    person
-                </span>
+                <MaterialIcon
+                    name="person"
+                    className="text-[21px]!"
+                />
 
                 <span>Perfil</span>
             </NavLink>

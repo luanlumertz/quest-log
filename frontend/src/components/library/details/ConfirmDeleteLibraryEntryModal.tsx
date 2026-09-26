@@ -1,3 +1,5 @@
+import { MaterialIcon } from "../../ui/MaterialIcon";
+
 type ConfirmDeleteLibraryEntryModalProps = {
     gameTitle: string;
     isDeleting: boolean;
@@ -49,9 +51,9 @@ export function ConfirmDeleteLibraryEntryModal({
                             text-danger
                         "
                     >
-                        <span className="material-symbols-rounded">
-                            delete
-                        </span>
+                        <MaterialIcon
+                            name="delete"
+                        />
                     </div>
 
                     <div>
@@ -140,10 +142,11 @@ export function ConfirmDeleteLibraryEntryModal({
                     >
                         {isDeleting ? ("Removendo...") : (
                             <>
-                                <span className="material-symbols-rounded text-lg!">
-                                    delete
-                                </span>
-                                
+                                <MaterialIcon
+                                    name="delete"
+                                    className="text-lg!"
+                                />
+
                                 Remover
                             </>
                         )}

@@ -1,3 +1,5 @@
+import { MaterialIcon } from "./MaterialIcon";
+
 type BackButtonProps = {
     children: React.ReactNode;
     onClick: () => void;
@@ -26,16 +28,14 @@ export function BackButton({ children, onClick }: BackButtonProps) {
                 focus-visible:outline-brand
             "
         >
-            <span
+            <MaterialIcon
+                name="arrow_back"
                 className="
-                    material-symbols-rounded
-                    text-lg!
+                    text-xl!
                     transition-transform
                     group-hover:-translate-x-0.5
                 "
-            >
-                arrow_back
-            </span>
+            />
 
             {children}
         </button>

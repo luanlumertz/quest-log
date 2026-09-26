@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateCurrentUser } from "../../hooks/auth.hook";
 import { updateSchema, type UpdateData } from "../../schema/auth.schema";
 import type { User } from "../../types/auth.types";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 type AccountInformationProps = {
     user: User;
@@ -214,12 +215,10 @@ export function AccountInformation({
                         `}
                     >
                         <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400">
-                            <span
-                                className="material-symbols-rounded shrink-0 text-[18px] leading-none"
-                                aria-hidden="true"
-                            >
-                                check_circle
-                            </span>
+                            <MaterialIcon
+                                name="check_circle"
+                                className="shrink-0 text-[18px] leading-none"
+                            />
                             <span>Nome atualizado com sucesso!</span>
                         </div>
                     </div>

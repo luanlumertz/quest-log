@@ -1,4 +1,13 @@
-export const navigationItems = [
+import type { MaterialIconName } from "../ui/MaterialIcon";
+
+type NavigationItem = {
+    to: string;
+    icon: MaterialIconName;
+    desktopLabel: string;
+    mobileLabel: string;
+};
+
+export const navigationItems: NavigationItem[] = [
     {
         to: "/dashboard",
         icon: "dashboard",
