@@ -53,7 +53,7 @@ export function Dashboard() {
                 <NowPlaying games={playingGames ?? []} />
             )}
 
-            <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[2.3fr_1fr]">
+            <div className="my-8 grid grid-cols-1 gap-8 lg:grid-cols-[2.3fr_1fr]">
                 <RecentGames
                     games={data?.recentGames ?? []}
                 />
