@@ -1,3 +1,4 @@
+import { Button } from "../../ui/Button";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type ConfirmDeleteLibraryEntryModalProps = {
@@ -97,60 +98,27 @@ export function ConfirmDeleteLibraryEntryModal({
                 )}
 
                 <div className="mt-5 flex justify-end gap-3">
-                    <button
-                        type="button"
+                    <Button
+                        variant="secondary"
                         disabled={isDeleting}
                         onClick={onCancel}
-                        className="
-                            min-h-10
-                            cursor-pointer
-                            rounded-xl
-                            border
-                            border-divider-bright
-                            px-4
-                            text-sm
-                            font-semibold
-                            text-ink-dim
-                            transition-colors
-                            hover:text-ink
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
                     >
                         Cancelar
-                    </button>
+                    </Button>
 
-                    <button
-                        type="button"
-                        disabled={isDeleting}
+                    <Button
+                        variant="danger"
+                        isLoading={isDeleting}
+                        loadingText="Removendo..."
                         onClick={onConfirm}
-                        className="
-                            flex min-h-10
-                            cursor-pointer
-                            items-center gap-2
-                            rounded-xl
-                            bg-danger
-                            px-4
-                            text-sm
-                            font-semibold
-                            text-white
-                            transition-opacity
-                            hover:opacity-90
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
                     >
-                        {isDeleting ? ("Removendo...") : (
-                            <>
-                                <MaterialIcon
-                                    name="delete"
-                                    className="text-lg!"
-                                />
+                        <MaterialIcon
+                            name="delete"
+                            className="text-lg!"
+                        />
 
-                                Remover
-                            </>
-                        )}
-                    </button>
+                        Remover
+                    </Button>
                 </div>
             </div>
         </div>

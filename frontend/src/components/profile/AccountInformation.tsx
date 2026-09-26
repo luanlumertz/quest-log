@@ -6,6 +6,7 @@ import { useUpdateCurrentUser } from "../../hooks/auth.hook";
 import { updateSchema, type UpdateData } from "../../schema/auth.schema";
 import type { User } from "../../types/auth.types";
 import { MaterialIcon } from "../ui/MaterialIcon";
+import { Button } from "../ui/Button";
 
 type AccountInformationProps = {
     user: User;
@@ -150,32 +151,24 @@ export function AccountInformation({
                             )}
 
                             <div className="mt-3 flex items-center gap-2">
-                                <button
+                                <Button
                                     type="submit"
-                                    disabled={isUpdating || disabled || !hasChanges || !isValid}
-                                    className="
-                                        min-h-9 cursor-pointer rounded-xl bg-brand px-4
-                                        text-xs font-semibold text-white transition-colors
-                                        hover:bg-brand-dim disabled:cursor-not-allowed
-                                        disabled:opacity-50
-                                    "
+                                    size="sm"
+                                    disabled={disabled || !hasChanges || !isValid}
+                                    isLoading={isUpdating}
+                                    loadingText="Salvando..."
                                 >
-                                    {isUpdating ? "Salvando..." : "Salvar"}
-                                </button>
+                                    Salvar
+                                </Button>
 
-                                <button
-                                    type="button"
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
                                     onClick={handleCancelEdit}
                                     disabled={isUpdating || disabled}
-                                    className="
-                                        min-h-9 cursor-pointer rounded-xl
-                                        border border-divider-bright px-4 text-xs
-                                        text-ink-dim transition-colors hover:text-ink
-                                        disabled:cursor-not-allowed disabled:opacity-50
-                                    "
                                 >
                                     Cancelar
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     ) : (
@@ -184,20 +177,15 @@ export function AccountInformation({
                                 {user.name}
                             </p>
 
-                            <button
-                                type="button"
+                            <Button
+                                variant="secondary"
+                                size="sm"
                                 onClick={handleEdit}
                                 disabled={disabled}
-                                className="
-                                    shrink-0 cursor-pointer rounded-lg
-                                    border border-divider-bright px-3 py-1.5
-                                    text-xs text-ink-dim transition-colors
-                                    hover:text-ink disabled:cursor-not-allowed
-                                    disabled:opacity-50
-                                "
+                                className="shrink-0"
                             >
                                 Editar
-                            </button>
+                            </Button>
                         </div>
                     )}
 

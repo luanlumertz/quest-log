@@ -8,6 +8,7 @@ import type { GameDetailsResult } from "../../../types/game.types";
 import { AddGameModalHeader } from "./AddGameModalHeader";
 import { GameStatusSelector } from "../../ui/GameStatusSelector";
 import { GamePlatformSelector } from "./GamePlatformSelector";
+import { Button } from "../../ui/Button";
 
 type AddGameToLibraryModalProps = {
     game: GameDetailsResult;
@@ -37,7 +38,6 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
 
     const selectedStatus = watch("status");
     const selectedPlatforms = watch("platforms");
-
     const availablePlatforms = [...new Set(game.platforms)];
 
     function resetAndClose() {
@@ -171,40 +171,25 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
                     )}
 
                     <div className="mt-6 grid grid-cols-2 gap-3">
-                        <button
-                            type="button"
+                        <Button
+                            variant="secondary"
                             onClick={handleClose}
                             disabled={isSubmitting}
-                            className="
-                                min-h-11 rounded-xl
-                                border border-divider-bright
-                                text-sm font-semibold text-ink-mute
-                                transition-colors cursor-pointer
-                                hover:bg-surface-hover hover:text-ink
-                                disabled:cursor-not-allowed disabled:opacity-50
-                            "
+                            fullWidth
                         >
                             Cancelar
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
                             type="submit"
-                            disabled={
-                                isSubmitting ||
-                                availablePlatforms.length === 0
-                            }
-                            className="
-                                min-h-11 rounded-xl bg-brand px-3
-                                text-sm font-semibold text-white
-                                transition-colors cursor-pointer wrap-anywhere
-                                hover:bg-brand-dim
-                                disabled:cursor-not-allowed disabled:opacity-50
-                            "
+                            disabled={availablePlatforms.length === 0}
+                            isLoading={isSubmitting}
+                            loadingText="Adicionando..."
+                            fullWidth
+                            className="wrap-anywhere"
                         >
-                            {isSubmitting
-                                ? "Adicionando..."
-                                : "Adicionar à biblioteca"}
-                        </button>
+                            Adicionar à biblioteca
+                        </Button>
                     </div>
                 </form>
             </div>

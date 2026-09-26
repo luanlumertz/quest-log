@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router";
 
 import type { GameDetailsResult } from "../../../types/game.types";
 import type { LibraryEntry } from "../../../types/library.types";
 
-import { GameStatusBadge } from "../../ui/GameStatusBadge";
 import { AddGameToLibraryModal } from "../add-game-modal/AddGameToLibraryModal";
+import { GameStatusBadge } from "../../ui/GameStatusBadge";
 import { MaterialIcon } from "../../ui/MaterialIcon";
+import { Button, ButtonLink } from "../../ui/Button";
 
 type GameDetailsLibraryActionProps = {
     game: GameDetailsResult;
@@ -49,21 +49,15 @@ export function GameDetailsLibraryAction({
                     Não foi possível verificar sua biblioteca.
                 </span>
 
-                <button
-                    type="button"
+                <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={onRetryLibrary}
-                    disabled={isLibraryFetching}
-                    className="
-                    rounded-lg border border-divider-bright
-                    px-3 py-2
-                    text-sm font-medium text-ink
-                    transition-colors cursor-pointer
-                    hover:bg-surface-hover
-                    disabled:cursor-not-allowed disabled:opacity-50
-                "
+                    isLoading={isLibraryFetching}
+                    loadingText="Tentando..."
                 >
-                    {isLibraryFetching ? "Tentando..." : "Tentar novamente"}
-                </button>
+                    Tentar novamente
+                </Button>
             </div>
         );
     }
@@ -71,18 +65,8 @@ export function GameDetailsLibraryAction({
     if (libraryEntry) {
         return (
             <>
-                <Link
+                <ButtonLink
                     to={`/library/${libraryEntry.game.id}`}
-                    className="
-                        flex items-center gap-2
-                        rounded-xl
-                        bg-brand
-                        px-5 py-3
-                        text-sm font-semibold
-                        text-white
-                        transition-colors
-                        hover:bg-brand-dim
-                    "
                 >
                     <MaterialIcon
                         name="library_books"
@@ -90,7 +74,7 @@ export function GameDetailsLibraryAction({
                     />
 
                     Ver na minha biblioteca
-                </Link>
+                </ButtonLink>
 
                 <GameStatusBadge
                     status={libraryEntry.status}
@@ -101,20 +85,8 @@ export function GameDetailsLibraryAction({
 
     return (
         <>
-            <button
-                type="button"
+            <Button
                 onClick={() => setIsModalOpen(true)}
-                className="
-                    flex items-center gap-2
-                    rounded-xl
-                    bg-brand
-                    px-5 py-3
-                    text-sm font-semibold
-                    text-white
-                    transition-colors
-                    hover:bg-brand-dim
-                    cursor-pointer
-                "
             >
                 <MaterialIcon
                     name="library_add"
@@ -122,7 +94,7 @@ export function GameDetailsLibraryAction({
                 />
 
                 Adicionar à biblioteca
-            </button>
+            </Button>
 
             <AddGameToLibraryModal
                 game={game}

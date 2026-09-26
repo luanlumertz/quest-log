@@ -55,17 +55,12 @@ export function GameStatusSelector({
                                             `
                                     }
                                 `}
-                                style={
-                                    isSelected
-                                        ? {
-                                            color:
-                                                statusInfo.color,
-                                            borderColor:
-                                                `${statusInfo.color}66`,
-                                            backgroundColor:
-                                                `${statusInfo.color}1A`
-                                        }
-                                        : undefined
+                                style={isSelected
+                                    ? {
+                                        color: statusInfo.color,
+                                        borderColor: `${statusInfo.color}66`,
+                                        backgroundColor: `${statusInfo.color}1A`
+                                    } : undefined
                                 }
                             >
                                 {statusInfo.label}

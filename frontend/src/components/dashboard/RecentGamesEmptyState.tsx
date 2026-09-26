@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { ButtonLink } from "../ui/Button";
 import { MaterialIcon } from "../ui/MaterialIcon";
 
 export function RecentGamesEmptyState() {
@@ -17,17 +17,12 @@ export function RecentGamesEmptyState() {
                 Adicione seu primeiro jogo para começar a acompanhar seu progresso.
             </p>
 
-            <Link
+            <ButtonLink
                 to="/games/search"
-                className="
-                    mt-5 rounded-xl bg-brand
-                    px-5 py-3
-                    text-sm font-semibold text-white
-                    hover:bg-brand-dim
-                "
+                className="mt-5"
             >
                 Procurar jogos
-            </Link>
+            </ButtonLink>
         </div>
     );
 }

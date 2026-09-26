@@ -7,7 +7,7 @@ import { registerSchema, type RegisterData } from "../schema/auth.schema";
 import { register as signUp } from "../services/auth.service";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
-import { AuthButton } from "../components/auth/AuthButton";
+import { Button } from "../components/ui/Button";
 
 export function Register() {
     const navigate = useNavigate();
@@ -41,11 +41,11 @@ export function Register() {
                 <h1 className="font-display text-3xl font-bold text-white">Crie uma conta!</h1>
                 <p className="mt-1 text-ink-dim">Comece a acompanhar seus jogos.</p>
 
-                <form 
+                <form
                     onSubmit={handleSubmit(onSubmit)}
                     className="mt-10 space-y-6"
                 >
-                    <AuthInput 
+                    <AuthInput
                         label="Nome"
                         type="text"
                         placeholder="Digite seu nome"
@@ -91,11 +91,15 @@ export function Register() {
                         ">{errors.root.message}</p>
                     )}
 
-                    <AuthButton
-                        isSubmitting={isSubmitting}
-                        text="Cadastrar"
+                    <Button
+                        type="submit"
+                        size="lg"
+                        fullWidth
+                        isLoading={isSubmitting}
                         loadingText="Cadastrando..."
-                    />
+                    >
+                        Cadastrar
+                    </Button>
                 </form>
 
                 <div className="mt-8 text-center">

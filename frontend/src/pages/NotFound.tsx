@@ -1,5 +1,5 @@
-import { Link } from "react-router";
 import { Logo } from "../components/ui/Logo";
+import { ButtonLink } from "../components/ui/Button";
 import { MaterialIcon } from "../components/ui/MaterialIcon";
 
 export function NotFound() {
@@ -36,25 +36,19 @@ export function NotFound() {
                         O endereço que você tentou acessar não existe.
                     </p>
 
-                    <Link
+                    <ButtonLink
                         to="/"
-                        className="
-                            mt-9 inline-flex min-h-12 w-full 
-                            items-center justify-center gap-2 
-                            rounded-xl bg-brand px-6 py-3 
-                            font-display text-lg font-bold text-white 
-                            transition-all duration-200 hover:-translate-y-0.5 
-                            hover:bg-brand-dim hover:shadow-lg hover:shadow-brand/20 
-                            focus-visible:outline-2 focus-visible:outline-offset-4 
-                            focus-visible:outline-brand sm:w-auto
-                        "
+                        size="lg"
+                        fullWidth
+                        className="mt-9 sm:w-auto"
                     >
                         <MaterialIcon
                             name="arrow_back"
                             className="text-[22px]!"
                         />
+
                         Voltar ao início
-                    </Link>
+                    </ButtonLink>
                 </section>
             </div>
         </main>

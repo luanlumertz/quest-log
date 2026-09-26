@@ -1,4 +1,5 @@
 import type { DataLossField } from "./libraryGameDetailsForm.rules";
+import { Button } from "../../ui/Button";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type ConfirmDataLossModalProps = {
@@ -106,44 +107,19 @@ export function ConfirmDataLossModal({ fields, onConfirm, onCancel }: ConfirmDat
                 </ul>
 
                 <div className="mt-5 flex justify-end gap-3">
-                    <button
-                        type="button"
+                    <Button
+                        variant="secondary"
                         onClick={onCancel}
-                        className="
-                            min-h-10
-                            cursor-pointer
-                            rounded-xl
-                            border
-                            border-divider-bright
-                            px-4
-                            text-sm
-                            font-semibold
-                            text-ink-dim
-                            transition-colors
-                            hover:text-ink
-                        "
                     >
                         Voltar
-                    </button>
+                    </Button>
 
-                    <button
-                        type="button"
+                    <Button
+                        variant="danger"
                         onClick={onConfirm}
-                        className="
-                            min-h-10
-                            cursor-pointer
-                            rounded-xl
-                            bg-danger
-                            px-4
-                            text-sm
-                            font-semibold
-                            text-white
-                            transition-opacity
-                            hover:opacity-90
-                        "
                     >
                         Salvar mesmo assim
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

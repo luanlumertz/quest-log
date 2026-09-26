@@ -7,8 +7,8 @@ import { loginSchema, type LoginData } from "../schema/auth.schema";
 import { login } from "../services/auth.service";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
-import { AuthButton } from "../components/auth/AuthButton";
 import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/Button";
 
 export function Login() {
     const navigate = useNavigate();
@@ -30,7 +30,7 @@ export function Login() {
             const user = await login(data);
 
             setUser(user);
-            
+
             navigate("/dashboard");
         } catch (error) {
             if (error instanceof Error) {
@@ -79,11 +79,15 @@ export function Login() {
                             ">{errors.root.message}</p>
                     )}
 
-                    <AuthButton
-                        isSubmitting={isSubmitting}
-                        text="Entrar"
+                    <Button
+                        type="submit"
+                        size="lg"
+                        fullWidth
+                        isLoading={isSubmitting}
                         loadingText="Entrando..."
-                    />
+                    >
+                        Entrar
+                    </Button>
                 </form>
 
                 <div className="mt-8 text-center">

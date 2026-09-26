@@ -1,3 +1,4 @@
+import { Button } from "../ui/Button";
 import { MaterialIcon } from "../ui/MaterialIcon";
 
 type ConfirmDeleteAccountModalProps = {
@@ -93,44 +94,25 @@ export function ConfirmDeleteAccountModal({
                 )}
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                    <button
-                        type="button"
+                    <Button
+                        variant="secondary"
                         autoFocus
                         disabled={isDeleting}
                         onClick={onCancel}
-                        className="
-                            min-h-11 rounded-xl
-                            border border-divider-bright
-                            px-3
-                            text-sm font-semibold text-ink-dim
-                            transition-colors
-                            hover:text-ink
-                            cursor-pointer
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
+                        fullWidth
                     >
                         Cancelar
-                    </button>
+                    </Button>
 
-                    <button
-                        type="button"
-                        disabled={isDeleting}
+                    <Button
+                        variant="danger"
+                        isLoading={isDeleting}
+                        loadingText="Excluindo..."
                         onClick={onConfirm}
-                        className="
-                            min-h-11 rounded-xl
-                            bg-red-600
-                            px-3
-                            text-sm font-semibold text-white
-                            transition-colors
-                            hover:bg-red-700
-                            cursor-pointer
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
+                        fullWidth
                     >
-                        {isDeleting ? "Excluindo..." : "Excluir Conta"}
-                    </button>
+                        Excluir conta
+                    </Button>
                 </div>
             </div>
         </div>

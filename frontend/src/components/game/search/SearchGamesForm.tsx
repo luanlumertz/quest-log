@@ -1,5 +1,6 @@
 import type { SubmitEvent } from "react";
 import { MaterialIcon } from "../../ui/MaterialIcon";
+import { Button } from "../../ui/Button";
 
 type SearchGamesFormProps = {
     inputValue: string;
@@ -69,25 +70,14 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
                 )}
             </div>
 
-            <button
+            <Button
                 type="submit"
                 disabled={!inputValue.trim()}
-                className="
-                    w-full rounded-2xl
-                    bg-brand
-                    px-1.5 min-[480px]:px-5 py-4
-                    font-semibold
-                    text-white
-                    transition
-                    hover:bg-brand-dim
-                    disabled:cursor-not-allowed
-                    disabled:opacity-50
-                    cursor-pointer
-                    min-[400px]:w-auto
-                "
+                fullWidth
+                className="min-[400px]:w-auto"
             >
                 Pesquisar
-            </button>
+            </Button>
         </form>
     );
 }
