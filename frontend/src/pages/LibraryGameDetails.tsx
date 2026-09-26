@@ -7,6 +7,7 @@ import { useGameDetails } from "../hooks/game.hook";
 import { LibraryGameSummary } from "../components/library/details/LibraryGameSummary";
 import { LibraryGameDetailsForm } from "../components/library/details/LibraryGameDetailsForm";
 import { ConfirmDeleteLibraryEntryModal } from "../components/library/details/ConfirmDeleteLibraryEntryModal";
+import { BackButton } from "../components/ui/BackButton";
 
 export function LibraryGameDetails() {
     const { gameId } = useParams();
@@ -147,27 +148,9 @@ export function LibraryGameDetails() {
     return (
         <>
             <div className="mx-auto max-w-4xl py-6 lg:py-8">
-                <button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    className="
-                        flex
-                        cursor-pointer
-                        items-center
-                        gap-1
-                        text-sm
-                        text-ink-mute
-                        transition-colors
-                        hover:scale-105
-                        hover:text-ink
-                    "
-                >
-                    <span className="material-symbols-rounded text-lg!">
-                        chevron_left
-                    </span>
-
-                    Voltar para biblioteca
-                </button>
+                <BackButton onClick={() => navigate(-1)}>
+                    Voltar
+                </BackButton>
 
                 <div
                     className="

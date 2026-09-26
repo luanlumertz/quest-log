@@ -1,5 +1,6 @@
 import type { GameDetailsResult } from "../../../types/game.types";
 import type { LibraryEntry } from "../../../types/library.types";
+import { BackButton } from "../../ui/BackButton";
 import { GameDetailsLibraryAction } from "./GameDetailsLibraryAction";
 
 
@@ -66,24 +67,9 @@ export function GameDetailsHero({
                     lg:min-h-90 lg:py-8
                 "
             >
-                <button
-                    type="button"
-                    onClick={onBack}
-                    className="
-                        flex items-center gap-1
-                        text-sm text-ink-dim
-                        transition-colors
-                        cursor-pointer
-                        hover:text-ink
-                        hover:scale-105
-                    "
-                >
-                    <span className="material-symbols-rounded text-lg!">
-                        chevron_left
-                    </span>
-
+                <BackButton onClick={onBack}>
                     Voltar para busca
-                </button>
+                </BackButton>
 
                 <div
                     className="

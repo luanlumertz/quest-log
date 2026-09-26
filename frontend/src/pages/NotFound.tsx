@@ -52,7 +52,7 @@ export function NotFound() {
                             aria-hidden="true"
                             className="material-symbols-rounded text-[22px]!"
                         >
-                            chevron_left
+                            arrow_back
                         </span>
                         Voltar ao início
                     </Link>
