@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { HTMLInputTypeAttribute } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
@@ -19,6 +20,11 @@ export function AuthInput({
     error
 }: AuthInputProps) {
     const id = registration.name;
+    const isPassword = type === "password";
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const inputType = isPassword && showPassword ? "text" : type;
 
     return (
         <div>
@@ -34,26 +40,53 @@ export function AuthInput({
                 {label}
             </label>
 
-            <input
-                id={id}
-                type={type}
-                placeholder={placeholder}
-                autoComplete={autoComplete}
-                {...registration}
-                className="
-                    h-12 w-full rounded-xl
-                    border border-divider-bright
-                    bg-surface
-                    px-5
-                    text-ink
-                    outline-none
-                    transition
-                    placeholder:text-ink-dim
-                    focus:border-brand
-                    focus:ring-2
-                    focus:ring-brand-glow
-                "
-            />
+            <div className="relative">
+                <input
+                    id={id}
+                    type={inputType}
+                    placeholder={placeholder}
+                    autoComplete={autoComplete}
+                    {...registration}
+                    className={`
+                        h-12 w-full rounded-xl
+                        border border-divider-bright
+                        bg-surface
+                        px-5
+                        text-ink
+                        outline-none
+                        transition
+                        placeholder:text-ink-dim
+                        focus:border-brand
+                        focus:ring-2
+                        focus:ring-brand-glow
+                        ${isPassword ? "pr-12" : ""}
+                    `}
+                />
+
+                {isPassword && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((current) => !current)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        className="
+                            absolute
+                            inset-y-0 right-3
+                            flex w-8
+                            items-center justify-center
+                          text-ink-mute
+                            transition-colors
+                          hover:text-ink
+                            focus-visible:outline-2
+                          focus-visible:outline-brand
+                          cursor-pointer
+                        "
+                    >
+                        <span className="material-symbols-rounded text-[20px] leading-none">
+                            {showPassword ? "visibility_off" : "visibility"}
+                        </span>
+                    </button>
+                )}
+            </div>
 
             {error && (
                 <p className="mt-2 text-sm text-danger">
