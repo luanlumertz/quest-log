@@ -1,5 +1,4 @@
 import { NavLink } from "react-router";
-
 import { navigationItems } from "./navigationItems";
 import { MaterialIcon } from "../ui/MaterialIcon";
 

@@ -10,6 +10,7 @@ import { Alert } from "../ui/Alert";
 export function ProfileMenu() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");
 
@@ -17,20 +18,31 @@ export function ProfileMenu() {
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (
-                profileRef.current &&
-                !profileRef.current.contains(event.target as Node)
-            ) {
+            if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
                 setIsProfileOpen(false);
             }
         }
 
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key !== "Escape" || !isProfileOpen) {
+                return;
+            }
+
+            setIsProfileOpen(false);
+
+            triggerRef.current?.focus();
+        }
+
         document.addEventListener("mousedown", handleClickOutside);
+
+        document.addEventListener("keydown", handleKeyDown);
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+
+            document.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, [isProfileOpen]);
 
     async function handleLogout() {
         setLogoutError("");
@@ -55,17 +67,20 @@ export function ProfileMenu() {
     return (
         <div ref={profileRef} className="relative ml-auto">
             <button
+                ref={triggerRef}
                 type="button"
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                aria-expanded={isProfileOpen}
+                aria-controls="profile-menu"
+                onClick={() => setIsProfileOpen((current) => !current)}
                 className="
                     flex h-12 w-fit
                     items-center gap-3
-                    rounded-xl
-                    px-4
-                    text-ink-dim
+                    rounded-xl px-4
+                  text-ink-dim
                     transition-colors
-                    hover:bg-surface-raised
+                  hover:bg-surface-raised
                     hover:cursor-pointer
+                  hover:text-ink
                 "
             >
                 <span
@@ -87,6 +102,7 @@ export function ProfileMenu() {
                 </span>
 
                 <span
+                    aria-hidden="true"
                     className={`
                         -m-1 shrink-0
                         text-2xl text-ink-mute
@@ -99,6 +115,7 @@ export function ProfileMenu() {
             </button>
 
             <div
+                id="profile-menu"
                 className={`
                     absolute right-0 top-[calc(100%+8px)]
                     z-50

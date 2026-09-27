@@ -92,15 +92,26 @@ async function createApiError(response: Response): Promise<ApiError> {
     }
 }
 
+function createRequestHeaders(options: RequestInit) {
+    const headers = new Headers(options.headers);
+
+    const hasJsonBody = typeof options.body === "string";
+
+    if (hasJsonBody && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+    }
+
+    return headers;
+}
+
 export async function apiRequest(endpoint: string, options: RequestInit = {}, canRetry = true) {
+    const headers = createRequestHeaders(options);
+
     const response = await fetchWithNetworkHandling(`${API_URL}${endpoint}`,
         {
             ...options,
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                ...options.headers
-            }
+            headers
         }
     );
 

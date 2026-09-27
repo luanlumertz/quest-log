@@ -1,7 +1,18 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addGameToLibrary, deleteLibraryEntry, getLibrary, getLibraryEntry, updateLibraryEntry } from "../services/library.service";
 import type { LibraryFilters } from "../types/library.types";
 import type { UpdateLibraryEntryData } from "../schema/library.schema";
+
+async function invalidateLibraryRelatedQueries(queryClient: QueryClient) {
+    await Promise.all([
+        queryClient.invalidateQueries({
+            queryKey: ["library"]
+        }),
+        queryClient.invalidateQueries({
+            queryKey: ["dashboard"]
+        })
+    ]);
+}
 
 export function useLibrary(filters?: LibraryFilters) {
     return useQuery({
@@ -16,16 +27,8 @@ export function useAddGameToLibrary() {
     return useMutation({
         mutationFn: addGameToLibrary,
 
-        onSuccess: async () => {
-            await Promise.all([
-                queryClient.invalidateQueries({
-                    queryKey: ["library"]
-                }),
-
-                queryClient.invalidateQueries({
-                    queryKey: ["dashboard"]
-                })
-            ]);
+        onSuccess: () => {
+            invalidateLibraryRelatedQueries(queryClient)
         }
     });
 }
@@ -58,15 +61,8 @@ export function useUpdateLibraryEntry(gameIdParam?: string) {
             return updateLibraryEntry(gameId, data);
         },
 
-        onSuccess: async () => {
-            await Promise.all([
-                queryClient.invalidateQueries({
-                    queryKey: ["library"]
-                }),
-                queryClient.invalidateQueries({
-                    queryKey: ["dashboard"]
-                })
-            ]);
+        onSuccess: () => {
+            invalidateLibraryRelatedQueries(queryClient)
         }
     });
 }
@@ -87,15 +83,8 @@ export function useDeleteLibraryEntry(gameIdParam?: string) {
             return deleteLibraryEntry(gameId);
         },
 
-        onSuccess: async () => {
-            await Promise.all([
-                queryClient.invalidateQueries({
-                    queryKey: ["library"]
-                }),
-                queryClient.invalidateQueries({
-                    queryKey: ["dashboard"]
-                })
-            ]);
+        onSuccess: () => {
+            invalidateLibraryRelatedQueries(queryClient)
         }
     });
 }

@@ -32,7 +32,7 @@ export function LogoutSection({
                     isLoading={isLoggingOut}
                     loadingText="Saindo..."
                     fullWidth
-                    className="shrink-0 min-[420px]:w-auto"
+                    className="shrink-0 min-[420px]:w-auto bg-transparent"
                 >
                     Sair
                 </Button>

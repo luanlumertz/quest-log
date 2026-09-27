@@ -6,8 +6,8 @@ export function Logo() {
             <div
                 className="
                     flex size-12 items-center justify-center
-                    rounded-xl bg-brand
-                    text-white
+                    rounded-xl bg-brand-gradient
+                  text-white
                 "
             >
                 <MaterialIcon

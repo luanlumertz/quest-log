@@ -39,9 +39,9 @@ type ButtonLinkProps =
 
 const variantClasses: Record<ButtonVariant, string> = {
     primary: `
-        bg-brand
+        bg-brand-gradient
         text-white
-        hover:bg-brand-dim
+        hover:brightness-110
         focus-visible:outline-brand
     `,
 
@@ -103,7 +103,7 @@ function getButtonClassName({
         gap-2
         rounded-xl
         cursor-pointer
-        transition-colors
+        transition-[color,background-color,border-color,filter]
         focus-visible:outline-2
         focus-visible:outline-offset-2
         disabled:cursor-not-allowed

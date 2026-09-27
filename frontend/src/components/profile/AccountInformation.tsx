@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateCurrentUser } from "../../hooks/auth.hook";
 import { updateSchema, type UpdateData } from "../../schema/auth.schema";
 import type { User } from "../../types/auth.types";
-import { MaterialIcon } from "../ui/MaterialIcon";
 import { Button } from "../ui/Button";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import { Alert } from "../ui/Alert";
@@ -193,7 +192,6 @@ export function AccountInformation({
                     )}
 
                     <div
-                        role="status"
                         aria-hidden={!showSuccess}
                         className={`
                             overflow-hidden

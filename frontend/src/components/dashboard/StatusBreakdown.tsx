@@ -1,5 +1,5 @@
 import type { GameStatus } from "../../types/game.types";
-import { GAME_STATUS_CONFIG } from "../../config/gameStatus.config";
+import { GAME_STATUS_ENTRIES } from "../../config/gameStatus.config";
 import { Link } from "react-router";
 
 type StatusBreakdownProps = {
@@ -7,15 +7,10 @@ type StatusBreakdownProps = {
     totalGames?: number;
 };
 
-const statusEntries = Object.entries(GAME_STATUS_CONFIG) as [
-    GameStatus,
-    (typeof GAME_STATUS_CONFIG)[GameStatus],
-][];
-
 export function StatusBreakdown({ byStatus, totalGames = 0 }: StatusBreakdownProps) {
     let currentAngle = 0;
 
-    const donutSlices = [...statusEntries]
+    const donutSlices = [...GAME_STATUS_ENTRIES]
         .reverse()
         .map(([status, config]) => {
             const startAngle = currentAngle;
@@ -106,7 +101,7 @@ export function StatusBreakdown({ byStatus, totalGames = 0 }: StatusBreakdownPro
                 </div>
 
                 <div className="flex flex-1 flex-col justify-evenly">
-                    {statusEntries.map(([status, config]) => (
+                    {GAME_STATUS_ENTRIES.map(([status, config]) => (
                         <Link
                             key={status}
                             to={`/library?status=${status}`}
