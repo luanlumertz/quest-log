@@ -65,7 +65,7 @@ export function Dashboard() {
                     text-white
                 "
             >
-                Bem vindo de volta,{" "}
+                Bem-vindo de volta,{" "}
                 {user?.name ? getUserFirstName(user.name) : "Jogador"}
             </h1>
 

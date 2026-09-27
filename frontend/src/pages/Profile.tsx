@@ -67,8 +67,8 @@ export function Profile() {
 
     return (
         <>
-            <div className="mx-auto w-full max-w-142.5 py-8">
-                <h1 className="font-display text-3xl font-bold text-white">
+            <div className="mx-auto w-full max-w-142.5 pt-8 pb-6">
+                <h1 className="font-display text-3xl! font-bold text-white">
                     Meu Perfil
                 </h1>
 

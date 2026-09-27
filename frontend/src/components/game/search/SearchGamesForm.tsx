@@ -13,7 +13,7 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
         <form
             onSubmit={onSubmit}
             className="
-                mt-8 flex max-w-2xl
+                mt-6 flex max-w-2xl
                 flex-col gap-2
                 min-[400px]:flex-row
             "

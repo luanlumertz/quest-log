@@ -14,7 +14,7 @@ export function DashboardStats({
     totalPlaytime,
 }: DashboardStatsProps) {
     return (
-        <div className="mt-10 grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 lg:grid-cols-3 lg:gap-4 xl:grid-cols-6">
+        <div className="mt-8 grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 lg:grid-cols-3 lg:gap-4 xl:grid-cols-6">
             <StatCard
                 label="Total de jogos"
                 content={totalGames}

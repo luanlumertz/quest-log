@@ -144,7 +144,7 @@ export function Library() {
 
     return (
         <div className="py-8">
-            <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+            <h1 className="font-display text-3xl! font-bold text-white">
                 Minha Biblioteca
             </h1>
 
