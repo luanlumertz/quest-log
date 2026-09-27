@@ -4,6 +4,7 @@ import { updateLibraryEntrySchema, type UpdateLibraryEntryData } from "../../../
 import type { GameStatus } from "../../../types/game.types";
 import type { LibraryEntry, LibraryEntryDetails } from "../../../types/library.types";
 import { getTodayInputValue } from "./libraryGameDetailsForm.utils";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 import {
     applyStatusRules,
     createDefaultValues,
@@ -258,9 +259,11 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
             setIsSaved(true);
         } catch (error) {
-            setSubmitError(error instanceof Error
-                ? error.message
-                : "Não foi possível salvar as alterações"
+            setSubmitError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível salvar as alterações."
+                )
             );
         }
     }

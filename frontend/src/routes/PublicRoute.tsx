@@ -1,42 +1,35 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/Button";
+import { LoadingState } from "../components/ui/LoadingState";
+import { StateView } from "../components/ui/StateView";
 
 export function PublicRoute() {
     const { user, status, retryAuth } = useAuth();
 
     if (status === "loading") {
-        return null;
+        return (
+            <LoadingState
+                label="Verificando sessão..."
+                className="min-h-screen! bg-backdrop"
+            />
+        );
     }
 
     if (status === "error") {
         return (
-            <div
-                className="
-                    flex min-h-screen
-                    items-center justify-center
-                    bg-backdrop
-                    px-4
-                    text-ink
-                "
-            >
-                <div className="text-center">
-                    <h1 className="font-display text-xl font-bold">
-                        Não foi possível verificar sua sessão
-                    </h1>
-
-                    <p className="mt-2 text-sm text-ink-dim">
-                        Verifique sua conexão e tente novamente.
-                    </p>
-
-                    <Button
-                        className="mt-5"
-                        onClick={retryAuth}
-                    >
+            <StateView
+                icon="error"
+                tone="danger"
+                title="Não foi possível verificar sua sessão"
+                description="Verifique sua conexão e tente novamente."
+                className="min-h-screen! bg-backdrop"
+                action={
+                    <Button onClick={() => void retryAuth()} >
                         Tentar novamente
                     </Button>
-                </div>
-            </div>
+                }
+            />
         );
     }
 

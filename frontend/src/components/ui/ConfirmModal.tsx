@@ -2,6 +2,7 @@ import { useId, type ReactNode } from "react";
 import { Button, type ButtonVariant } from "./Button";
 import { MaterialIcon, type MaterialIconName } from "./MaterialIcon";
 import { Modal } from "./Modal";
+import { Alert } from "./Alert";
 
 type ConfirmVariant = Extract<ButtonVariant, "primary" | "danger">;
 
@@ -116,20 +117,9 @@ export function ConfirmModal({
                 )}
 
                 {error && (
-                    <p
-                        role="alert"
-                        className="
-                            mt-4
-                            rounded-xl
-                            border border-danger/30
-                            bg-danger/10
-                            px-3 py-2
-                            text-sm
-                            text-danger
-                        "
-                    >
+                    <Alert className="mt-4">
                         {error}
-                    </p>
+                    </Alert>
                 )}
 
                 <div className="mt-5 grid grid-cols-2 gap-3">

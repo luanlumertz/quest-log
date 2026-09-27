@@ -4,10 +4,14 @@ import { Link } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { getUserInitials } from "../../utils/getUserInitials";
 import { MaterialIcon } from "../ui/MaterialIcon";
+import { getErrorMessage } from "../../utils/getErrorMessage";
+import { Alert } from "../ui/Alert";
 
 export function ProfileMenu() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [logoutError, setLogoutError] = useState("");
 
     const { user, signOut } = useAuth();
 
@@ -27,6 +31,26 @@ export function ProfileMenu() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    async function handleLogout() {
+        setLogoutError("");
+        setIsLoggingOut(true);
+
+        try {
+            await signOut();
+
+            setIsProfileOpen(false);
+        } catch (error) {
+            setLogoutError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível encerrar a sessão."
+                )
+            );
+        } finally {
+            setIsLoggingOut(false);
+        }
+    }
 
     return (
         <div ref={profileRef} className="relative ml-auto">
@@ -112,7 +136,8 @@ export function ProfileMenu() {
                 </Link>
 
                 <button
-                    onClick={signOut}
+                    onClick={() => void handleLogout()}
+                    disabled={isLoggingOut}
                     type="button"
                     className="
                         flex w-full items-center gap-1.5
@@ -121,14 +146,26 @@ export function ProfileMenu() {
                         transition-colors
                       hover:bg-surface-hover
                         cursor-pointer
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                     "
                 >
                     <MaterialIcon
                         name="logout"
                     />
 
-                    <span>Sair</span>
+                    <span>
+                        {isLoggingOut ? "Saindo..." : "Sair"}
+                    </span>
                 </button>
+
+                {logoutError && (
+                    <div className="border-t border-divider p-2">
+                        <Alert>
+                            {logoutError}
+                        </Alert>
+                    </div>
+                )}
             </div>
 
         </div>

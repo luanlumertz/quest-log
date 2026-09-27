@@ -7,6 +7,8 @@ import { updateSchema, type UpdateData } from "../../schema/auth.schema";
 import type { User } from "../../types/auth.types";
 import { MaterialIcon } from "../ui/MaterialIcon";
 import { Button } from "../ui/Button";
+import { getErrorMessage } from "../../utils/getErrorMessage";
+import { Alert } from "../ui/Alert";
 
 type AccountInformationProps = {
     user: User;
@@ -87,10 +89,11 @@ export function AccountInformation({
             setIsEditing(false);
             setShowSuccess(true);
         } catch (error) {
-            // Estado separado: um erro do servidor não bloqueia uma nova tentativa.
-            setUpdateError(error instanceof Error
-                ? error.message
-                : "Não foi possível atualizar seu nome."
+            setUpdateError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível atualizar seu nome."
+                )
             );
         } finally {
             onUpdatingChange(false);
@@ -145,9 +148,9 @@ export function AccountInformation({
                             )}
 
                             {updateError && (
-                                <p role="alert" className="mt-2 text-xs text-danger">
+                                <Alert className="mt-3">
                                     {updateError}
-                                </p>
+                                </Alert>
                             )}
 
                             <div className="mt-3 flex items-center gap-2">
@@ -202,13 +205,9 @@ export function AccountInformation({
                             }
                         `}
                     >
-                        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400">
-                            <MaterialIcon
-                                name="check_circle"
-                                className="shrink-0 text-[18px] leading-none"
-                            />
-                            <span>Nome atualizado com sucesso!</span>
-                        </div>
+                        <Alert variant="success">
+                            Nome atualizado com sucesso!
+                        </Alert>
                     </div>
                 </div>
 

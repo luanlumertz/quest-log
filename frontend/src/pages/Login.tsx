@@ -9,6 +9,8 @@ import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/Button";
+import { Alert } from "../components/ui/Alert";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Login() {
     const navigate = useNavigate();
@@ -33,11 +35,12 @@ export function Login() {
 
             navigate("/dashboard");
         } catch (error) {
-            if (error instanceof Error) {
-                setError("root", {
-                    message: error.message
-                });
-            }
+            setError("root", {
+                message: getErrorMessage(
+                    error,
+                    "Não foi possível entrar. Tente novamente."
+                )
+            });
         }
     }
 
@@ -69,14 +72,10 @@ export function Login() {
                         error={errors.password?.message}
                     />
 
-                    {errors.root && (
-                        <p className="
-                                rounded-lg
-                                border border-danger/30
-                                bg-danger/10
-                                px-4 py-3
-                                text-sm text-danger
-                            ">{errors.root.message}</p>
+                    {errors.root?.message && (
+                        <Alert>
+                            {errors.root.message}
+                        </Alert>
                     )}
 
                     <Button

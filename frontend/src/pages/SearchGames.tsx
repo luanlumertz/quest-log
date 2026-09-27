@@ -1,20 +1,35 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useSearchParams } from "react-router";
+
 import { useSearchGames } from "../hooks/game.hook";
+import { useLibrary } from "../hooks/library.hook";
+
 import { SearchGamesForm } from "../components/game/search/SearchGamesForm";
 import { SearchGamesResults } from "../components/game/search/SearchGamesResults";
-import { useLibrary } from "../hooks/library.hook";
 
 export function SearchGames() {
     const [searchParams, setSearchParams] = useSearchParams();
     const searchedQuery = searchParams.get("query") ?? "";
     const [inputValue, setInputValue] = useState(searchedQuery);
 
-    const { data: games = [], isLoading, isError, } = useSearchGames(searchedQuery);
+    const {
+        data: games = [],
+        isLoading,
+        isError,
+        isFetching,
+        refetch
+    } = useSearchGames(searchedQuery);
 
-    const { data: library = [] } = useLibrary();
+    const {
+        data: library,
+        isError: isLibraryError,
+        isFetching: isLibraryFetching,
+        refetch: refetchLibrary
+    } = useLibrary();
 
-    const libraryExternalIds = new Set(library.map((entry) => entry.game.externalId));
+    const libraryExternalIds = library
+        ? new Set(library.map((entry) => entry.game.externalId))
+        : undefined;
 
     useEffect(() => {
         setInputValue(searchedQuery);
@@ -28,10 +43,11 @@ export function SearchGames() {
         if (!normalizedQuery) {
             setInputValue("");
             setSearchParams({});
+
             return;
         }
 
-        setSearchParams({ query: normalizedQuery, });
+        setSearchParams({ query: normalizedQuery });
     }
 
     function handleInputChange(value: string) {
@@ -59,7 +75,12 @@ export function SearchGames() {
                 games={games}
                 isLoading={isLoading}
                 isError={isError}
+                isFetching={isFetching}
+                onRetry={() => void refetch()}
                 libraryExternalIds={libraryExternalIds}
+                isLibraryError={isLibraryError}
+                isLibraryFetching={isLibraryFetching}
+                onRetryLibrary={() => void refetchLibrary()}
             />
         </div>
     );

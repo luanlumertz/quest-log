@@ -4,7 +4,7 @@ import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
 
 type SearchGameCardProps = {
     game: GameSearchResult;
-    isInLibrary: boolean;
+    isInLibrary?: boolean;
 };
 
 export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {

@@ -1,88 +1,104 @@
 import type { GameSearchResult } from "../../../types/game.types";
-import { MaterialIcon } from "../../ui/MaterialIcon";
+
+import { Alert } from "../../ui/Alert";
+import { Button } from "../../ui/Button";
+import { LoadingState } from "../../ui/LoadingState";
+import { StateView } from "../../ui/StateView";
+
 import { SearchGameCard } from "./SearchGameCard";
 
 type SearchGamesResultsProps = {
     searchedQuery: string;
     games: GameSearchResult[];
+
     isLoading: boolean;
     isError: boolean;
-    libraryExternalIds: Set<number>;
+    isFetching: boolean;
+    onRetry: () => void;
+
+    libraryExternalIds?: Set<number>;
+    isLibraryError: boolean;
+    isLibraryFetching: boolean;
+    onRetryLibrary: () => void;
 };
 
 export function SearchGamesResults({
     searchedQuery,
     games,
+
     isLoading,
     isError,
-    libraryExternalIds
+    isFetching,
+    onRetry,
+
+    libraryExternalIds,
+    isLibraryError,
+    isLibraryFetching,
+    onRetryLibrary
 }: SearchGamesResultsProps) {
     if (!searchedQuery) {
         return (
-            <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <MaterialIcon
-                    name="search"
-                    className="text-5xl! text-ink-mute"
-                />
-
-                <h2 className="mt-4 font-display text-xl font-semibold text-ink">
-                    Encontre seu próximo jogo
-                </h2>
-
-                <p className="mt-2 text-sm text-ink-mute">
-                    Pesquise pelo nome de um jogo para começar.
-                </p>
-            </div>
+            <StateView
+                icon="search"
+                title="Encontre seu próximo jogo"
+                description="Pesquise pelo nome de um jogo para começar."
+                className="mt-8"
+            />
         );
     }
 
     if (isLoading) {
         return (
-            <div className="flex min-h-80 items-center justify-center">
-                <p className="text-sm text-ink-mute">
-                    Buscando jogos...
-                </p>
-            </div>
+            <LoadingState
+                label="Buscando jogos..."
+                className="mt-8"
+            />
         );
     }
 
     if (isError) {
         return (
-            <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <MaterialIcon
-                    name="error"
-                    className="text-5xl! text-danger"
-                />
-
-                <p className="mt-4 text-sm text-ink-dim">
-                    Não foi possível buscar os jogos.
-                </p>
-            </div>
+            <StateView
+                icon="error"
+                tone="danger"
+                title="Não foi possível buscar os jogos"
+                description="Tente novamente em alguns instantes."
+                className="mt-8"
+                action={
+                    <Button
+                        isLoading={isFetching}
+                        loadingText="Tentando..."
+                        onClick={onRetry}
+                    >
+                        Tentar novamente
+                    </Button>
+                }
+            />
         );
     }
 
     if (games.length === 0) {
         return (
-            <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <MaterialIcon
-                    name="search_off"
-                    className="text-5xl! text-ink-mute"
-                />
-
-                <h2 className="mt-4 font-display text-xl font-semibold text-ink">
-                    Nenhum jogo encontrado
-                </h2>
-
-                <p className="mt-2 text-sm text-ink-mute">
-                    Tente pesquisar por outro nome.
-                </p>
-            </div>
+            <StateView
+                icon="search_off"
+                title="Nenhum jogo encontrado"
+                description={
+                    <>
+                        Não encontramos resultados para{" "}
+                        <span className="font-medium text-ink">
+                            "{searchedQuery}"
+                        </span>
+                        . Tente pesquisar por outro nome.
+                    </>
+                }
+                className="mt-8"
+            />
         );
     }
 
     return (
         <section className="mt-8">
-            <p className="mb-5 text-sm text-ink-mute">
+            <p className="mb-2 text-sm text-ink-mute">
                 Resultados para "{searchedQuery}"
             </p>
 
@@ -90,10 +106,35 @@ export function SearchGamesResults({
                 Mostrando até 10 resultados. Tente uma busca mais específica caso não encontre o jogo desejado.
             </p>
 
+            {isLibraryError && (
+                <Alert className="mb-6">
+                    <div>
+                        <p>
+                            Não foi possível verificar quais jogos já estão na sua biblioteca.
+                        </p>
+
+                        <p className="mt-1 text-xs opacity-80">
+                            Os resultados da busca continuam disponíveis normalmente.
+                        </p>
+
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            isLoading={isLibraryFetching}
+                            loadingText="Tentando..."
+                            onClick={onRetryLibrary}
+                            className="mt-3"
+                        >
+                            Tentar novamente
+                        </Button>
+                    </div>
+                </Alert>
+            )}
+
             <div
                 className="
-                    grid gap-4
-                    grid-cols-1
+                    grid grid-cols-1
+                    gap-4
                     min-[320px]:grid-cols-2
                     sm:grid-cols-3
                     lg:grid-cols-4
@@ -104,7 +145,7 @@ export function SearchGamesResults({
                     <SearchGameCard
                         key={game.externalId}
                         game={game}
-                        isInLibrary={libraryExternalIds.has(game.externalId)}
+                        isInLibrary={libraryExternalIds?.has(game.externalId)}
                     />
                 ))}
             </div>

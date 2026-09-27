@@ -13,8 +13,6 @@ export type AuthStatus =
 type AuthContextType = {
     user: User | null;
     status: AuthStatus;
-    isLoading: boolean;
-    authError: string | null;
     setUser: (user: User | null) => void;
     retryAuth: () => Promise<void>;
     signOut: () => Promise<void>;
@@ -28,16 +26,12 @@ type Props = {
 
 export const AuthProvider = ({ children }: Props) => {
     const [user, setUserState] = useState<User | null>(null);
-
     const [status, setStatus] = useState<AuthStatus>("loading");
-
-    const [authError, setAuthError] = useState<string | null>(null);
 
     const queryClient = useQueryClient();
 
     const setUser = useCallback((user: User | null) => {
         setUserState(user);
-        setAuthError(null);
 
         setStatus(user ? "authenticated" : "unauthenticated");
     }, []);
@@ -45,7 +39,6 @@ export const AuthProvider = ({ children }: Props) => {
     const loadCurrentUser = useCallback(
         async () => {
             setStatus("loading");
-            setAuthError(null);
 
             try {
                 const currentUser = await getCurrentUser();
@@ -61,8 +54,6 @@ export const AuthProvider = ({ children }: Props) => {
                     return;
                 }
 
-                setAuthError("Não foi possível verificar sua sessão.");
-
                 setStatus("error");
             }
         }, []
@@ -73,7 +64,6 @@ export const AuthProvider = ({ children }: Props) => {
             queryClient.clear();
 
             setUserState(null);
-            setAuthError(null);
             setStatus("unauthenticated");
         }
 
@@ -108,15 +98,11 @@ export const AuthProvider = ({ children }: Props) => {
         setUser(null);
     }
 
-    const isLoading = status === "loading";
-
     return (
         <AuthContext.Provider
             value={{
                 user,
                 status,
-                isLoading,
-                authError,
                 setUser,
                 retryAuth: loadCurrentUser,
                 signOut

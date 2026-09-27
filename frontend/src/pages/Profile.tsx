@@ -7,9 +7,10 @@ import { AccountInformation } from "../components/profile/AccountInformation";
 import { LogoutSection } from "../components/profile/LogoutSection";
 import { DangerZone } from "../components/profile/DangerZone";
 import { ConfirmDeleteAccountModal } from "../components/profile/ConfirmDeleteAccountModal";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Profile() {
-    const { user, isLoading, signOut } = useAuth();
+    const { user, signOut } = useAuth();
 
     const [isUpdating, setIsUpdating] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -30,9 +31,11 @@ export function Profile() {
         try {
             await signOut();
         } catch (error) {
-            setLogoutError(error instanceof Error
-                ? error.message
-                : "Não foi possível encerrar a sessão."
+            setLogoutError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível encerrar a sessão."
+                )
             );
         } finally {
             setIsLoggingOut(false);
@@ -58,14 +61,6 @@ export function Profile() {
         } catch {
             // O erro da mutation aparece dentro do modal.
         }
-    }
-
-    if (isLoading) {
-        return (
-            <div className="py-10 text-center text-sm text-ink-dim">
-                Carregando perfil...
-            </div>
-        );
     }
 
     if (!user) return null;
@@ -99,9 +94,12 @@ export function Profile() {
             {isDeleteModalOpen && (
                 <ConfirmDeleteAccountModal
                     isDeleting={isDeleting}
-                    error={deleteError instanceof Error
-                        ? deleteError.message
-                        : undefined
+                    error={ deleteError
+                            ? getErrorMessage(
+                                deleteError,
+                                "Não foi possível excluir sua conta."
+                            )
+                            : undefined
                     }
                     onConfirm={handleConfirmDelete}
                     onCancel={handleCloseDeleteModal}

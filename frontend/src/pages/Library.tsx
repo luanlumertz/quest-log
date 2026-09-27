@@ -12,6 +12,10 @@ import { LibraryGrid } from "../components/library/list/LibraryGrid";
 import { LibraryNoResults } from "../components/library/list/LibraryNoResults";
 import { LibraryFilters } from "../components/library/list/LibraryFilters";
 
+import { Alert } from "../components/ui/Alert";
+import { Button } from "../components/ui/Button";
+import { StateView } from "../components/ui/StateView";
+
 function isGameStatus(value: string | null): value is GameStatus {
     return (
         value !== null &&
@@ -46,22 +50,19 @@ function getLibraryCounts(entries: LibraryEntry[]) {
 
 export function Library() {
     const [searchParams, setSearchParams] = useSearchParams();
-
     const search = searchParams.get("search") ?? "";
-
     const statusParam = searchParams.get("status");
-
     const status = isGameStatus(statusParam) ? statusParam : undefined;
-
     const [searchInput, setSearchInput] = useState(search);
 
     const filters = search || status
         ? {
             search: search || undefined,
             status
-        } : undefined;
+        }
+        : undefined;
 
-    // Resultado mostrado no grid
+    // Resultado exibido no grid.
     const {
         data: entries = [],
         isLoading,
@@ -70,8 +71,13 @@ export function Library() {
         refetch
     } = useLibrary(filters);
 
-    // Biblioteca completa para contadores e empty state
-    const { data: allEntries, isError: isAllLibraryError } = useLibrary();
+    const {
+        data: allEntries,
+        isLoading: isAllLibraryLoading,
+        isError: isAllLibraryError,
+        isFetching: isAllLibraryFetching,
+        refetch: refetchAllLibrary
+    } = useLibrary();
 
     useEffect(() => {
         setSearchInput(search);
@@ -81,27 +87,43 @@ export function Library() {
         const timeout = window.setTimeout(() => {
             const normalizedSearch = searchInput.trim();
 
-            if (normalizedSearch === search) return;
+            if (normalizedSearch === search) {
+                return;
+            }
 
             const nextParams = new URLSearchParams(searchParams);
 
             if (normalizedSearch) {
-                nextParams.set("search", normalizedSearch);
+                nextParams.set(
+                    "search",
+                    normalizedSearch
+                );
             } else {
                 nextParams.delete("search");
             }
 
-            setSearchParams(nextParams, { replace: true });
+            setSearchParams(
+                nextParams,
+                { replace: true }
+            );
         }, 500);
 
         return () => window.clearTimeout(timeout);
-    }, [searchInput, search, searchParams, setSearchParams]);
+    }, [
+        searchInput,
+        search,
+        searchParams,
+        setSearchParams
+    ]);
 
     function handleStatusChange(nextStatus?: GameStatus) {
         const nextParams = new URLSearchParams(searchParams);
 
         if (nextStatus) {
-            nextParams.set("status", nextStatus);
+            nextParams.set(
+                "status",
+                nextStatus
+            );
         } else {
             nextParams.delete("status");
         }
@@ -116,7 +138,9 @@ export function Library() {
 
     const counts = allEntries ? getLibraryCounts(allEntries) : undefined;
 
-    const isLibraryEmpty = !isAllLibraryError && allEntries !== undefined && allEntries.length === 0;
+    const isLibraryEmpty = allEntries !== undefined && allEntries.length === 0;
+
+    const isResolvingEmptyState = !isLoading && entries.length === 0 && isAllLibraryLoading;
 
     return (
         <div className="py-8">
@@ -132,38 +156,73 @@ export function Library() {
                 onStatusChange={handleStatusChange}
             />
 
-            {isLoading ? (
+            {isAllLibraryError && !isError && entries.length > 0 && (
+                <Alert className="mt-5">
+                    <div>
+                        <p>
+                            Não foi possível atualizar os contadores da biblioteca.
+                        </p>
+
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            isLoading={isAllLibraryFetching}
+                            loadingText="Tentando..."
+                            onClick={() => void refetchAllLibrary()}
+                            className="mt-3"
+                        >
+                            Tentar novamente
+                        </Button>
+                    </div>
+                </Alert>
+            )}
+
+            {isLoading || isResolvingEmptyState ? (
                 <LibraryLoading />
             ) : isError ? (
-                <div className="mt-12 text-center">
-                    <p className="text-sm text-danger">
-                        Não foi possível carregar sua biblioteca.
-                    </p>
-
-                    <button
-                        type="button"
-                        onClick={() => refetch()}
-                        disabled={isFetching}
-                        className="
-                            mt-3 text-sm font-semibold
-                            text-brand
-                            hover:underline
-                            disabled:opacity-50
-                        "
-                    >
-                        {isFetching ? "Tentando..." : "Tentar novamente"}
-                    </button>
-                </div>
+                <StateView
+                    icon="error"
+                    tone="danger"
+                    title="Não foi possível carregar sua biblioteca"
+                    description="Tente novamente em alguns instantes."
+                    className="mt-8"
+                    action={
+                        <Button
+                            isLoading={isFetching}
+                            loadingText="Tentando..."
+                            onClick={() => void refetch()}
+                        >
+                            Tentar novamente
+                        </Button>
+                    }
+                />
+            ) : isAllLibraryError && entries.length === 0 ? (
+                <StateView
+                    icon="error"
+                    tone="danger"
+                    title="Não foi possível carregar sua biblioteca"
+                    description="Não conseguimos verificar os jogos da sua biblioteca. Tente novamente."
+                    className="mt-8"
+                    action={
+                        <Button
+                            isLoading={isAllLibraryFetching}
+                            loadingText="Tentando..."
+                            onClick={() => void refetchAllLibrary()}
+                        >
+                            Tentar novamente
+                        </Button>
+                    }
+                />
             ) : isLibraryEmpty ? (
                 <LibraryEmptyState />
             ) : entries.length === 0 ? (
                 <LibraryNoResults
-                    onClearFilters={
-                        handleClearFilters
-                    }
+                    onClearFilters={handleClearFilters}
                 />
             ) : (
-                <LibraryGrid entries={entries} />
+                <LibraryGrid
+                    entries={entries}
+                />
             )}
         </div>
     );
@@ -171,17 +230,17 @@ export function Library() {
 
 function LibraryLoading() {
     return (
-        <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 lg:gap-4">
+        <div
+            role="status"
+            aria-label="Carregando biblioteca"
+            className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 lg:gap-4"
+        >
             {Array.from({ length: 10 }).map(
                 (_, index) => (
                     <div
                         key={index}
-                        className="
-                            aspect-[3/4.9]
-                            animate-pulse
-                            rounded-2xl
-                            bg-surface-raised
-                        "
+                        aria-hidden="true"
+                        className="aspect-[3/4.9] animate-pulse rounded-2xl bg-surface-raised"
                     />
                 )
             )}

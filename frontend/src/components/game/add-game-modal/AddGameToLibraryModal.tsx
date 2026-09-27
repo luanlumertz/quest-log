@@ -9,6 +9,8 @@ import { GameStatusSelector } from "../../ui/GameStatusSelector";
 import { GamePlatformSelector } from "./GamePlatformSelector";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Modal";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
+import { Alert } from "../../ui/Alert";
 
 type AddGameToLibraryModalProps = {
     game: GameDetailsResult;
@@ -83,7 +85,10 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
             resetAndClose();
         } catch (error) {
             setError("root", {
-                message: error instanceof Error ? error.message : "Não foi possível adicionar o jogo"
+                message: getErrorMessage(
+                    error,
+                    "Não foi possível adicionar o jogo."
+                )
             });
         }
     }
@@ -119,20 +124,10 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
                     onToggle={handlePlatformToggle}
                 />
 
-                {errors.root && (
-                    <p
-                        className="
-                            mt-5
-                            rounded-lg
-                            border border-danger/30
-                          bg-danger/10
-                            px-3 py-2
-                            text-sm
-                          text-danger
-                        "
-                    >
+                {errors.root?.message && (
+                    <Alert className="mt-5">
                         {errors.root.message}
-                    </p>
+                    </Alert>
                 )}
 
                 <div className="mt-6 grid grid-cols-2 gap-3">

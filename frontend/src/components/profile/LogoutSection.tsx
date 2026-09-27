@@ -1,3 +1,4 @@
+import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
 
 type LogoutSectionProps = {
@@ -38,9 +39,9 @@ export function LogoutSection({
             </div>
 
             {logoutError && (
-                <p role="alert" className="mt-3 text-xs text-danger">
+                <Alert className="mt-3">
                     {logoutError}
-                </p>
+                </Alert>
             )}
         </section>
     );

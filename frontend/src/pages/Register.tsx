@@ -8,6 +8,8 @@ import { register as signUp } from "../services/auth.service";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { Button } from "../components/ui/Button";
+import { Alert } from "../components/ui/Alert";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Register() {
     const navigate = useNavigate();
@@ -27,11 +29,12 @@ export function Register() {
             await signUp(data);
             navigate("/login")
         } catch (error) {
-            if (error instanceof Error) {
-                setError("root", {
-                    message: error.message
-                })
-            }
+            setError("root", {
+                message: getErrorMessage(
+                    error,
+                    "Não foi possível criar sua conta. Tente novamente."
+                )
+            });
         }
     }
 
@@ -81,14 +84,10 @@ export function Register() {
                         error={errors.confirmPassword?.message}
                     />
 
-                    {errors.root && (
-                        <p className="
-                            rounded-lg
-                            border border-danger/30
-                            bg-danger/10
-                            px-4 py-3
-                            text-sm text-danger
-                        ">{errors.root.message}</p>
+                    {errors.root?.message && (
+                        <Alert>
+                            {errors.root.message}
+                        </Alert>
                     )}
 
                     <Button
