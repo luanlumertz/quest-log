@@ -1,6 +1,5 @@
 import type { DataLossField } from "./libraryGameDetailsForm.rules";
-import { Button } from "../../ui/Button";
-import { MaterialIcon } from "../../ui/MaterialIcon";
+import { ConfirmModal } from "../../ui/ConfirmModal";
 
 type ConfirmDataLossModalProps = {
     fields: DataLossField[];
@@ -15,113 +14,55 @@ const DATA_LOSS_FIELD_LABELS: Record<DataLossField, string> = {
     completedAt: "Data de conclusão"
 };
 
-export function ConfirmDataLossModal({ fields, onConfirm, onCancel }: ConfirmDataLossModalProps) {
+export function ConfirmDataLossModal({
+    fields,
+    onConfirm,
+    onCancel
+}: ConfirmDataLossModalProps) {
     return (
-        <div
-            className="
-                fixed inset-0 z-50
-                flex items-center
-                justify-center
-                bg-black/70
-                px-4
-            "
+        <ConfirmModal
+            icon="error"
+            title="Alguns dados serão removidos ao salvar"
+            description="Ao salvar, os seguintes dados que estavam registrados serão removidos:"
+            confirmText="Salvar mesmo assim"
+            cancelText="Voltar"
+            variant="danger"
+            onConfirm={onConfirm}
+            onCancel={onCancel}
         >
-            <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="data-loss-title"
+            <ul
                 className="
-                    w-full max-w-md
-                    rounded-2xl
-                    border
-                    border-divider-bright
-                    bg-surface
-                    p-5
-                    shadow-2xl
+                    space-y-2
+                    rounded-xl
+                    border border-divider
+                    bg-surface-raised
+                    p-3
                 "
             >
-                <div className="flex items-start gap-3">
-                    <div
+                {fields.map((field) => (
+                    <li
+                        key={field}
                         className="
-                            flex size-10
-                            shrink-0
+                            flex
                             items-center
-                            justify-center
-                            rounded-xl
-                            bg-danger/10
-                            text-danger
+                            gap-2
+                            text-sm
+                            text-ink
                         "
                     >
-                        <MaterialIcon
-                            name="error"
-                        />
-                    </div>
-
-                    <div>
-                        <h2
-                            id="data-loss-title"
+                        <span
                             className="
-                                font-display
-                                text-lg
-                                font-bold
-                                text-ink
+                                size-1.5
+                                shrink-0
+                                rounded-full
+                                bg-danger
                             "
-                        >
-                            Alguns dados serão removidos ao salvar
-                        </h2>
+                        />
 
-                        <p className="mt-1 text-sm text-ink-dim">
-                            Ao salvar, os seguintes dados que estavam registrados serão removidos:
-                        </p>
-                    </div>
-                </div>
-
-                <ul
-                    className="
-                        mt-4 space-y-2
-                        rounded-xl
-                        border
-                        border-divider
-                        bg-surface-raised
-                        p-3
-                    "
-                >
-                    {fields.map(
-                        (field) => (
-                            <li
-                                key={field}
-                                className="
-                                    flex
-                                    items-center
-                                    gap-2
-                                    text-sm
-                                    text-ink
-                                "
-                            >
-                                <span className="size-1.5 rounded-full bg-danger" />
-
-                                {DATA_LOSS_FIELD_LABELS[field]}
-                            </li>
-                        )
-                    )}
-                </ul>
-
-                <div className="mt-5 flex justify-end gap-3">
-                    <Button
-                        variant="secondary"
-                        onClick={onCancel}
-                    >
-                        Voltar
-                    </Button>
-
-                    <Button
-                        variant="danger"
-                        onClick={onConfirm}
-                    >
-                        Salvar mesmo assim
-                    </Button>
-                </div>
-            </div>
-        </div>
+                        {DATA_LOSS_FIELD_LABELS[field]}
+                    </li>
+                ))}
+            </ul>
+        </ConfirmModal>
     );
 }

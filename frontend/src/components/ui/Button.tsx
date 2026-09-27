@@ -1,9 +1,4 @@
-import type {
-    ButtonHTMLAttributes,
-    ComponentProps,
-    ReactNode
-} from "react";
-
+import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from "react";
 import { Link } from "react-router";
 
 export type ButtonVariant =

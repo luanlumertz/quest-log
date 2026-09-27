@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -9,6 +8,7 @@ import { AddGameModalHeader } from "./AddGameModalHeader";
 import { GameStatusSelector } from "../../ui/GameStatusSelector";
 import { GamePlatformSelector } from "./GamePlatformSelector";
 import { Button } from "../../ui/Button";
+import { Modal } from "../../ui/Modal";
 
 type AddGameToLibraryModalProps = {
     game: GameDetailsResult;
@@ -88,111 +88,75 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
         }
     }
 
-    useEffect(() => {
-        if (!isOpen) return;
-
-        function handleEscape(event: KeyboardEvent) {
-            if (event.key === "Escape" && !isSubmitting) {
-                reset(DEFAULT_VALUES);
-                onClose();
-            }
-        }
-
-        const previousOverflow = document.body.style.overflow;
-
-        document.body.style.overflow = "hidden";
-        window.addEventListener("keydown", handleEscape);
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-            window.removeEventListener("keydown", handleEscape);
-        };
-    }, [isOpen, isSubmitting, onClose, reset]);
-
     if (!isOpen) return null;
 
     return (
-        <div
-            className="
-                fixed inset-0 z-50 flex items-center justify-center
-                bg-black/75 p-4 backdrop-blur-sm
-            "
-            onMouseDown={(event) => {
-                if (event.target === event.currentTarget) {
-                    handleClose();
-                }
-            }}
+        <Modal
+            onClose={handleClose}
+            preventClose={isSubmitting}
+            ariaLabelledBy="add-game-title"
         >
-            <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="add-game-title"
-                className="
-                    w-full max-w-md max-h-[calc(100dvh-2rem)]
-                    overflow-y-auto rounded-2xl
-                    border border-divider-bright
-                    bg-surface shadow-2xl
-                "
+            <AddGameModalHeader
+                title={game.title}
+                coverUrl={game.coverUrl}
+                isSubmitting={isSubmitting}
+                onClose={handleClose}
+            />
+
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="p-5"
             >
-                <AddGameModalHeader
-                    title={game.title}
-                    coverUrl={game.coverUrl}
-                    isSubmitting={isSubmitting}
-                    onClose={handleClose}
+                <GameStatusSelector
+                    value={selectedStatus}
+                    onChange={handleStatusChange}
                 />
 
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="p-5"
-                >
-                    <GameStatusSelector
-                        value={selectedStatus}
-                        onChange={handleStatusChange}
-                    />
+                <GamePlatformSelector
+                    platforms={availablePlatforms}
+                    selectedPlatforms={selectedPlatforms}
+                    error={errors.platforms?.message}
+                    onToggle={handlePlatformToggle}
+                />
 
-                    <GamePlatformSelector
-                        platforms={availablePlatforms}
-                        selectedPlatforms={selectedPlatforms}
-                        error={errors.platforms?.message}
-                        onToggle={handlePlatformToggle}
-                    />
+                {errors.root && (
+                    <p
+                        className="
+                            mt-5
+                            rounded-lg
+                            border border-danger/30
+                          bg-danger/10
+                            px-3 py-2
+                            text-sm
+                          text-danger
+                        "
+                    >
+                        {errors.root.message}
+                    </p>
+                )}
 
-                    {errors.root && (
-                        <p
-                            className="
-                                mt-5 rounded-lg
-                                border border-danger/30
-                                bg-danger/10 px-3 py-2
-                                text-sm text-danger
-                            "
-                        >
-                            {errors.root.message}
-                        </p>
-                    )}
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                    <Button
+                        variant="secondary"
+                        onClick={handleClose}
+                        disabled={isSubmitting}
+                        fullWidth
+                    >
+                        Cancelar
+                    </Button>
 
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                        <Button
-                            variant="secondary"
-                            onClick={handleClose}
-                            disabled={isSubmitting}
-                            fullWidth
-                        >
-                            Cancelar
-                        </Button>
-
-                        <Button
-                            type="submit"
-                            disabled={availablePlatforms.length === 0}
-                            isLoading={isSubmitting}
-                            loadingText="Adicionando..."
-                            fullWidth
-                            className="wrap-anywhere"
-                        >
-                            Adicionar à biblioteca
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    <Button
+                        type="submit"
+                        disabled={availablePlatforms.length === 0}
+                        isLoading={isSubmitting}
+                        loadingText="Adicionando..."
+                        fullWidth
+                        className="wrap-anywhere"
+                    >
+                        Adicionar à biblioteca
+                    </Button>
+                </div>
+            </form>
+        </Modal>
     );
 }
