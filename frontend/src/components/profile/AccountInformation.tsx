@@ -135,7 +135,7 @@ export function AccountInformation({
                                 disabled={isUpdating || disabled}
                                 aria-invalid={!!errors.name}
                                 aria-describedby={errors.name ? "name-error" : undefined}
-                                className="outline-none"
+                                className="outline-2 outline-brand w-full py-2 px-3 rounded-xl"
                             />
 
                             {errors.name && (
