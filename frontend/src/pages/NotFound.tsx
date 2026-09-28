@@ -1,7 +1,11 @@
-import { Link } from "react-router";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { Logo } from "../components/ui/Logo";
+import { ButtonLink } from "../components/ui/Button";
+import { MaterialIcon } from "../components/ui/MaterialIcon";
 
 export function NotFound() {
+    useDocumentTitle("Página não encontrada");
+
     return (
         <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-backdrop px-5 py-12 text-ink sm:px-8">
             <div
@@ -35,27 +39,19 @@ export function NotFound() {
                         O endereço que você tentou acessar não existe.
                     </p>
 
-                    <Link
+                    <ButtonLink
                         to="/"
-                        className="
-                            mt-9 inline-flex min-h-12 w-full 
-                            items-center justify-center gap-2 
-                            rounded-xl bg-brand px-6 py-3 
-                            font-display text-lg font-bold text-white 
-                            transition-all duration-200 hover:-translate-y-0.5 
-                            hover:bg-brand-dim hover:shadow-lg hover:shadow-brand/20 
-                            focus-visible:outline-2 focus-visible:outline-offset-4 
-                            focus-visible:outline-brand sm:w-auto
-                        "
+                        size="lg"
+                        fullWidth
+                        className="mt-9 sm:w-auto"
                     >
-                        <span
-                            aria-hidden="true"
-                            className="material-symbols-rounded text-[22px]!"
-                        >
-                            chevron_left
-                        </span>
+                        <MaterialIcon
+                            name="arrow_back"
+                            className="text-[22px]!"
+                        />
+
                         Voltar ao início
-                    </Link>
+                    </ButtonLink>
                 </section>
             </div>
         </main>

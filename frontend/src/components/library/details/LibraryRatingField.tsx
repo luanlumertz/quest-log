@@ -38,6 +38,7 @@ export function LibraryRatingField({
     disabled = false,
     onChange
 }: LibraryRatingFieldProps) {
+    const errorId = "rating-error";
     const {
         rating,
         isAtMin,
@@ -113,6 +114,8 @@ export function LibraryRatingField({
                         inputMode="decimal"
                         value={value}
                         disabled={disabled}
+                        aria-invalid={!!error}
+                        aria-describedby={error ? errorId : undefined}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder="-"
                         spellCheck={false}
@@ -177,7 +180,7 @@ export function LibraryRatingField({
             </div>
 
             {error && (
-                <p className="mt-2 text-xs text-danger">
+                <p id={errorId} className="mt-2 text-xs text-danger">
                     {error}
                 </p>
             )}

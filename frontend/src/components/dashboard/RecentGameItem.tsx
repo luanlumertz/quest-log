@@ -6,6 +6,7 @@ import { RatingStars } from "../ui/RatingStars";
 import { GameStatusBadge } from "../ui/GameStatusBadge";
 import { DEFAULT_GAME_COVER_URL } from "../../config/game.config";
 import { Link } from "react-router";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 type RecentGameItemProps = {
     game: GameSummary;
@@ -76,9 +77,10 @@ export function RecentGameItem({
                     </div>
 
                     <div className="flex shrink-0 items-center gap-1 text-xs text-ink-mute">
-                        <span className="material-symbols-rounded text-[17px]!">
-                            schedule
-                        </span>
+                        <MaterialIcon
+                            name="schedule"
+                            className="text-[17px]!"
+                        />
 
                         {formatPlayTime(playtimeMinutes)}
                     </div>

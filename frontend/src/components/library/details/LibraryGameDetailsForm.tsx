@@ -1,5 +1,6 @@
 import type { UpdateLibraryEntryData } from "../../../schema/library.schema";
 import type { LibraryEntry, LibraryEntryDetails } from "../../../types/library.types";
+import { Alert } from "../../ui/Alert";
 import { GameStatusSelector } from "../../ui/GameStatusSelector";
 import { ConfirmDataLossModal } from "./ConfirmDataLossModal";
 import { LibraryDateField } from "./LibraryDateField";
@@ -121,20 +122,9 @@ export function LibraryGameDetailsForm({
                 </div>
 
                 {submitError && (
-                    <p
-                        className="
-                            mt-6
-                            rounded-xl
-                            border
-                            border-danger/30
-                            bg-danger/10
-                            px-3 py-2
-                            text-sm
-                            text-danger
-                        "
-                    >
+                    <Alert className="mt-6">
                         {submitError}
-                    </p>
+                    </Alert>
                 )}
 
                 <LibraryGameDetailsFormActions

@@ -7,12 +7,12 @@ type AuthLayoutProps = {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
     return (
-        <div className="min-h-screen bg-backdrop text-ink lg:grid lg:grid-cols-[3fr_2fr]">
+        <div className="min-h-dvh bg-backdrop text-ink lg:grid lg:grid-cols-[3fr_2fr]">
 
             {/* Lado esquerdo - Desktop */}
             <aside
                 className="
-                    relative hidden min-h-screen overflow-hidden
+                    relative hidden min-h-dvh overflow-hidden
                     bg-[url('/images/auth-bg.jpg')]
                     bg-cover bg-center
                     lg:flex lg:flex-col lg:justify-end
@@ -39,7 +39,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             {/* Área do formulário */}
             <main
                 className="
-                    relative flex min-h-screen
+                    relative flex min-h-dvh
                     items-center justify-center
                     overflow-hidden
                     px-6 py-10

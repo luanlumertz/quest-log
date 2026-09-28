@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 type GamePlatformSelectorProps = {
     platforms: string[];
     selectedPlatforms: string[];
@@ -11,8 +13,14 @@ export function GamePlatformSelector({
     error,
     onToggle
 }: GamePlatformSelectorProps) {
+    const errorId = `${useId()}-error`;
+
     return (
-        <fieldset className="mt-5">
+        <fieldset
+            className="mt-5"
+            aria-invalid={!!error}
+            aria-describedby={error ? errorId : undefined}
+        >
             <legend className="text-[10px] font-semibold uppercase tracking-widest text-ink-mute">
                 Plataforma(s)
             </legend>
@@ -57,7 +65,7 @@ export function GamePlatformSelector({
             )}
 
             {error && (
-                <p className="mt-2 text-xs text-danger">
+                <p id={errorId} className="mt-2 text-xs text-danger">
                     {error}
                 </p>
             )}

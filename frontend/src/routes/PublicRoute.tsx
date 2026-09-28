@@ -1,15 +1,45 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/Button";
+import { LoadingState } from "../components/ui/LoadingState";
+import { StateView } from "../components/ui/StateView";
 
 export function PublicRoute() {
-    const { user, isLoading } = useAuth();
+    const { user, status, retryAuth } = useAuth();
 
-    if (isLoading) {
-        return null;
+    if (status === "loading") {
+        return (
+            <LoadingState
+                label="Verificando sessão..."
+                className="min-h-dvh! bg-backdrop"
+            />
+        );
     }
 
-    if (user) {
-        return <Navigate to="/dashboard" replace />;
+    if (status === "error") {
+        return (
+            <StateView
+                icon="error"
+                tone="danger"
+                title="Não foi possível verificar sua sessão"
+                description="Verifique sua conexão e tente novamente."
+                className="min-h-dvh! bg-backdrop"
+                action={
+                    <Button onClick={() => void retryAuth()} >
+                        Tentar novamente
+                    </Button>
+                }
+            />
+        );
+    }
+
+    if (status === "authenticated" && user) {
+        return (
+            <Navigate
+                to="/dashboard"
+                replace
+            />
+        );
     }
 
     return <Outlet />;

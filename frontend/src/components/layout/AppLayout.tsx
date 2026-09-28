@@ -2,15 +2,20 @@ import { Outlet } from "react-router";
 
 import { DesktopHeader } from "./DesktopHeader";
 import { MobileNavigation } from "./MobileNavigation";
+import { RawgAttribution } from "./RawgAttribution";
 
 export function AppLayout() {
     return (
-        <div className="min-h-screen bg-backdrop text-ink">
+        <div className="flex min-h-dvh flex-col bg-backdrop text-ink">
             <DesktopHeader />
 
-            <main className="mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-0">
+            <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 lg:px-8">
                 <Outlet />
             </main>
+
+            <footer className="shrink-0 px-4 pb-22 text-center lg:pb-6">
+                <RawgAttribution />
+            </footer>
 
             <MobileNavigation />
         </div>

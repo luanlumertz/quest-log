@@ -1,3 +1,6 @@
+import { Alert } from "../ui/Alert";
+import { Button } from "../ui/Button";
+
 type LogoutSectionProps = {
     isLoggingOut: boolean;
     logoutError: string;
@@ -21,26 +24,24 @@ export function LogoutSection({
                     </p>
                 </div>
 
-                <button
-                    type="button"
+                <Button
+                    variant="danger"
+                    size="sm"
                     onClick={onLogout}
-                    disabled={isLoggingOut || disabled}
-                    className="
-                        min-h-10 w-full shrink-0 min-[420px]:w-auto
-                        cursor-pointer rounded-xl border border-divider-bright
-                        px-4 text-xs font-semibold text-danger transition-colors
-                        hover:bg-danger/10 disabled:cursor-not-allowed
-                        disabled:opacity-50
-                    "
+                    disabled={disabled}
+                    isLoading={isLoggingOut}
+                    loadingText="Saindo..."
+                    fullWidth
+                    className="shrink-0 min-[420px]:w-auto bg-transparent"
                 >
-                    {isLoggingOut ? "Saindo..." : "Sair"}
-                </button>
+                    Sair
+                </Button>
             </div>
 
             {logoutError && (
-                <p role="alert" className="mt-3 text-xs text-danger">
+                <Alert className="mt-3">
                     {logoutError}
-                </p>
+                </Alert>
             )}
         </section>
     );

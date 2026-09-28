@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { addGameToLibraryFormSchema, type AddGameToLibraryFormData } from "../../../schema/library.schema";
@@ -8,6 +7,10 @@ import type { GameDetailsResult } from "../../../types/game.types";
 import { AddGameModalHeader } from "./AddGameModalHeader";
 import { GameStatusSelector } from "../../ui/GameStatusSelector";
 import { GamePlatformSelector } from "./GamePlatformSelector";
+import { Button } from "../../ui/Button";
+import { Modal } from "../../ui/Modal";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
+import { Alert } from "../../ui/Alert";
 
 type AddGameToLibraryModalProps = {
     game: GameDetailsResult;
@@ -23,7 +26,7 @@ const DEFAULT_VALUES: AddGameToLibraryFormData = {
 export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibraryModalProps) {
     const {
         handleSubmit,
-        watch,
+        control,
         setValue,
         setError,
         reset,
@@ -35,8 +38,9 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
 
     const { mutateAsync: addGameToLibrary } = useAddGameToLibrary();
 
-    const selectedStatus = watch("status");
-    const selectedPlatforms = watch("platforms");
+    const selectedStatus = useWatch({ control, name: "status" });
+
+    const selectedPlatforms = useWatch({ control, name: "platforms" });
 
     const availablePlatforms = [...new Set(game.platforms)];
 
@@ -83,131 +87,73 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
             resetAndClose();
         } catch (error) {
             setError("root", {
-                message: error instanceof Error ? error.message : "Não foi possível adicionar o jogo"
+                message: getErrorMessage(
+                    error,
+                    "Não foi possível adicionar o jogo."
+                )
             });
         }
     }
 
-    useEffect(() => {
-        if (!isOpen) return;
-
-        function handleEscape(event: KeyboardEvent) {
-            if (event.key === "Escape" && !isSubmitting) {
-                reset(DEFAULT_VALUES);
-                onClose();
-            }
-        }
-
-        const previousOverflow = document.body.style.overflow;
-
-        document.body.style.overflow = "hidden";
-        window.addEventListener("keydown", handleEscape);
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-            window.removeEventListener("keydown", handleEscape);
-        };
-    }, [isOpen, isSubmitting, onClose, reset]);
-
     if (!isOpen) return null;
 
     return (
-        <div
-            className="
-                fixed inset-0 z-50 flex items-center justify-center
-                bg-black/75 p-4 backdrop-blur-sm
-            "
-            onMouseDown={(event) => {
-                if (event.target === event.currentTarget) {
-                    handleClose();
-                }
-            }}
+        <Modal
+            onClose={handleClose}
+            preventClose={isSubmitting}
+            ariaLabelledBy="add-game-title"
         >
-            <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="add-game-title"
-                className="
-                    w-full max-w-md max-h-[calc(100dvh-2rem)]
-                    overflow-y-auto rounded-2xl
-                    border border-divider-bright
-                    bg-surface shadow-2xl
-                "
+            <AddGameModalHeader
+                title={game.title}
+                coverUrl={game.coverUrl}
+                isSubmitting={isSubmitting}
+                onClose={handleClose}
+            />
+
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="p-5"
             >
-                <AddGameModalHeader
-                    title={game.title}
-                    coverUrl={game.coverUrl}
-                    isSubmitting={isSubmitting}
-                    onClose={handleClose}
+                <GameStatusSelector
+                    value={selectedStatus}
+                    onChange={handleStatusChange}
                 />
 
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="p-5"
-                >
-                    <GameStatusSelector
-                        value={selectedStatus}
-                        onChange={handleStatusChange}
-                    />
+                <GamePlatformSelector
+                    platforms={availablePlatforms}
+                    selectedPlatforms={selectedPlatforms}
+                    error={errors.platforms?.message}
+                    onToggle={handlePlatformToggle}
+                />
 
-                    <GamePlatformSelector
-                        platforms={availablePlatforms}
-                        selectedPlatforms={selectedPlatforms}
-                        error={errors.platforms?.message}
-                        onToggle={handlePlatformToggle}
-                    />
+                {errors.root?.message && (
+                    <Alert className="mt-5">
+                        {errors.root.message}
+                    </Alert>
+                )}
 
-                    {errors.root && (
-                        <p
-                            className="
-                                mt-5 rounded-lg
-                                border border-danger/30
-                                bg-danger/10 px-3 py-2
-                                text-sm text-danger
-                            "
-                        >
-                            {errors.root.message}
-                        </p>
-                    )}
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                    <Button
+                        variant="secondary"
+                        onClick={handleClose}
+                        disabled={isSubmitting}
+                        fullWidth
+                    >
+                        Cancelar
+                    </Button>
 
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            disabled={isSubmitting}
-                            className="
-                                min-h-11 rounded-xl
-                                border border-divider-bright
-                                text-sm font-semibold text-ink-mute
-                                transition-colors cursor-pointer
-                                hover:bg-surface-hover hover:text-ink
-                                disabled:cursor-not-allowed disabled:opacity-50
-                            "
-                        >
-                            Cancelar
-                        </button>
-
-                        <button
-                            type="submit"
-                            disabled={
-                                isSubmitting ||
-                                availablePlatforms.length === 0
-                            }
-                            className="
-                                min-h-11 rounded-xl bg-brand px-3
-                                text-sm font-semibold text-white
-                                transition-colors cursor-pointer wrap-anywhere
-                                hover:bg-brand-dim
-                                disabled:cursor-not-allowed disabled:opacity-50
-                            "
-                        >
-                            {isSubmitting
-                                ? "Adicionando..."
-                                : "Adicionar à biblioteca"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    <Button
+                        type="submit"
+                        disabled={availablePlatforms.length === 0}
+                        isLoading={isSubmitting}
+                        loadingText="Adicionando..."
+                        fullWidth
+                        className="wrap-anywhere"
+                    >
+                        Adicionar à biblioteca
+                    </Button>
+                </div>
+            </form>
+        </Modal>
     );
 }

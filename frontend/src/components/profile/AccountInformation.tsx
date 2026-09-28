@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useUpdateCurrentUser } from "../../hooks/auth.hook";
 import { updateSchema, type UpdateData } from "../../schema/auth.schema";
 import type { User } from "../../types/auth.types";
+import { Button } from "../ui/Button";
+import { getErrorMessage } from "../../utils/getErrorMessage";
+import { Alert } from "../ui/Alert";
 
 type AccountInformationProps = {
     user: User;
@@ -33,7 +36,7 @@ export function AccountInformation({
         register,
         handleSubmit,
         reset,
-        watch,
+        control,
         setValue,
         formState: { errors, isValid }
     } = useForm<UpdateData>({
@@ -42,7 +45,10 @@ export function AccountInformation({
         defaultValues: { name: user.name }
     });
 
-    const watchedName = watch("name");
+    const watchedName = useWatch({
+        control,
+        name: "name"
+    });
     const hasChanges = normalizeName(watchedName ?? "") !== normalizeName(user.name);
 
     // Dados externos não sobrescrevem o que a pessoa está digitando.
@@ -85,10 +91,11 @@ export function AccountInformation({
             setIsEditing(false);
             setShowSuccess(true);
         } catch (error) {
-            // Estado separado: um erro do servidor não bloqueia uma nova tentativa.
-            setUpdateError(error instanceof Error
-                ? error.message
-                : "Não foi possível atualizar seu nome."
+            setUpdateError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível atualizar seu nome."
+                )
             );
         } finally {
             onUpdatingChange(false);
@@ -127,54 +134,45 @@ export function AccountInformation({
                                 autoFocus
                                 disabled={isUpdating || disabled}
                                 aria-invalid={!!errors.name}
-                                className="
-                                    h-11 w-full rounded-xl
-                                    border border-divider-bright bg-surface px-3
-                                    text-sm text-ink outline-none transition-colors
-                                    focus:border-brand focus:ring-1 focus:ring-brand
-                                    disabled:opacity-50
-                                "
+                                aria-describedby={errors.name ? "name-error" : undefined}
+                                className="outline-none"
                             />
 
                             {errors.name && (
-                                <p role="alert" className="mt-2 text-xs text-danger">
+                                <p
+                                    id="name-error"
+                                    role="alert"
+                                    className="mt-2 text-xs text-danger"
+                                >
                                     {errors.name.message}
                                 </p>
                             )}
 
                             {updateError && (
-                                <p role="alert" className="mt-2 text-xs text-danger">
+                                <Alert className="mt-3">
                                     {updateError}
-                                </p>
+                                </Alert>
                             )}
 
                             <div className="mt-3 flex items-center gap-2">
-                                <button
+                                <Button
                                     type="submit"
-                                    disabled={isUpdating || disabled || !hasChanges || !isValid}
-                                    className="
-                                        min-h-9 cursor-pointer rounded-xl bg-brand px-4
-                                        text-xs font-semibold text-white transition-colors
-                                        hover:bg-brand-dim disabled:cursor-not-allowed
-                                        disabled:opacity-50
-                                    "
+                                    size="sm"
+                                    disabled={disabled || !hasChanges || !isValid}
+                                    isLoading={isUpdating}
+                                    loadingText="Salvando..."
                                 >
-                                    {isUpdating ? "Salvando..." : "Salvar"}
-                                </button>
+                                    Salvar
+                                </Button>
 
-                                <button
-                                    type="button"
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
                                     onClick={handleCancelEdit}
                                     disabled={isUpdating || disabled}
-                                    className="
-                                        min-h-9 cursor-pointer rounded-xl
-                                        border border-divider-bright px-4 text-xs
-                                        text-ink-dim transition-colors hover:text-ink
-                                        disabled:cursor-not-allowed disabled:opacity-50
-                                    "
                                 >
                                     Cancelar
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     ) : (
@@ -183,25 +181,19 @@ export function AccountInformation({
                                 {user.name}
                             </p>
 
-                            <button
-                                type="button"
+                            <Button
+                                variant="secondary"
+                                size="sm"
                                 onClick={handleEdit}
                                 disabled={disabled}
-                                className="
-                                    shrink-0 cursor-pointer rounded-lg
-                                    border border-divider-bright px-3 py-1.5
-                                    text-xs text-ink-dim transition-colors
-                                    hover:text-ink disabled:cursor-not-allowed
-                                    disabled:opacity-50
-                                "
+                                className="shrink-0"
                             >
                                 Editar
-                            </button>
+                            </Button>
                         </div>
                     )}
 
                     <div
-                        role="status"
                         aria-hidden={!showSuccess}
                         className={`
                             overflow-hidden
@@ -213,15 +205,9 @@ export function AccountInformation({
                             }
                         `}
                     >
-                        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400">
-                            <span
-                                className="material-symbols-rounded shrink-0 text-[18px] leading-none"
-                                aria-hidden="true"
-                            >
-                                check_circle
-                            </span>
-                            <span>Nome atualizado com sucesso!</span>
-                        </div>
+                        <Alert variant="success">
+                            Nome atualizado com sucesso!
+                        </Alert>
                     </div>
                 </div>
 

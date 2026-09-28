@@ -1,19 +1,27 @@
 import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
 import type { LibraryEntryDetails } from "../../../types/library.types";
 import { formatDate } from "../../../utils/formatDate";
+import { Alert } from "../../ui/Alert";
+import { Button } from "../../ui/Button";
 
 type LibraryGameSummaryProps = {
     entry: LibraryEntryDetails;
     developers: string;
     genres: string;
     publishers: string;
+    hasGameDetailsError: boolean;
+    isGameDetailsFetching: boolean;
+    onRetryGameDetails: () => void;
 };
 
 export function LibraryGameSummary({
     entry,
     developers,
     genres,
-    publishers
+    publishers,
+    hasGameDetailsError,
+    isGameDetailsFetching,
+    onRetryGameDetails
 }: LibraryGameSummaryProps) {
     const coverUrl = entry.game.coverUrl ?? DEFAULT_GAME_COVER_URL;
 
@@ -123,6 +131,27 @@ export function LibraryGameSummary({
                         {formatDate(entry.createdAt)}
                     </p>
                 </div>
+
+                {hasGameDetailsError && (
+                    <Alert className="mt-5">
+                        <div>
+                            <p>
+                                Algumas informações do jogo não puderam ser carregadas.
+                            </p>
+
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                isLoading={isGameDetailsFetching}
+                                loadingText="Tentando..."
+                                onClick={onRetryGameDetails}
+                                className="mt-3"
+                            >
+                                Tentar novamente
+                            </Button>
+                        </div>
+                    </Alert>
+                )}
             </div>
         </aside>
     );

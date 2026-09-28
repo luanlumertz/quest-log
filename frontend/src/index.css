@@ -18,15 +18,19 @@
   --color-ink: #e2e8f4;
   --color-ink-dim: #8892a8;
   --color-ink-mute: #4e5971;
-  --color-want: #3b82f6;
-  --color-playing: #22c55e;
-  --color-completed: #a855f7;
-  --color-abandoned: #f97316;
   --color-danger: #ef4444;
 
   --font-display: 'Rajdhani', sans-serif;
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+}
+
+:root {
+  --gradient-brand: linear-gradient(135deg, rgb(109, 92, 237), rgb(155, 93, 229));
+}
+
+.bg-brand-gradient {
+  background: var(--gradient-brand);
 }
 
 html,

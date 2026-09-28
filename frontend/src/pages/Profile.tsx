@@ -2,15 +2,18 @@ import { useState } from "react";
 
 import { useAuth } from "../contexts/AuthContext";
 import { useDeleteCurrentUser } from "../hooks/auth.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { AccountInformation } from "../components/profile/AccountInformation";
 import { LogoutSection } from "../components/profile/LogoutSection";
 import { DangerZone } from "../components/profile/DangerZone";
 import { ConfirmDeleteAccountModal } from "../components/profile/ConfirmDeleteAccountModal";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Profile() {
-    const { user, isLoading, signOut } = useAuth();
+    useDocumentTitle("Perfil");
 
+    const { user, signOut } = useAuth();
     const [isUpdating, setIsUpdating] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");
@@ -30,9 +33,11 @@ export function Profile() {
         try {
             await signOut();
         } catch (error) {
-            setLogoutError(error instanceof Error
-                ? error.message
-                : "Não foi possível encerrar a sessão."
+            setLogoutError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível encerrar a sessão."
+                )
             );
         } finally {
             setIsLoggingOut(false);
@@ -60,20 +65,12 @@ export function Profile() {
         }
     }
 
-    if (isLoading) {
-        return (
-            <div className="py-10 text-center text-sm text-ink-dim">
-                Carregando perfil...
-            </div>
-        );
-    }
-
     if (!user) return null;
 
     return (
         <>
-            <div className="mx-auto w-full max-w-142.5 py-8">
-                <h1 className="font-display text-3xl font-bold text-white">
+            <div className="mx-auto w-full max-w-142.5 pt-8 pb-6">
+                <h1 className="font-display text-3xl! font-bold text-white">
                     Meu Perfil
                 </h1>
 
@@ -99,9 +96,12 @@ export function Profile() {
             {isDeleteModalOpen && (
                 <ConfirmDeleteAccountModal
                     isDeleting={isDeleting}
-                    error={deleteError instanceof Error
-                        ? deleteError.message
-                        : undefined
+                    error={ deleteError
+                            ? getErrorMessage(
+                                deleteError,
+                                "Não foi possível excluir sua conta."
+                            )
+                            : undefined
                     }
                     onConfirm={handleConfirmDelete}
                     onCancel={handleCloseDeleteModal}

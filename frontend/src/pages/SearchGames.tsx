@@ -1,24 +1,40 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useSearchParams } from "react-router";
+
 import { useSearchGames } from "../hooks/game.hook";
+import { useLibrary } from "../hooks/library.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+
 import { SearchGamesForm } from "../components/game/search/SearchGamesForm";
 import { SearchGamesResults } from "../components/game/search/SearchGamesResults";
-import { useLibrary } from "../hooks/library.hook";
 
 export function SearchGames() {
+    useDocumentTitle("Procurar Jogos");
+
     const [searchParams, setSearchParams] = useSearchParams();
     const searchedQuery = searchParams.get("query") ?? "";
-    const [inputValue, setInputValue] = useState(searchedQuery);
+    const [inputDraft, setInputDraft] = useState({ source: searchedQuery, value: searchedQuery });
 
-    const { data: games = [], isLoading, isError, } = useSearchGames(searchedQuery);
+    const inputValue = inputDraft.source === searchedQuery ? inputDraft.value : searchedQuery;
 
-    const { data: library = [] } = useLibrary();
+    const {
+        data: games = [],
+        isLoading,
+        isError,
+        isFetching,
+        refetch
+    } = useSearchGames(searchedQuery);
 
-    const libraryExternalIds = new Set(library.map((entry) => entry.game.externalId));
+    const {
+        data: library,
+        isError: isLibraryError,
+        isFetching: isLibraryFetching,
+        refetch: refetchLibrary
+    } = useLibrary();
 
-    useEffect(() => {
-        setInputValue(searchedQuery);
-    }, [searchedQuery]);
+    const libraryExternalIds = library
+        ? new Set(library.map((entry) => entry.game.externalId))
+        : undefined;
 
     function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -26,16 +42,20 @@ export function SearchGames() {
         const normalizedQuery = inputValue.trim();
 
         if (!normalizedQuery) {
-            setInputValue("");
+            setInputDraft({ source: searchedQuery, value: "" });
+
             setSearchParams({});
+
             return;
         }
 
-        setSearchParams({ query: normalizedQuery, });
+        setInputDraft({ source: normalizedQuery, value: normalizedQuery });
+
+        setSearchParams({ query: normalizedQuery });
     }
 
     function handleInputChange(value: string) {
-        setInputValue(value);
+        setInputDraft({ source: searchedQuery, value });
 
         if (value === "") {
             setSearchParams({});
@@ -44,7 +64,7 @@ export function SearchGames() {
 
     return (
         <div className="py-8">
-            <h1 className="font-display text-3xl font-bold text-white">
+            <h1 className="font-display text-3xl! font-bold text-white">
                 Procurar Jogos
             </h1>
 
@@ -59,7 +79,12 @@ export function SearchGames() {
                 games={games}
                 isLoading={isLoading}
                 isError={isError}
+                isFetching={isFetching}
+                onRetry={() => void refetch()}
                 libraryExternalIds={libraryExternalIds}
+                isLibraryError={isLibraryError}
+                isLibraryFetching={isLibraryFetching}
+                onRetryLibrary={() => void refetchLibrary()}
             />
         </div>
     );

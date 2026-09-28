@@ -2,9 +2,11 @@ import { Link } from "react-router";
 
 import type { LibraryEntry } from "../../../types/library.types";
 import { formatPlayTime } from "../../../utils/formatPlayTime";
+import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
+
 import { GameStatusBadge } from "../../ui/GameStatusBadge";
 import { PlatformBadges } from "./PlatformBadges";
-import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type LibraryGameCardProps = {
     entry: LibraryEntry;
@@ -98,9 +100,10 @@ export function LibraryGameCard({ entry }: LibraryGameCardProps) {
 
                 <div className="mt-3 flex min-w-0 items-center gap-2">
                     <div className="flex shrink-0 items-center gap-1 text-xs text-ink-mute">
-                        <span className="material-symbols-rounded text-base!">
-                            schedule
-                        </span>
+                        <MaterialIcon
+                            name="schedule"
+                            className="text-base!"
+                        />
 
                         <span>
                             {formatPlayTime(playtimeMinutes)}

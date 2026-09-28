@@ -1,5 +1,6 @@
 import { GAME_STATUS_CONFIG } from "../../../config/gameStatus.config";
 import type { GameStatus } from "../../../types/game.types";
+import { MaterialIcon } from "../../ui/MaterialIcon";
 
 
 type LibraryCounts = {
@@ -45,16 +46,14 @@ export function LibraryFilters({
     return (
         <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center">
             <div className="relative w-full lg:max-w-75">
-                <span
-                    aria-hidden="true"
+                <MaterialIcon
+                    name="search"
                     className="
-                        material-symbols-rounded
-                        absolute left-3 top-1/2 -translate-y-1/2
+                        absolute left-3 top-1/2 
+                        -translate-y-1/2 
                         text-xl! text-ink-mute
                     "
-                >
-                    search
-                </span>
+                />
 
                 <input
                     type="text"

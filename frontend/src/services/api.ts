@@ -1,11 +1,15 @@
 export const API_URL = import.meta.env.VITE_API_URL;
 
+export const AUTH_SESSION_EXPIRED_EVENT = "auth:session-expired";
+
 const NO_REFRESH_ENDPOINTS = [
     "/auth/login",
     "/auth/logout",
     "/auth/register",
     "/auth/refresh"
 ];
+
+const INVALID_REFRESH_STATUSES = [400, 401, 403];
 
 export class ApiError extends Error {
     status: number;
@@ -20,15 +24,50 @@ export class ApiError extends Error {
     }
 }
 
-let refreshPromise: Promise<boolean> | null = null;
+export class NetworkError extends Error {
+    constructor() {
+        super("Não foi possível conectar ao servidor.");
 
-async function tryRefreshSession(): Promise<boolean> {
+        this.name = "NetworkError";
+    }
+}
+
+type RefreshResult = "refreshed" | "expired";
+
+let refreshPromise: Promise<RefreshResult> | null = null;
+
+function isNoRefreshEndpoint(endpoint: string) {
+    return NO_REFRESH_ENDPOINTS.some((path) => endpoint === path || endpoint.startsWith(`${path}?`));
+}
+
+async function fetchWithNetworkHandling(url: string, options: RequestInit) {
+    try {
+        return await fetch(url, options);
+    } catch {
+        throw new NetworkError();
+    }
+}
+
+async function tryRefreshSession(): Promise<RefreshResult> {
     if (!refreshPromise) {
-        refreshPromise = fetch(`${API_URL}/auth/refresh`, {
-            method: "POST",
-            credentials: "include"
-        })
-            .then(response => response.ok)
+        refreshPromise = fetchWithNetworkHandling(`${API_URL}/auth/refresh`,
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        )
+            .then((response) => {
+                if (response.ok) {
+                    return "refreshed" as const;
+                }
+
+                if (INVALID_REFRESH_STATUSES.includes(response.status)
+                ) {
+                    return "expired" as const;
+                }
+
+                throw new ApiError("Não foi possível renovar a sessão.", response.status);
+            })
             .finally(() => {
                 refreshPromise = null;
             });
@@ -37,42 +76,63 @@ async function tryRefreshSession(): Promise<boolean> {
     return refreshPromise;
 }
 
+function expireSession() {
+    window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
+}
+
+async function createApiError(response: Response): Promise<ApiError> {
+    try {
+        const data = await response.json();
+
+        const message = data.message ?? data.error ?? "Ocorreu um erro na requisição.";
+
+        return new ApiError(message, response.status, data.issues);
+    } catch {
+        return new ApiError("Não foi possível processar a resposta do servidor.", response.status);
+    }
+}
+
+function createRequestHeaders(options: RequestInit) {
+    const headers = new Headers(options.headers);
+
+    const hasJsonBody = typeof options.body === "string";
+
+    if (hasJsonBody && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+    }
+
+    return headers;
+}
+
 export async function apiRequest(endpoint: string, options: RequestInit = {}, canRetry = true) {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-        ...options,
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            ...options.headers
+    const headers = createRequestHeaders(options);
+
+    const response = await fetchWithNetworkHandling(`${API_URL}${endpoint}`,
+        {
+            ...options,
+            credentials: "include",
+            headers
         }
-    });
+    );
 
-    const shouldTryRefresh = response.status === 401 && canRetry && !NO_REFRESH_ENDPOINTS.includes(endpoint);
+    const isProtectedUnauthorized = response.status === 401 && !isNoRefreshEndpoint(endpoint);
 
-    if (shouldTryRefresh) {
-        const refreshed = await tryRefreshSession();
+    if (isProtectedUnauthorized) {
+        if (canRetry) {
+            const refreshResult = await tryRefreshSession();
 
-        if (refreshed) {
-            return apiRequest(endpoint, options, false);
+            if (refreshResult === "refreshed") {
+                return apiRequest(endpoint, options, false);
+            }
         }
 
-        window.dispatchEvent(new Event("auth:session-expired"));
+        expireSession();
 
-        throw new ApiError("Sessão inválida", 401);
+        throw new ApiError("Sessão inválida.", 401);
     }
 
     if (!response.ok) {
-        let data;
-
-        try {
-            data = await response.json();
-        } catch {
-            throw new ApiError("Não foi possível processar a resposta do servidor", response.status);
-        }
-
-        const message = data.message ?? data.error ?? "Ocorreu um erro na requisição";
-
-        throw new ApiError(message, response.status, data.issues);
+        throw await createApiError(response);
     }
 
     return response;

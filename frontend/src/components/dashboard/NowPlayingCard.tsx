@@ -4,6 +4,7 @@ import type { LibraryEntry } from "../../types/library.types";
 import { formatPlayTime } from "../../utils/formatPlayTime";
 import { GameStatusBadge } from "../ui/GameStatusBadge";
 import { RatingStars } from "../ui/RatingStars";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 type NowPlayingCardProps = {
     entry: LibraryEntry;
@@ -87,9 +88,10 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
 
             <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <div className="flex shrink-0 items-center gap-1.5 text-sm text-ink-mute">
-                    <span className="material-symbols-rounded text-[18px]!">
-                        schedule
-                    </span>
+                    <MaterialIcon
+                        name="schedule"
+                        className="text-[18px]!"
+                    />
 
                     <span className="whitespace-nowrap">
                         {formatPlayTime(playtimeMinutes)}

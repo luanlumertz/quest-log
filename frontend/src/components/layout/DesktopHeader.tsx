@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router";
 import { Logo } from "../ui/Logo";
 import { navigationItems } from "./navigationItems";
 import { ProfileMenu } from "./ProfileMenu";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 export function DesktopHeader() {
     return (
@@ -21,7 +22,7 @@ export function DesktopHeader() {
                     px-4 sm:px-6 lg:px-8
                 "
             >
-                <Link to="/">
+                <Link to="/dashboard">
                     <Logo />
                 </Link>
 
@@ -49,9 +50,10 @@ export function DesktopHeader() {
                                 `
                             }
                         >
-                            <span className="material-symbols-rounded text-[22px]!">
-                                {item.icon}
-                            </span>
+                            <MaterialIcon
+                                name={item.icon}
+                                className="text-[22px]!"
+                            />
 
                             {item.desktopLabel}
                         </NavLink>

@@ -5,12 +5,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { loginSchema, type LoginData } from "../schema/auth.schema";
 import { login } from "../services/auth.service";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { getErrorMessage } from "../utils/getErrorMessage";
+
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
-import { AuthButton } from "../components/auth/AuthButton";
 import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/Button";
+import { Alert } from "../components/ui/Alert";
 
 export function Login() {
+    useDocumentTitle("Entrar");
+
     const navigate = useNavigate();
 
     const { setUser } = useAuth();
@@ -30,14 +36,15 @@ export function Login() {
             const user = await login(data);
 
             setUser(user);
-            
+
             navigate("/dashboard");
         } catch (error) {
-            if (error instanceof Error) {
-                setError("root", {
-                    message: error.message
-                });
-            }
+            setError("root", {
+                message: getErrorMessage(
+                    error,
+                    "Não foi possível entrar. Tente novamente."
+                )
+            });
         }
     }
 
@@ -69,21 +76,21 @@ export function Login() {
                         error={errors.password?.message}
                     />
 
-                    {errors.root && (
-                        <p className="
-                                rounded-lg
-                                border border-danger/30
-                                bg-danger/10
-                                px-4 py-3
-                                text-sm text-danger
-                            ">{errors.root.message}</p>
+                    {errors.root?.message && (
+                        <Alert>
+                            {errors.root.message}
+                        </Alert>
                     )}
 
-                    <AuthButton
-                        isSubmitting={isSubmitting}
-                        text="Entrar"
+                    <Button
+                        type="submit"
+                        size="lg"
+                        fullWidth
+                        isLoading={isSubmitting}
                         loadingText="Entrando..."
-                    />
+                    >
+                        Entrar
+                    </Button>
                 </form>
 
                 <div className="mt-8 text-center">

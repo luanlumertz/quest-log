@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { updateLibraryEntrySchema, type UpdateLibraryEntryData } from "../../../schema/library.schema";
 import type { GameStatus } from "../../../types/game.types";
 import type { LibraryEntry, LibraryEntryDetails } from "../../../types/library.types";
 import { getTodayInputValue } from "./libraryGameDetailsForm.utils";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 import {
     applyStatusRules,
     createDefaultValues,
@@ -35,7 +36,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
     const [pendingSave, setPendingSave] = useState<PendingSaveConfirmation | null>(null);
 
     const {
-        watch,
+        control,
         getValues,
         setValue,
         setError,
@@ -51,17 +52,17 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
             createDefaultValues(entry, today)
     });
 
-    const status = watch("status");
+    const status = useWatch({ control, name: "status" });
 
-    const rating = watch("rating");
+    const rating = useWatch({ control, name: "rating" });
 
-    const playtimeHours = watch("playtimeHours");
+    const playtimeHours = useWatch({ control, name: "playtimeHours" });
 
-    const platforms = watch("platforms");
+    const platforms = useWatch({ control, name: "platforms" });
 
-    const startedAt = watch("startedAt");
+    const startedAt = useWatch({ control, name: "startedAt" });
 
-    const completedAt = watch("completedAt");
+    const completedAt = useWatch({ control, name: "completedAt" });
 
     const isWantToPlay = status === "WANT_TO_PLAY";
 
@@ -82,12 +83,6 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
             );
         };
     }, [isSaved]);
-
-    useEffect(() => {
-        if (isDirty) {
-            setIsSaved(false);
-        }
-    }, [isDirty]);
 
     function handleStatusChange(nextStatus: GameStatus) {
         if (nextStatus === status) {
@@ -258,9 +253,11 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
             setIsSaved(true);
         } catch (error) {
-            setSubmitError(error instanceof Error
-                ? error.message
-                : "Não foi possível salvar as alterações"
+            setSubmitError(
+                getErrorMessage(
+                    error,
+                    "Não foi possível salvar as alterações."
+                )
             );
         }
     }
@@ -358,7 +355,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
         errors,
         isDirty,
-        isSaved,
+        isSaved: isSaved && !isDirty,
         submitError,
 
         pendingDataLossFields: pendingSave?.fields ?? null,

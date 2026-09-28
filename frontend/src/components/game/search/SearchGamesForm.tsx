@@ -1,4 +1,6 @@
 import type { SubmitEvent } from "react";
+import { MaterialIcon } from "../../ui/MaterialIcon";
+import { Button } from "../../ui/Button";
 
 type SearchGamesFormProps = {
     inputValue: string;
@@ -11,22 +13,20 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
         <form
             onSubmit={onSubmit}
             className="
-                mt-8 flex max-w-2xl
+                mt-6 flex max-w-2xl
                 flex-col gap-2
                 min-[400px]:flex-row
             "
         >
             <div className="relative min-w-0 flex-1">
-                <span
+                <MaterialIcon
+                    name="search"
                     className="
-                        material-symbols-rounded
-                        absolute left-4 top-1/2
-                        -translate-y-1/2
+                        absolute left-4 
+                        top-1/2 -translate-y-1/2 
                         text-[22px]! text-ink-mute
                     "
-                >
-                    search
-                </span>
+                />
 
                 <input
                     type="search"
@@ -63,32 +63,21 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
                             hover:text-white
                         "
                     >
-                        <span className="material-symbols-rounded">
-                            close
-                        </span>
+                        <MaterialIcon
+                            name="close"
+                        />
                     </button>
                 )}
             </div>
 
-            <button
+            <Button
                 type="submit"
                 disabled={!inputValue.trim()}
-                className="
-                    w-full rounded-2xl
-                    bg-brand
-                    px-1.5 min-[480px]:px-5 py-4
-                    font-semibold
-                    text-white
-                    transition
-                    hover:bg-brand-dim
-                    disabled:cursor-not-allowed
-                    disabled:opacity-50
-                    cursor-pointer
-                    min-[400px]:w-auto
-                "
+                fullWidth
+                className="min-[400px]:w-auto"
             >
                 Pesquisar
-            </button>
+            </Button>
         </form>
     );
 }

@@ -5,11 +5,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { registerSchema, type RegisterData } from "../schema/auth.schema";
 import { register as signUp } from "../services/auth.service";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { getErrorMessage } from "../utils/getErrorMessage";
+
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
-import { AuthButton } from "../components/auth/AuthButton";
+import { Button } from "../components/ui/Button";
+import { Alert } from "../components/ui/Alert";
 
 export function Register() {
+    useDocumentTitle("Criar conta");
+
     const navigate = useNavigate();
 
     const {
@@ -27,11 +33,12 @@ export function Register() {
             await signUp(data);
             navigate("/login")
         } catch (error) {
-            if (error instanceof Error) {
-                setError("root", {
-                    message: error.message
-                })
-            }
+            setError("root", {
+                message: getErrorMessage(
+                    error,
+                    "Não foi possível criar sua conta. Tente novamente."
+                )
+            });
         }
     }
 
@@ -41,11 +48,11 @@ export function Register() {
                 <h1 className="font-display text-3xl font-bold text-white">Crie uma conta!</h1>
                 <p className="mt-1 text-ink-dim">Comece a acompanhar seus jogos.</p>
 
-                <form 
+                <form
                     onSubmit={handleSubmit(onSubmit)}
                     className="mt-10 space-y-6"
                 >
-                    <AuthInput 
+                    <AuthInput
                         label="Nome"
                         type="text"
                         placeholder="Digite seu nome"
@@ -81,21 +88,21 @@ export function Register() {
                         error={errors.confirmPassword?.message}
                     />
 
-                    {errors.root && (
-                        <p className="
-                            rounded-lg
-                            border border-danger/30
-                            bg-danger/10
-                            px-4 py-3
-                            text-sm text-danger
-                        ">{errors.root.message}</p>
+                    {errors.root?.message && (
+                        <Alert>
+                            {errors.root.message}
+                        </Alert>
                     )}
 
-                    <AuthButton
-                        isSubmitting={isSubmitting}
-                        text="Cadastrar"
+                    <Button
+                        type="submit"
+                        size="lg"
+                        fullWidth
+                        isLoading={isSubmitting}
                         loadingText="Cadastrando..."
-                    />
+                    >
+                        Cadastrar
+                    </Button>
                 </form>
 
                 <div className="mt-8 text-center">
