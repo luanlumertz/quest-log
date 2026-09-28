@@ -1,8 +1,11 @@
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { Logo } from "../components/ui/Logo";
 import { ButtonLink } from "../components/ui/Button";
 import { MaterialIcon } from "../components/ui/MaterialIcon";
 
 export function NotFound() {
+    useDocumentTitle("Página não encontrada");
+
     return (
         <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-backdrop px-5 py-12 text-ink sm:px-8">
             <div

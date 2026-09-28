@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router";
 
 import { GAME_STATUS_CONFIG } from "../config/gameStatus.config";
 import { useLibrary } from "../hooks/library.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import type { GameStatus } from "../types/game.types";
 import type { LibraryEntry } from "../types/library.types";
@@ -49,6 +50,8 @@ function getLibraryCounts(entries: LibraryEntry[]) {
 }
 
 export function Library() {
+    useDocumentTitle("Biblioteca");
+
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search") ?? "";
     const statusParam = searchParams.get("status");

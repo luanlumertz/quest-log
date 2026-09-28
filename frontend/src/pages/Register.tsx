@@ -5,13 +5,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { registerSchema, type RegisterData } from "../schema/auth.schema";
 import { register as signUp } from "../services/auth.service";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { getErrorMessage } from "../utils/getErrorMessage";
+
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { Button } from "../components/ui/Button";
 import { Alert } from "../components/ui/Alert";
-import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Register() {
+    useDocumentTitle("Criar conta");
+
     const navigate = useNavigate();
 
     const {

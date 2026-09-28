@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useAuth } from "../contexts/AuthContext";
 import { useDeleteCurrentUser } from "../hooks/auth.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { AccountInformation } from "../components/profile/AccountInformation";
 import { LogoutSection } from "../components/profile/LogoutSection";
@@ -10,8 +11,9 @@ import { ConfirmDeleteAccountModal } from "../components/profile/ConfirmDeleteAc
 import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Profile() {
-    const { user, signOut } = useAuth();
+    useDocumentTitle("Perfil");
 
+    const { user, signOut } = useAuth();
     const [isUpdating, setIsUpdating] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");

@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router";
 
 import { useGameDetails } from "../hooks/game.hook";
 import { useLibrary } from "../hooks/library.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { GameDetailsHero } from "../components/game/details/GameDetailsHero";
 import { GameDetailsAbout } from "../components/game/details/GameDetailsAbout";
@@ -29,6 +30,8 @@ export function GameDetails() {
         isFetching: isLibraryFetching,
         refetch: refetchLibrary
     } = useLibrary();
+
+    useDocumentTitle(data?.title);
 
     if (!isValidExternalId) {
         return (

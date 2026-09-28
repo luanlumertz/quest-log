@@ -5,14 +5,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { loginSchema, type LoginData } from "../schema/auth.schema";
 import { login } from "../services/auth.service";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { getErrorMessage } from "../utils/getErrorMessage";
+
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Alert } from "../components/ui/Alert";
-import { getErrorMessage } from "../utils/getErrorMessage";
 
 export function Login() {
+    useDocumentTitle("Entrar");
+
     const navigate = useNavigate();
 
     const { setUser } = useAuth();

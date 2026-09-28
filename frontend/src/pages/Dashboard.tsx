@@ -11,11 +11,14 @@ import { useAuth } from "../contexts/AuthContext";
 
 import { useDashboard } from "../hooks/dashboard.hook";
 import { useLibrary } from "../hooks/library.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { formatPlayTime } from "../utils/formatPlayTime";
 import { getUserFirstName } from "../utils/getUserFirstName";
 
 export function Dashboard() {
+    useDocumentTitle("Visão Geral");
+
     const { user } = useAuth();
     const { data, isLoading, isError, isFetching, refetch } = useDashboard();
     const {

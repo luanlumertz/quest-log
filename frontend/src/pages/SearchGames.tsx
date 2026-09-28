@@ -3,11 +3,14 @@ import { useSearchParams } from "react-router";
 
 import { useSearchGames } from "../hooks/game.hook";
 import { useLibrary } from "../hooks/library.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { SearchGamesForm } from "../components/game/search/SearchGamesForm";
 import { SearchGamesResults } from "../components/game/search/SearchGamesResults";
 
 export function SearchGames() {
+    useDocumentTitle("Procurar Jogos");
+
     const [searchParams, setSearchParams] = useSearchParams();
     const searchedQuery = searchParams.get("query") ?? "";
     const [inputValue, setInputValue] = useState(searchedQuery);

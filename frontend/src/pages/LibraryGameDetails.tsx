@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import {
-    useDeleteLibraryEntry,
-    useLibraryEntry,
-    useUpdateLibraryEntry
-} from "../hooks/library.hook";
-
+import { useDeleteLibraryEntry, useLibraryEntry, useUpdateLibraryEntry } from "../hooks/library.hook";
 import { useGameDetails } from "../hooks/game.hook";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { LibraryGameSummary } from "../components/library/details/LibraryGameSummary";
 import { LibraryGameDetailsForm } from "../components/library/details/LibraryGameDetailsForm";
@@ -59,6 +55,8 @@ export function LibraryGameDetails() {
         isFetching: isGameDetailsFetching,
         refetch: refetchGameDetails
     } = useGameDetails(externalId?.toString());
+
+    useDocumentTitle(entry ? `${entry.game.title} - Biblioteca` : "Biblioteca");
 
     if (!isValidGameId) {
         return (
