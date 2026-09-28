@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useUpdateCurrentUser } from "../../hooks/auth.hook";
@@ -36,7 +36,7 @@ export function AccountInformation({
         register,
         handleSubmit,
         reset,
-        watch,
+        control,
         setValue,
         formState: { errors, isValid }
     } = useForm<UpdateData>({
@@ -45,7 +45,10 @@ export function AccountInformation({
         defaultValues: { name: user.name }
     });
 
-    const watchedName = watch("name");
+    const watchedName = useWatch({
+        control,
+        name: "name"
+    });
     const hasChanges = normalizeName(watchedName ?? "") !== normalizeName(user.name);
 
     // Dados externos não sobrescrevem o que a pessoa está digitando.
@@ -132,6 +135,7 @@ export function AccountInformation({
                                 disabled={isUpdating || disabled}
                                 aria-invalid={!!errors.name}
                                 aria-describedby={errors.name ? "name-error" : undefined}
+                                className="outline-none"
                             />
 
                             {errors.name && (

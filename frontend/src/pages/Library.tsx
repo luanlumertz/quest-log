@@ -56,7 +56,9 @@ export function Library() {
     const search = searchParams.get("search") ?? "";
     const statusParam = searchParams.get("status");
     const status = isGameStatus(statusParam) ? statusParam : undefined;
-    const [searchInput, setSearchInput] = useState(search);
+    const [searchDraft, setSearchDraft] = useState({ source: search, value: search });
+
+    const searchInput = searchDraft.source === search ? searchDraft.value : search;
 
     const filters = search || status
         ? {
@@ -82,9 +84,9 @@ export function Library() {
         refetch: refetchAllLibrary
     } = useLibrary();
 
-    useEffect(() => {
-        setSearchInput(search);
-    }, [search]);
+    function handleSearchChange(value: string) {
+        setSearchDraft({ source: search, value });
+    }
 
     useEffect(() => {
         const timeout = window.setTimeout(() => {
@@ -135,7 +137,8 @@ export function Library() {
     }
 
     function handleClearFilters() {
-        setSearchInput("");
+        setSearchDraft({ source: search, value: "" });
+
         setSearchParams({});
     }
 
@@ -155,7 +158,7 @@ export function Library() {
                 search={searchInput}
                 status={status}
                 counts={counts}
-                onSearchChange={setSearchInput}
+                onSearchChange={handleSearchChange}
                 onStatusChange={handleStatusChange}
             />
 

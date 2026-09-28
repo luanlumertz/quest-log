@@ -1,4 +1,4 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useSearchParams } from "react-router";
 
 import { useSearchGames } from "../hooks/game.hook";
@@ -13,7 +13,9 @@ export function SearchGames() {
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchedQuery = searchParams.get("query") ?? "";
-    const [inputValue, setInputValue] = useState(searchedQuery);
+    const [inputDraft, setInputDraft] = useState({ source: searchedQuery, value: searchedQuery });
+
+    const inputValue = inputDraft.source === searchedQuery ? inputDraft.value : searchedQuery;
 
     const {
         data: games = [],
@@ -34,27 +36,26 @@ export function SearchGames() {
         ? new Set(library.map((entry) => entry.game.externalId))
         : undefined;
 
-    useEffect(() => {
-        setInputValue(searchedQuery);
-    }, [searchedQuery]);
-
     function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
 
         const normalizedQuery = inputValue.trim();
 
         if (!normalizedQuery) {
-            setInputValue("");
+            setInputDraft({ source: searchedQuery, value: "" });
+
             setSearchParams({});
 
             return;
         }
 
+        setInputDraft({ source: normalizedQuery, value: normalizedQuery });
+
         setSearchParams({ query: normalizedQuery });
     }
 
     function handleInputChange(value: string) {
-        setInputValue(value);
+        setInputDraft({ source: searchedQuery, value });
 
         if (value === "") {
             setSearchParams({});

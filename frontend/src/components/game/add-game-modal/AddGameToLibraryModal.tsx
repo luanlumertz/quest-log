@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { addGameToLibraryFormSchema, type AddGameToLibraryFormData } from "../../../schema/library.schema";
@@ -26,7 +26,7 @@ const DEFAULT_VALUES: AddGameToLibraryFormData = {
 export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibraryModalProps) {
     const {
         handleSubmit,
-        watch,
+        control,
         setValue,
         setError,
         reset,
@@ -38,8 +38,10 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
 
     const { mutateAsync: addGameToLibrary } = useAddGameToLibrary();
 
-    const selectedStatus = watch("status");
-    const selectedPlatforms = watch("platforms");
+    const selectedStatus = useWatch({ control, name: "status" });
+
+    const selectedPlatforms = useWatch({ control, name: "platforms" });
+
     const availablePlatforms = [...new Set(game.platforms)];
 
     function resetAndClose() {

@@ -1,28 +1,42 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+
 import type { User } from "../types/auth.types";
 import { getCurrentUser, logout } from "../services/auth.service";
 import { ApiError, AUTH_SESSION_EXPIRED_EVENT } from "../services/api";
-
-export type AuthStatus =
-    | "loading"
-    | "authenticated"
-    | "unauthenticated"
-    | "error";
-
-type AuthContextType = {
-    user: User | null;
-    status: AuthStatus;
-    setUser: (user: User | null) => void;
-    retryAuth: () => Promise<void>;
-    signOut: () => Promise<void>;
-};
-
-export const AuthContext = createContext<AuthContextType | null>(null);
+import { AuthContext, type AuthStatus } from "./AuthContext";
 
 type Props = {
     children: ReactNode;
 };
+
+type CurrentUserState = {
+    user: User | null;
+    status: Exclude<AuthStatus, "loading">;
+};
+
+async function getCurrentUserState(): Promise<CurrentUserState> {
+    try {
+        const user = await getCurrentUser();
+
+        return {
+            user,
+            status: "authenticated"
+        };
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+            return {
+                user: null,
+                status: "unauthenticated"
+            };
+        }
+
+        return {
+            user: null,
+            status: "error"
+        };
+    }
+}
 
 export const AuthProvider = ({ children }: Props) => {
     const [user, setUserState] = useState<User | null>(null);
@@ -35,29 +49,6 @@ export const AuthProvider = ({ children }: Props) => {
 
         setStatus(user ? "authenticated" : "unauthenticated");
     }, []);
-
-    const loadCurrentUser = useCallback(
-        async () => {
-            setStatus("loading");
-
-            try {
-                const currentUser = await getCurrentUser();
-
-                setUserState(currentUser);
-                setStatus("authenticated");
-            } catch (error) {
-                setUserState(null);
-
-                if (error instanceof ApiError && error.status === 401) {
-                    setStatus("unauthenticated");
-
-                    return;
-                }
-
-                setStatus("error");
-            }
-        }, []
-    );
 
     useEffect(() => {
         function handleSessionExpired() {
@@ -81,14 +72,35 @@ export const AuthProvider = ({ children }: Props) => {
     }, [queryClient]);
 
     useEffect(() => {
-        loadCurrentUser();
-    }, [loadCurrentUser]);
+        let isActive = true;
+
+        void getCurrentUserState().then((nextState) => {
+            if (!isActive) {
+                return;
+            }
+
+            setUserState(nextState.user);
+            setStatus(nextState.status);
+        });
+
+        return () => {
+            isActive = false;
+        };
+    }, []);
+
+    const retryAuth = useCallback(async () => {
+        setStatus("loading");
+
+        const nextState = await getCurrentUserState();
+
+        setUserState(nextState.user);
+        setStatus(nextState.status);
+    }, []);
 
     async function signOut() {
         try {
             await logout();
         } catch (error) {
-            // Se o backend falar que a sessão já é inválida, o logout() já foi concluído
             if (!(error instanceof ApiError && error.status === 401)) {
                 throw error;
             }
@@ -104,7 +116,7 @@ export const AuthProvider = ({ children }: Props) => {
                 user,
                 status,
                 setUser,
-                retryAuth: loadCurrentUser,
+                retryAuth,
                 signOut
             }}
         >
@@ -112,13 +124,3 @@ export const AuthProvider = ({ children }: Props) => {
         </AuthContext.Provider>
     );
 };
-
-export function useAuth() {
-    const context = useContext(AuthContext);
-
-    if (!context) {
-        throw new Error("useAuth deve ser usado dentro de AuthProvider");
-    }
-
-    return context;
-}
