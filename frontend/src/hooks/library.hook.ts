@@ -27,9 +27,7 @@ export function useAddGameToLibrary() {
     return useMutation({
         mutationFn: addGameToLibrary,
 
-        onSuccess: () => {
-            invalidateLibraryRelatedQueries(queryClient)
-        }
+        onSuccess: () => invalidateLibraryRelatedQueries(queryClient)
     });
 }
 
@@ -61,9 +59,7 @@ export function useUpdateLibraryEntry(gameIdParam?: string) {
             return updateLibraryEntry(gameId, data);
         },
 
-        onSuccess: () => {
-            invalidateLibraryRelatedQueries(queryClient)
-        }
+        onSuccess: () => invalidateLibraryRelatedQueries(queryClient)
     });
 }
 
@@ -83,8 +79,6 @@ export function useDeleteLibraryEntry(gameIdParam?: string) {
             return deleteLibraryEntry(gameId);
         },
 
-        onSuccess: () => {
-            invalidateLibraryRelatedQueries(queryClient)
-        }
+        onSuccess: () => invalidateLibraryRelatedQueries(queryClient)
     });
 }

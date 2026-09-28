@@ -131,17 +131,15 @@ export function AccountInformation({
                                 autoFocus
                                 disabled={isUpdating || disabled}
                                 aria-invalid={!!errors.name}
-                                className="
-                                    h-11 w-full rounded-xl
-                                    border border-divider-bright bg-surface px-3
-                                    text-sm text-ink outline-none transition-colors
-                                    focus:border-brand focus:ring-1 focus:ring-brand
-                                    disabled:opacity-50
-                                "
+                                aria-describedby={errors.name ? "name-error" : undefined}
                             />
 
                             {errors.name && (
-                                <p role="alert" className="mt-2 text-xs text-danger">
+                                <p
+                                    id="name-error"
+                                    role="alert"
+                                    className="mt-2 text-xs text-danger"
+                                >
                                     {errors.name.message}
                                 </p>
                             )}

@@ -23,6 +23,8 @@ export function LibraryDateField({
     onChange,
     onClear
 }: LibraryDateFieldProps) {
+    const errorId = `${id}-error`;
+
     return (
         <div>
             <label
@@ -55,6 +57,8 @@ export function LibraryDateField({
                     min={min}
                     max={max}
                     disabled={disabled}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? errorId : undefined}
                     onChange={(event) => onChange(event.target.value)
                     }
                     onMouseDown={(event) => {
@@ -112,7 +116,7 @@ export function LibraryDateField({
             </div>
 
             {error && (
-                <p className="mt-2 text-xs text-danger">
+                <p id={errorId} className="mt-2 text-xs text-danger">
                     {error}
                 </p>
             )}

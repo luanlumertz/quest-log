@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { GAME_STATUS_ENTRIES } from "../../config/gameStatus.config";
 
 import type { GameStatus } from "../../types/game.types";
@@ -15,8 +16,14 @@ export function GameStatusSelector({
     disabled,
     onChange
 }: GameStatusSelectorProps) {
+    const errorId = `${useId()}-error`;
+
     return (
-        <fieldset disabled={disabled}>
+        <fieldset
+            disabled={disabled}
+            aria-invalid={!!error}
+            aria-describedby={error ? errorId : undefined}
+        >
             <legend className="text-[10px] font-semibold uppercase tracking-widest text-ink-mute">
                 Status
             </legend>
@@ -71,7 +78,7 @@ export function GameStatusSelector({
             </div>
 
             {error && (
-                <p className="mt-2 text-xs text-danger">
+                <p id={errorId} className="mt-2 text-xs text-danger">
                     {error}
                 </p>
             )}

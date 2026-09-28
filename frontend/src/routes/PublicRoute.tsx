@@ -11,7 +11,7 @@ export function PublicRoute() {
         return (
             <LoadingState
                 label="Verificando sessão..."
-                className="min-h-screen! bg-backdrop"
+                className="min-h-dvh! bg-backdrop"
             />
         );
     }
@@ -23,7 +23,7 @@ export function PublicRoute() {
                 tone="danger"
                 title="Não foi possível verificar sua sessão"
                 description="Verifique sua conexão e tente novamente."
-                className="min-h-screen! bg-backdrop"
+                className="min-h-dvh! bg-backdrop"
                 action={
                     <Button onClick={() => void retryAuth()} >
                         Tentar novamente

@@ -21,6 +21,7 @@ export function AuthInput({
     error
 }: AuthInputProps) {
     const id = registration.name;
+    const errorId = `${id}-error`;
     const isPassword = type === "password";
 
     const [showPassword, setShowPassword] = useState(false);
@@ -47,6 +48,8 @@ export function AuthInput({
                     type={inputType}
                     placeholder={placeholder}
                     autoComplete={autoComplete}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? errorId : undefined}
                     {...registration}
                     className={`
                         h-12 w-full rounded-xl
@@ -91,7 +94,7 @@ export function AuthInput({
             </div>
 
             {error && (
-                <p className="mt-2 text-sm text-danger">
+                <p id={errorId} className="mt-2 text-sm text-danger">
                     {error}
                 </p>
             )}

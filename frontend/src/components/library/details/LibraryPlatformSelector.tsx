@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { Platform } from "../../../types/platform.types";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
@@ -16,8 +17,14 @@ export function LibraryPlatformSelector({
     disabled = false,
     onToggle
 }: LibraryPlatformSelectorProps) {
+    const errorId = `${useId()}-error`;
+
     return (
-        <fieldset disabled={disabled}>
+        <fieldset
+            disabled={disabled}
+            aria-invalid={!!error}
+            aria-describedby={error ? errorId : undefined}
+        >
             <legend
                 className="
                     text-[10px] font-semibold
@@ -77,7 +84,7 @@ export function LibraryPlatformSelector({
             </div>
 
             {error && (
-                <p className="mt-2 text-xs text-danger">
+                <p id={errorId} className="mt-2 text-xs text-danger">
                     {error}
                 </p>
             )}

@@ -17,6 +17,7 @@ export function LibraryPlaytimeField({
     onChange,
     onClear
 }: LibraryPlaytimeFieldProps) {
+    const errorId = "playtimeHours-error";
     const playtimeMinutes = hoursInputToMinutes(value);
 
     const formattedPlaytime = value.trim() !== "" &&
@@ -61,6 +62,8 @@ export function LibraryPlaytimeField({
                     placeholder="ex.: 12,3"
                     spellCheck={false}
                     disabled={disabled}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? errorId : undefined}
                     value={value}
                     onChange={
                         handleChange
@@ -120,7 +123,7 @@ export function LibraryPlaytimeField({
             </p>
 
             {error && (
-                <p className="mt-2 text-xs text-danger">
+                <p id={errorId} className="mt-2 text-xs text-danger">
                     {error}
                 </p>
             )}
