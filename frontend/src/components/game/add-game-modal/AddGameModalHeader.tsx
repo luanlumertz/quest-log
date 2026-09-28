@@ -1,3 +1,4 @@
+import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type AddGameModalHeaderProps = {
@@ -13,14 +14,22 @@ export function AddGameModalHeader({
     isSubmitting,
     onClose
 }: AddGameModalHeaderProps) {
+    const isDefaultCover = !coverUrl;
+    const imageUrl = coverUrl ?? DEFAULT_GAME_COVER_URL;
+
     return (
         <div className="relative min-h-36 overflow-hidden border-b border-divider">
-            {coverUrl && (
-                <div
-                    className="absolute inset-0 bg-cover bg-position-[center_25%]"
-                    style={{ backgroundImage: `url("${coverUrl}")` }}
-                />
-            )}
+            <div
+                className={`
+                    absolute inset-0
+                    bg-no-repeat
+                    ${isDefaultCover
+                        ? "bg-surface bg-cover bg-center"
+                        : "bg-cover bg-position-[center_25%]"
+                    }
+                `}
+                style={{ backgroundImage: `url("${imageUrl}")` }}
+            />
 
             <div className="absolute inset-0 bg-black/45" />
 

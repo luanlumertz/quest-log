@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 
 import { DesktopHeader } from "./DesktopHeader";
 import { MobileNavigation } from "./MobileNavigation";
-import { RawgAttribution } from "../ui/RawgAttribution";
+import { RawgAttribution } from "./RawgAttribution";
 
 export function AppLayout() {
     return (

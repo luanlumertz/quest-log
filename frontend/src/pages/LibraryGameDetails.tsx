@@ -163,7 +163,7 @@ export function LibraryGameDetails() {
         try {
             await deleteEntry();
 
-            navigate("/library");
+            navigate(-1);
         } catch {
             // O erro já é exibido no modal pela mutation.
         }
