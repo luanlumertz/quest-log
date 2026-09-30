@@ -7,6 +7,8 @@
   "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js"
@@ -14,14 +16,18 @@
   "keywords": [],
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.4.0",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
     "prisma": "6.17.1",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "6.0",
+    "typescript-eslint": "^8.71.0"
   },
   "dependencies": {
     "@prisma/client": "6.17.1",

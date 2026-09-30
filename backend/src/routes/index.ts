@@ -3,10 +3,12 @@ import { userRoutes } from "./auth.router.js";
 import { gameRoutes } from "./game.router.js";
 import { libraryRoutes } from "./library.router.js";
 import { dashboardRoutes } from "./dashboard.router.js";
+import { healthRoutes } from "./health.router.js";
 
 export const routes = Router();
 
-routes.use("/auth", userRoutes)
-routes.use("/games", gameRoutes)
-routes.use("/library", libraryRoutes)
-routes.use("/dashboard", dashboardRoutes)
+routes.use("/healthz", healthRoutes);
+routes.use("/auth", userRoutes);
+routes.use("/games", gameRoutes);
+routes.use("/library", libraryRoutes);
+routes.use("/dashboard", dashboardRoutes);
