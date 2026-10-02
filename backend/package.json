@@ -8,6 +8,7 @@
   "scripts": {
     "test": "dotenv -e .env.test -- vitest run",
     "test:migrate": "dotenv -e .env.test -- prisma migrate deploy",
+    "test:coverage": "dotenv -e .env.test -- vitest run --coverage",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
@@ -24,6 +25,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.4.0",
     "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.2",
     "dotenv-cli": "^11.0.0",
     "eslint": "^10.11.0",
     "globals": "^17.12.0",
