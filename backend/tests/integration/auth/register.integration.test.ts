@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "../../../src/lib/prisma.js";
 import { registerUser } from "../../helpers/auth.helper.js";
-import { makeRegisterUserPayload } from "../../factories/user.factory.js";
+import { makeRegisterUserPayload } from "../../factories/auth.factory.js";
 
 describe("POST /auth/register", () => {
   test("deve cadastrar um usuário válido", async () => {
