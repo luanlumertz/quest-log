@@ -1,34 +1,34 @@
 import type {
-  RegisterUserPayload,
-  LoginUserPayload,
+    RegisterUserPayload,
+    LoginUserPayload,
 } from "../../src/schemas/auth.schema.js";
 
 const defaultUser = {
-  name: "Luan",
-  email: "luan@email.com",
-  password: "12345678",
+    name: "Luan",
+    email: "luan@email.com",
+    password: "12345678",
 };
 
 export function makeRegisterUserPayload(
-  overrides: Partial<RegisterUserPayload> = {},
+    overrides: Partial<RegisterUserPayload> = {},
 ): RegisterUserPayload {
-  const password = overrides.password ?? defaultUser.password;
+    const password = overrides.password ?? defaultUser.password;
 
-  return {
-    name: defaultUser.name,
-    email: defaultUser.email,
-    password,
-    confirmPassword: password,
-    ...overrides,
-  };
+    return {
+        name: defaultUser.name,
+        email: defaultUser.email,
+        password,
+        confirmPassword: password,
+        ...overrides,
+    };
 }
 
 export function makeLoginUserPayload(
-  overrides: Partial<LoginUserPayload> = {},
+    overrides: Partial<LoginUserPayload> = {},
 ): LoginUserPayload {
-  return {
-    email: defaultUser.email,
-    password: defaultUser.password,
-    ...overrides,
-  };
+    return {
+        email: defaultUser.email,
+        password: defaultUser.password,
+        ...overrides,
+    };
 }
