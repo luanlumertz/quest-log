@@ -6,6 +6,18 @@ import type { PublicUser } from "../../src/types/auth.types.js";
 
 type AppTestAgent = ReturnType<typeof request.agent>;
 
+export function getCurrentUserResponse(agent: AppTestAgent) {
+    return agent.get("/auth/me");
+}
+
+export function getCurrentUserResponseWithoutCookies() {
+    return request(app).get("/auth/me");
+}
+
+export function getCurrentUserResponseWithToken(accessToken: string) {
+    return request(app).get("/auth/me").set("Cookie", `accessToken=${accessToken}`);
+}
+
 export function registerUser(payload: RegisterUserPayload) {
     return request(app).post("/auth/register").send(payload);
 }
