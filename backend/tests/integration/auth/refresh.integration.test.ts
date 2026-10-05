@@ -2,17 +2,17 @@ import { describe, test, assert } from "vitest";
 import { prisma } from "../../../src/lib/prisma.js";
 import { hashRefreshToken } from "../../../src/lib/refreshToken.js";
 
+import { getCookieValue } from "../../helpers/cookies.helper.js";
+import {
+    countRefreshSessionsByUserId,
+    findRefreshSessionByUserId,
+} from "../../helpers/refreshSession.helper.js";
 import {
     createAuthenticatedAgent,
     refreshUser,
     refreshUserWithoutToken,
     refreshUserWithToken,
 } from "../../helpers/auth.helper.js";
-import { getCookieValue } from "../../helpers/cookies.helper.js";
-import {
-    countRefreshSessionsByUserId,
-    findRefreshSessionByUserId,
-} from "../../helpers/refreshSession.helper.js";
 
 describe("POST /auth/refresh", () => {
     test("deve renovar os tokens e rotacionar a sessão", async () => {

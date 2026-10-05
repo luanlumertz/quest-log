@@ -56,6 +56,14 @@ export function logoutUserWithToken(refreshToken: string) {
     return request(app).post("/auth/logout").set("Cookie", `refreshToken=${refreshToken}`);
 }
 
+export function deleteCurrentUser(agent: AppTestAgent) {
+    return agent.delete("/auth/me");
+}
+
+export function deleteCurrentUserWithoutCookies() {
+    return request(app).delete("/auth/me");
+}
+
 export function refreshUser(agent: AppTestAgent) {
     return agent.post("/auth/refresh");
 }
