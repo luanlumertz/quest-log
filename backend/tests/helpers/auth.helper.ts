@@ -1,10 +1,8 @@
 import request from "supertest";
 import app from "../../src/app.js";
-import type {
-    RegisterUserPayload,
-    LoginUserPayload,
-} from "../../src/schemas/auth.schema.js";
+import type { RegisterUserPayload, LoginUserPayload } from "../../src/schemas/auth.schema.js";
 import { makeRegisterUserPayload } from "../factories/auth.factory.js";
+import type { PublicUser } from "../../src/types/auth.types.js";
 
 type AppTestAgent = ReturnType<typeof request.agent>;
 
@@ -16,30 +14,39 @@ export function loginUser(payload: LoginUserPayload) {
     return request(app).post("/auth/login").send(payload);
 }
 
+export function logoutUser(agent: AppTestAgent) {
+    return agent.post("/auth/logout");
+}
+
+export function logoutUserWithoutCookies() {
+    return request(app).post("/auth/logout");
+}
+
+export function logoutUserWithToken(refreshToken: string) {
+    return request(app).post("/auth/logout").set("Cookie", `refreshToken=${refreshToken}`);
+}
+
 export function refreshUser(agent: AppTestAgent) {
     return agent.post("/auth/refresh");
 }
 
 export function refreshUserWithToken(refreshToken: string) {
-    return request(app)
-        .post("/auth/refresh")
-        .set("Cookie", `refreshToken=${refreshToken}`);
+    return request(app).post("/auth/refresh").set("Cookie", `refreshToken=${refreshToken}`);
 }
 
 export function refreshUserWithoutToken() {
     return request(app).post("/auth/refresh");
 }
 
-export async function createRegisteredUser(
-    overrides: Partial<RegisterUserPayload> = {},
-) {
+export async function createRegisteredUser(overrides: Partial<RegisterUserPayload> = {}): Promise<{
+    payload: RegisterUserPayload;
+    user: PublicUser;
+}> {
     const payload = makeRegisterUserPayload(overrides);
     const response = await registerUser(payload);
 
     if (response.status !== 201) {
-        throw new Error(
-            `Falha ao preparar usuário para o teste. Status recebido: ${response.status}`,
-        );
+        throw new Error(`Falha ao preparar usuário para o teste. Status recebido: ${response.status}`);
     }
 
     return {
@@ -51,8 +58,7 @@ export async function createRegisteredUser(
 export async function createAuthenticatedAgent() {
     const agent = request.agent(app);
 
-    const { payload: registerPayload, user: registeredUser } =
-        await createRegisteredUser();
+    const { payload: registerPayload, user: registeredUser } = await createRegisteredUser();
 
     const loginResponse = await agent.post("/auth/login").send({
         email: registerPayload.email,
@@ -60,9 +66,7 @@ export async function createAuthenticatedAgent() {
     });
 
     if (loginResponse.status !== 200) {
-        throw new Error(
-            `Falha ao autenticar usuário para o teste. Status recebido: ${loginResponse.status}`,
-        );
+        throw new Error(`Falha ao autenticar usuário para o teste. Status recebido: ${loginResponse.status}`);
     }
 
     return {

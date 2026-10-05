@@ -4,23 +4,20 @@ type ResponseWithHeaders = {
     };
 };
 
-export function getCookieValue(
-    response: ResponseWithHeaders,
-    cookieName: string,
-) {
+function getSetCookies(response: ResponseWithHeaders) {
     const setCookieHeader = response.headers["set-cookie"];
 
     if (!setCookieHeader) {
-        return undefined;
+        return [];
     }
 
-    const cookies = Array.isArray(setCookieHeader)
-        ? setCookieHeader
-        : [setCookieHeader];
+    return Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
+}
 
-    const cookie = cookies.find((cookie) =>
-        cookie.startsWith(`${cookieName}=`),
-    );
+export function getCookieValue(response: ResponseWithHeaders, cookieName: string) {
+    const cookies = getSetCookies(response);
+
+    const cookie = cookies.find((cookie) => cookie.startsWith(`${cookieName}=`));
 
     if (!cookie) {
         return undefined;
@@ -33,4 +30,17 @@ export function getCookieValue(
     }
 
     return firstPart.replace(`${cookieName}=`, "");
+}
+
+export function getAuthCookiesFromResponse(response: ResponseWithHeaders) {
+    const cookies = getSetCookies(response);
+
+    const accessTokenCookie = cookies.find((cookie) => cookie.startsWith("accessToken="));
+
+    const refreshTokenCookie = cookies.find((cookie) => cookie.startsWith("refreshToken="));
+
+    return {
+        accessTokenCookie,
+        refreshTokenCookie,
+    };
 }

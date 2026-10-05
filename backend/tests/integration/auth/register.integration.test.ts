@@ -2,6 +2,7 @@ import { describe, test, assert } from "vitest";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "../../../src/lib/prisma.js";
+
 import { registerUser } from "../../helpers/auth.helper.js";
 import { makeRegisterUserPayload } from "../../factories/auth.factory.js";
 
@@ -29,10 +30,7 @@ describe("POST /auth/register", () => {
         assert.equal(userInDatabase.name, payload.name);
         assert.equal(userInDatabase.email, payload.email);
 
-        const passwordIsValid = await bcrypt.compare(
-            payload.password,
-            userInDatabase.passwordHash,
-        );
+        const passwordIsValid = await bcrypt.compare(payload.password, userInDatabase.passwordHash);
 
         assert.isTrue(passwordIsValid);
     });

@@ -78,9 +78,7 @@ describe("POST /auth/refresh", () => {
         assert.equal(refreshInvalid.status, 401);
         assert.equal(refreshInvalid.body.message, "Sessão inválida");
 
-        const sessionCountAfterInvalidRefresh = await countRefreshSessionsByUserId(
-            user.id,
-        );
+        const sessionCountAfterInvalidRefresh = await countRefreshSessionsByUserId(user.id);
 
         assert.equal(sessionCountAfterInvalidRefresh, 1);
 

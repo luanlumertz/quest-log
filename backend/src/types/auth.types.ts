@@ -1,20 +1,26 @@
 export type CreateUserData = {
-    name: string,
-    email: string,
-    passwordHash: string
-}
+    name: string;
+    email: string;
+    passwordHash: string;
+};
 
 export type RegisterUserData = {
-    name: string,
-    email: string,
-    password: string
-}
+    name: string;
+    email: string;
+    password: string;
+};
 
 export type LoginUserData = {
-    email: string,
-    password: string
-}
+    email: string;
+    password: string;
+};
 
 export type UpdateUserData = {
-    name: string
-}
+    name: string;
+};
+
+export type PublicUser = {
+    id: number;
+    name: string;
+    email: string;
+};
