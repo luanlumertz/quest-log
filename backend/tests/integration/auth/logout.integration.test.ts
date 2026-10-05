@@ -4,19 +4,18 @@ import { prisma } from "../../../src/lib/prisma.js";
 import { hashRefreshToken } from "../../../src/lib/refreshToken.js";
 import { findRefreshSessionByTokenHash } from "../../../src/repositories/refreshSession.repository.js";
 
-import {
-    createAuthenticatedAgent,
-    createRegisteredUser,
-    loginUser,
-    logoutUser,
-    logoutUserWithoutCookies,
-    logoutUserWithToken,
-} from "../../helpers/auth.helper.js";
+import { getAuthCookiesFromResponse, getCookieValue } from "../../helpers/http/cookies.helper.js";
 import {
     countRefreshSessionsByUserId,
     findRefreshSessionByUserId,
-} from "../../helpers/refreshSession.helper.js";
-import { getAuthCookiesFromResponse, getCookieValue } from "../../helpers/cookies.helper.js";
+} from "../../helpers/database/refreshSession.helper.js";
+import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
+import {
+    logoutUser,
+    logoutUserWithoutCookies,
+    logoutUserWithToken,
+} from "../../requests/auth/logout.request.js";
+import { loginUser } from "../../requests/auth/login.request.js";
 
 describe("POST /auth/logout", () => {
     test("deve encerrar a sessão atual do usuário", async () => {

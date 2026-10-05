@@ -3,12 +3,12 @@ import { assert, describe, test } from "vitest";
 import { findUserById } from "../../../src/repositories/user.repository.js";
 import type { PublicUser } from "../../../src/types/auth.types.js";
 
+import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
 import {
-    createAuthenticatedAgent,
     updateCurrentUser,
     updateCurrentUserWithInvalidPayload,
     updateCurrentUserWithoutCookies,
-} from "../../helpers/auth.helper.js";
+} from "../../requests/auth/me.request.js";
 
 // Valor padrão
 const updatePayload = {

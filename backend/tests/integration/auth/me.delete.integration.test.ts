@@ -3,15 +3,11 @@ import { assert, describe, test } from "vitest";
 import { prisma } from "../../../src/lib/prisma.js";
 import { findUserById } from "../../../src/repositories/user.repository.js";
 
+import { countRefreshSessionsByUserId } from "../../helpers/database/refreshSession.helper.js";
+import { getAuthCookiesFromResponse } from "../../helpers/http/cookies.helper.js";
 import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";
-import { countRefreshSessionsByUserId } from "../../helpers/refreshSession.helper.js";
-import { getAuthCookiesFromResponse } from "../../helpers/cookies.helper.js";
-import {
-    createAuthenticatedAgent,
-    createRegisteredUser,
-    deleteCurrentUser,
-    deleteCurrentUserWithoutCookies,
-} from "../../helpers/auth.helper.js";
+import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
+import { deleteCurrentUser, deleteCurrentUserWithoutCookies } from "../../requests/auth/me.request.js";
 
 describe("DELETE /auth/me", () => {
     test("deve excluir a conta do usuário autenticado", async () => {

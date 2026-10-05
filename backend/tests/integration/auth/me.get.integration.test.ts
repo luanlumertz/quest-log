@@ -3,12 +3,12 @@ import { assert, describe, test } from "vitest";
 import { deleteUserById } from "../../../src/repositories/user.repository.js";
 import type { PublicUser } from "../../../src/types/auth.types.js";
 
+import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
 import {
-    createAuthenticatedAgent,
     getCurrentUserResponse,
     getCurrentUserResponseWithoutCookies,
     getCurrentUserResponseWithToken,
-} from "../../helpers/auth.helper.js";
+} from "../../requests/auth/me.request.js";
 
 describe("GET /auth/me", () => {
     test("deve retornar o usuário autenticado", async () => {

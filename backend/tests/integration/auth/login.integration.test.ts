@@ -2,18 +2,18 @@ import { describe, test, assert } from "vitest";
 import { prisma } from "../../../src/lib/prisma.js";
 import { hashRefreshToken } from "../../../src/lib/refreshToken.js";
 
-import { makeLoginUserPayload } from "../../factories/auth.factory.js";
-import { createRegisteredUser, loginUser } from "../../helpers/auth.helper.js";
-import { getCookieValue } from "../../helpers/cookies.helper.js";
+import { getCookieValue } from "../../helpers/http/cookies.helper.js";
 import {
     countRefreshSessionsByUserId,
     findRefreshSessionByUserId,
-} from "../../helpers/refreshSession.helper.js";
+} from "../../helpers/database/refreshSession.helper.js";
+import { createRegisteredUser } from "../../fixtures/auth.fixture.js";
+import { loginUser } from "../../requests/auth/login.request.js";
+import { makeLoginUserPayload } from "../../factories/auth.factory.js";
 
 describe("POST /auth/login", () => {
     test("deve logar um usuário válido", async () => {
-        const { payload: registerPayload, user: registeredUser } =
-            await createRegisteredUser();
+        const { payload: registerPayload, user: registeredUser } = await createRegisteredUser();
 
         const loginPayload = makeLoginUserPayload({
             email: registerPayload.email,
@@ -34,17 +34,11 @@ describe("POST /auth/login", () => {
 
         assert.exists(setCookieHeader);
 
-        const cookies = Array.isArray(setCookieHeader)
-            ? setCookieHeader
-            : [setCookieHeader];
+        const cookies = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
 
-        const accessCookie = cookies.find((cookie) =>
-            cookie.startsWith("accessToken="),
-        );
+        const accessCookie = cookies.find((cookie) => cookie.startsWith("accessToken="));
 
-        const refreshCookie = cookies.find((cookie) =>
-            cookie.startsWith("refreshToken="),
-        );
+        const refreshCookie = cookies.find((cookie) => cookie.startsWith("refreshToken="));
 
         assert.exists(accessCookie);
         assert.exists(refreshCookie);
@@ -62,8 +56,7 @@ describe("POST /auth/login", () => {
     });
 
     test("não deve logar usuário com senha incorreta", async () => {
-        const { payload: registerPayload, user: registeredUser } =
-            await createRegisteredUser();
+        const { payload: registerPayload, user: registeredUser } = await createRegisteredUser();
 
         const loginPayload = makeLoginUserPayload({
             email: registerPayload.email,
@@ -74,9 +67,7 @@ describe("POST /auth/login", () => {
         assert.equal(loginResponse.status, 401);
         assert.equal(loginResponse.body.message, "Email ou senha inválidos");
 
-        const refreshSessionCount = await countRefreshSessionsByUserId(
-            registeredUser.id,
-        );
+        const refreshSessionCount = await countRefreshSessionsByUserId(registeredUser.id);
 
         assert.equal(refreshSessionCount, 0);
         assert.isUndefined(loginResponse.headers["set-cookie"]);
