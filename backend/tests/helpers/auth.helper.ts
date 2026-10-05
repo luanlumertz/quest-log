@@ -1,8 +1,14 @@
 import request from "supertest";
+
 import app from "../../src/app.js";
-import type { RegisterUserPayload, LoginUserPayload } from "../../src/schemas/auth.schema.js";
-import { makeRegisterUserPayload } from "../factories/auth.factory.js";
 import type { PublicUser } from "../../src/types/auth.types.js";
+import type {
+    RegisterUserPayload,
+    LoginUserPayload,
+    UpdateUserPayload,
+} from "../../src/schemas/auth.schema.js";
+
+import { makeRegisterUserPayload } from "../factories/auth.factory.js";
 
 type AppTestAgent = ReturnType<typeof request.agent>;
 
@@ -24,6 +30,18 @@ export function registerUser(payload: RegisterUserPayload) {
 
 export function loginUser(payload: LoginUserPayload) {
     return request(app).post("/auth/login").send(payload);
+}
+
+export function updateCurrentUser(agent: AppTestAgent, payload: UpdateUserPayload) {
+    return agent.patch("/auth/me").send(payload);
+}
+
+export function updateCurrentUserWithoutCookies(payload: UpdateUserPayload) {
+    return request(app).patch("/auth/me").send(payload);
+}
+
+export function updateCurrentUserWithInvalidPayload(agent: AppTestAgent, payload: object) {
+    return agent.patch("/auth/me").send(payload);
 }
 
 export function logoutUser(agent: AppTestAgent) {
