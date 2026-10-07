@@ -16,7 +16,9 @@ export async function createRegisteredUser(overrides: Partial<RegisterUserPayloa
     const response = await registerUser(payload);
 
     if (response.status !== 201) {
-        throw new Error(`Falha ao preparar usuário para o teste. Status recebido: ${response.status}`);
+        throw new Error(
+            `Falha ao preparar usuário para o teste. Status recebido: ${response.status}`,
+        );
     }
 
     return {
@@ -25,10 +27,11 @@ export async function createRegisteredUser(overrides: Partial<RegisterUserPayloa
     };
 }
 
-export async function createAuthenticatedAgent() {
+export async function createAuthenticatedAgent(overrides: Partial<RegisterUserPayload> = {}) {
     const agent = request.agent(app);
 
-    const { payload: registerPayload, user: registeredUser } = await createRegisteredUser();
+    const { payload: registerPayload, user: registeredUser } =
+        await createRegisteredUser(overrides);
 
     const loginResponse = await loginUserWithAgent(agent, {
         email: registerPayload.email,
@@ -36,7 +39,9 @@ export async function createAuthenticatedAgent() {
     });
 
     if (loginResponse.status !== 200) {
-        throw new Error(`Falha ao autenticar usuário para o teste. Status recebido: ${loginResponse.status}`);
+        throw new Error(
+            `Falha ao autenticar usuário para o teste. Status recebido: ${loginResponse.status}`,
+        );
     }
 
     return {

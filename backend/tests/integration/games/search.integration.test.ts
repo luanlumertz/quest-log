@@ -3,7 +3,11 @@ import { assert, describe, test } from "vitest";
 import { AppError } from "../../../src/errors/AppError.js";
 
 import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
-import { genericGameSearchResult, mockRawgSearch, mockRawgSearchError } from "../../fixtures/rawg.fixture.js";
+import {
+    genericGameSearchResult,
+    mockRawgSearch,
+    mockRawgSearchError,
+} from "../../fixtures/rawg.fixture.js";
 import { searchGames, searchGamesWithoutCookies } from "../../requests/games/search.request.js";
 
 describe("GET /games/search", () => {
@@ -16,6 +20,7 @@ describe("GET /games/search", () => {
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body, genericGameSearchResult);
+
         assert.equal(mockedSearch.mock.calls.length, 1);
         assert.equal(mockedSearch.mock.calls[0]?.[0], "Test Game");
     });
@@ -27,6 +32,7 @@ describe("GET /games/search", () => {
 
         assert.equal(response.status, 401);
         assert.equal(response.body.message, "Não autenticado");
+
         assert.equal(mockedSearch.mock.calls.length, 0);
     });
 
@@ -39,6 +45,7 @@ describe("GET /games/search", () => {
 
         assert.equal(response.status, 422);
         assert.equal(response.body.error, "Erro de Validação");
+
         assert.equal(mockedSearch.mock.calls.length, 0);
     });
 
@@ -51,6 +58,7 @@ describe("GET /games/search", () => {
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body, []);
+
         assert.equal(mockedSearch.mock.calls.length, 1);
         assert.equal(mockedSearch.mock.calls[0]?.[0], "JogoInexistente");
     });
@@ -64,6 +72,7 @@ describe("GET /games/search", () => {
 
         assert.equal(response.status, 502);
         assert.equal(response.body.message, "Erro ao buscar jogos na RAWG");
+
         assert.equal(mockedSearch.mock.calls.length, 1);
         assert.equal(mockedSearch.mock.calls[0]?.[0], "Test Game");
     });

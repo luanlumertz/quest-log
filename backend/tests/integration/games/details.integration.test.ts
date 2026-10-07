@@ -3,7 +3,10 @@ import { assert, describe, test } from "vitest";
 import { AppError } from "../../../src/errors/AppError.js";
 
 import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
-import { getGameDetails, getGameDetailsWithoutCookies } from "../../requests/games/details.request.js";
+import {
+    getGameDetails,
+    getGameDetailsWithoutCookies,
+} from "../../requests/games/details.request.js";
 import {
     genericGameDetailsResult,
     mockRawgGameDetails,
@@ -20,6 +23,7 @@ describe("GET /games/:externalId", () => {
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body, genericGameDetailsResult);
+
         assert.equal(mockedDetails.mock.calls.length, 1);
         assert.equal(mockedDetails.mock.calls[0]?.[0], 123);
     });
@@ -31,6 +35,7 @@ describe("GET /games/:externalId", () => {
 
         assert.equal(response.status, 401);
         assert.equal(response.body.message, "Não autenticado");
+
         assert.equal(mockedDetails.mock.calls.length, 0);
     });
 
@@ -43,6 +48,7 @@ describe("GET /games/:externalId", () => {
 
         assert.equal(response.status, 422);
         assert.equal(response.body.error, "Erro de Validação");
+
         assert.equal(mockedDetails.mock.calls.length, 0);
     });
 
@@ -55,6 +61,7 @@ describe("GET /games/:externalId", () => {
 
         assert.equal(response.status, 404);
         assert.equal(response.body.message, "Jogo não encontrado");
+
         assert.equal(mockedDetails.mock.calls.length, 1);
         assert.equal(mockedDetails.mock.calls[0]?.[0], 999999);
     });
@@ -62,12 +69,15 @@ describe("GET /games/:externalId", () => {
     test("deve retornar 502 quando a RAWG falhar ao buscar os detalhes do jogo", async () => {
         const { agent } = await createAuthenticatedAgent();
 
-        const mockedDetails = mockRawgGameDetailsError(new AppError("Erro ao buscar jogo na RAWG", 502));
+        const mockedDetails = mockRawgGameDetailsError(
+            new AppError("Erro ao buscar jogo na RAWG", 502),
+        );
 
         const response = await getGameDetails(agent, 123);
 
         assert.equal(response.status, 502);
         assert.equal(response.body.message, "Erro ao buscar jogo na RAWG");
+
         assert.equal(mockedDetails.mock.calls.length, 1);
         assert.equal(mockedDetails.mock.calls[0]?.[0], 123);
     });

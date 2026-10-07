@@ -3,6 +3,8 @@ import { vi } from "vitest";
 import { getRawgGameById, searchRawgGames } from "../../src/integrations/rawg.js";
 import type { GameDetailsResult, GameSearchResult } from "../../src/types/rawgGame.types.js";
 
+import { createRawgGameDetails } from "../factories/rawg.factory.js";
+
 export const genericGameSearchResult: GameSearchResult[] = [
     {
         externalId: 123,
@@ -41,10 +43,10 @@ export function mockRawgSearchError(error: Error) {
     return mockedSearch;
 }
 
-export function mockRawgGameDetails(game: GameDetailsResult = genericGameDetailsResult) {
+export function mockRawgGameDetails(overrides: Partial<GameDetailsResult> = {}) {
     const mockedGetById = vi.mocked(getRawgGameById);
 
-    mockedGetById.mockResolvedValue(game);
+    mockedGetById.mockResolvedValue(createRawgGameDetails(overrides));
 
     return mockedGetById;
 }
