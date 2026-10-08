@@ -1,17 +1,34 @@
+import type { GameStatus } from "@prisma/client";
 import { prisma } from "../../src/lib/prisma.js";
 
-export async function createLibraryDataForUser(userId: number) {
+type CreateLibraryDataForUserOptions = {
+    game?: {
+        externalId?: number;
+        title?: string;
+    };
+    platform?: {
+        name?: string;
+    };
+    libraryEntry?: {
+        status?: GameStatus;
+    };
+};
+
+export async function createLibraryDataForUser(
+    userId: number,
+    options: CreateLibraryDataForUserOptions = {},
+) {
     return prisma.$transaction(async (tx) => {
         const game = await tx.game.create({
             data: {
-                externalId: 999999,
-                title: "Test Game",
+                externalId: options.game?.externalId ?? 123,
+                title: options.game?.title ?? "Test Game",
             },
         });
 
         const platform = await tx.platform.create({
             data: {
-                name: "Test Platform",
+                name: options.platform?.name ?? "Test Platform",
             },
         });
 
@@ -26,6 +43,9 @@ export async function createLibraryDataForUser(userId: number) {
             data: {
                 userId,
                 gameId: game.id,
+                ...(options.libraryEntry?.status && {
+                    status: options.libraryEntry.status,
+                }),
             },
         });
 

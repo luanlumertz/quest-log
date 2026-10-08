@@ -5,3 +5,28 @@ export type AddGameToLibraryData = {
     status: GameStatus;
     platforms: string[];
 };
+
+export type LibraryEntryResponse = {
+    rating: number | null;
+    platforms: {
+        id: number;
+        name: string;
+    }[];
+    status: GameStatus;
+    playtimeMinutes: number;
+    startedAt: string | null;
+    completedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    game: {
+        id: number;
+        externalId: number;
+        title: string;
+        coverUrl: string | null;
+        releaseDate: string | null;
+    };
+};
+
+export type ListLibraryResponse = {
+    libraryEntries: LibraryEntryResponse[];
+};
