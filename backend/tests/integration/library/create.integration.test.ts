@@ -124,23 +124,23 @@ describe("POST /library", () => {
     });
 
     test("deve permitir que usuários diferentes adicionem o mesmo jogo à biblioteca", async () => {
-        const { agent: agent1, user: user1 } = await createAuthenticatedAgent({
-            email: "user1@email.com",
+        const { agent: agentA, user: userA } = await createAuthenticatedAgent({
+            email: "userA@email.com",
         });
 
-        const { agent: agent2, user: user2 } = await createAuthenticatedAgent({
-            email: "user2@email.com",
+        const { agent: agentB, user: userB } = await createAuthenticatedAgent({
+            email: "userB@email.com",
         });
 
         const mockedDetails = mockRawgGameDetails();
 
         const payload = createLibraryPayload();
 
-        const firstResponse = await addGameToLibrary(agent1, payload);
+        const firstResponse = await addGameToLibrary(agentA, payload);
 
         assert.equal(firstResponse.status, 201);
 
-        const secondResponse = await addGameToLibrary(agent2, payload);
+        const secondResponse = await addGameToLibrary(agentB, payload);
 
         assert.equal(secondResponse.status, 201);
 
@@ -156,19 +156,19 @@ describe("POST /library", () => {
 
         assert.equal(gameCount, 1);
 
-        const libraryEntriesCountUser1 = await countLibraryEntriesByUserIdAndGameId(
-            user1.id,
+        const libraryEntriesCountuserA = await countLibraryEntriesByUserIdAndGameId(
+            userA.id,
             firstGameId,
         );
 
-        assert.equal(libraryEntriesCountUser1, 1);
+        assert.equal(libraryEntriesCountuserA, 1);
 
-        const libraryEntriesCountUser2 = await countLibraryEntriesByUserIdAndGameId(
-            user2.id,
+        const libraryEntriesCountuserB = await countLibraryEntriesByUserIdAndGameId(
+            userB.id,
             secondGameId,
         );
 
-        assert.equal(libraryEntriesCountUser2, 1);
+        assert.equal(libraryEntriesCountuserB, 1);
     });
 
     test("não deve adicionar jogo com plataforma não disponível", async () => {

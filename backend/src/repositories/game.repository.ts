@@ -3,30 +3,26 @@ import type { CreateGameData } from "../types/game.types.js";
 
 export function findGameByExternalId(externalId: number) {
     return prisma.game.findUnique({
-        where: { externalId }
+        where: { externalId },
     });
 }
 
 export function createGame(data: CreateGameData) {
-    const createdGame = prisma.game.create({
+    return prisma.game.create({
         data: {
             externalId: data.externalId,
             title: data.title,
             coverUrl: data.coverUrl ?? null,
-            releaseDate: data.releaseDate ?? null
-        }
-    })
-
-    return createdGame;
+            releaseDate: data.releaseDate ?? null,
+        },
+    });
 }
 
-export function createGamePlatform(gameId: number, platformId: number){
-    const createdGamePlatform = prisma.gamePlatform.create({
+export function createGamePlatform(gameId: number, platformId: number) {
+    return prisma.gamePlatform.create({
         data: {
             gameId,
-            platformId
-        }
-    })
-
-    return createdGamePlatform;
+            platformId,
+        },
+    });
 }

@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma.js"
+import { prisma } from "../lib/prisma.js";
 import type { CreateUserData, UpdateUserData } from "../types/auth.types.js";
 
 export function findUserByEmail(email: string) {
@@ -9,8 +9,8 @@ export function findUserByEmail(email: string) {
 
 export function findUserById(id: number) {
     return prisma.user.findUnique({
-        where: { id }
-    })
+        where: { id },
+    });
 }
 
 export function createUser(data: CreateUserData) {
@@ -18,24 +18,24 @@ export function createUser(data: CreateUserData) {
         data: {
             name: data.name,
             email: data.email,
-            passwordHash: data.passwordHash
-        }
-    })
+            passwordHash: data.passwordHash,
+        },
+    });
 }
 
 export function updateUserById(id: number, data: UpdateUserData) {
     return prisma.user.update({
         where: {
-            id
+            id,
         },
-        data
-    })
+        data,
+    });
 }
 
 export function deleteUserById(id: number) {
     return prisma.user.delete({
         where: {
-            id
-        }
-    })
+            id,
+        },
+    });
 }

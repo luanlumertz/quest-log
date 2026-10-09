@@ -30,3 +30,12 @@ export type LibraryEntryResponse = {
 export type ListLibraryResponse = {
     libraryEntries: LibraryEntryResponse[];
 };
+
+export type LibraryDetailsResponse = {
+    libraryEntry: LibraryEntryResponse & {
+        availablePlatforms: {
+            id: number;
+            name: string;
+        }[];
+    };
+};

@@ -1,16 +1,17 @@
 import { assert, describe, test } from "vitest";
 
+import type { GameStatus } from "@prisma/client";
+
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
 import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";
 import { listLibrary, listLibraryWithoutCookies } from "../../requests/library/list.request.js";
 import type { ListLibraryResponse } from "../../types/library.types.js";
-import type { GameStatus } from "@prisma/client";
 
 describe("GET /library", () => {
     test("deve retornar os jogos da biblioteca do usuário autenticado", async () => {
         const { agent, user } = await createAuthenticatedAgent();
 
-        const { libraryEntry, game, platform } = await createLibraryDataForUser(user.id);
+        const { libraryEntry, game, selectedPlatforms } = await createLibraryDataForUser(user.id);
 
         const response = await listLibrary(agent);
 
@@ -29,9 +30,7 @@ describe("GET /library", () => {
         assert.equal(libraryEntryResponse.game.externalId, game.externalId);
         assert.equal(libraryEntryResponse.game.title, game.title);
 
-        assert.deepEqual(libraryEntryResponse.platforms, [
-            { id: platform.id, name: platform.name },
-        ]);
+        assert.deepEqual(libraryEntryResponse.platforms, selectedPlatforms);
     });
 
     test("deve retornar lista vazia quando o usuário não possui jogos na biblioteca", async () => {
@@ -46,12 +45,12 @@ describe("GET /library", () => {
     });
 
     test("não deve retornar jogos da biblioteca de outro usuário", async () => {
-        const { agent: agent1 } = await createAuthenticatedAgent();
-        const { user: user2 } = await createRegisteredUser({ email: "user2@email.com" });
+        const { agent: agentA } = await createAuthenticatedAgent();
+        const { user: userB } = await createRegisteredUser({ email: "userB@email.com" });
 
-        await createLibraryDataForUser(user2.id);
+        await createLibraryDataForUser(userB.id);
 
-        const response = await listLibrary(agent1);
+        const response = await listLibrary(agentA);
 
         const body = response.body as ListLibraryResponse;
 
@@ -75,9 +74,7 @@ describe("GET /library", () => {
                 externalId: 456,
                 title: "Second Test Game",
             },
-            platform: {
-                name: "Second Test Platform",
-            },
+            selectedPlatforms: ["Second Test Platform"],
             libraryEntry: {
                 status: "COMPLETED",
             },
@@ -114,9 +111,7 @@ describe("GET /library", () => {
                 externalId: 456,
                 title: "Hades",
             },
-            platform: {
-                name: "Second Test Platform",
-            },
+            selectedPlatforms: ["Second Test Platform"],
         });
 
         const response = await listLibrary(agent, { search: partialSearch });
@@ -153,9 +148,7 @@ describe("GET /library", () => {
                 externalId: 456,
                 title: `${filteredSearch} Nightreign`,
             },
-            platform: {
-                name: "Second Test Platform",
-            },
+            selectedPlatforms: ["Second Test Platform"],
             libraryEntry: {
                 status: "COMPLETED",
             },
@@ -166,9 +159,7 @@ describe("GET /library", () => {
                 externalId: 789,
                 title: "Hades",
             },
-            platform: {
-                name: "Third Test Platform",
-            },
+            selectedPlatforms: ["Third Test Platform"],
             libraryEntry: {
                 status: filteredStatus,
             },

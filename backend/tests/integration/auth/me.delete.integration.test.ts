@@ -66,7 +66,11 @@ describe("DELETE /auth/me", () => {
     test("deve excluir os dados pessoais do usuário sem remover dados globais dos jogos", async () => {
         const { agent, user } = await createAuthenticatedAgent();
 
-        const { game, platform, gamePlatform } = await createLibraryDataForUser(user.id);
+        const { game, selectedPlatforms } = await createLibraryDataForUser(user.id);
+
+        const [platform] = selectedPlatforms;
+
+        assert.ok(platform);
 
         const sessionCountBefore = await countRefreshSessionsByUserId(user.id);
 
@@ -90,8 +94,8 @@ describe("DELETE /auth/me", () => {
         const persistedGame = await findGameByExternalId(game.externalId);
         const persistedPlatform = await findPlatformByName(platform.name);
         const persistedGamePlatform = await findGamePlatformByGameIdAndPlatformId(
-            gamePlatform.gameId,
-            gamePlatform.platformId,
+            game.id,
+            platform.id,
         );
 
         assert.notExists(deletedUser);

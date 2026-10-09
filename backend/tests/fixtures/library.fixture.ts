@@ -6,9 +6,8 @@ type CreateLibraryDataForUserOptions = {
         externalId?: number;
         title?: string;
     };
-    platform?: {
-        name?: string;
-    };
+    selectedPlatforms?: string[];
+    unselectedPlatforms?: string[];
     libraryEntry?: {
         status?: GameStatus;
     };
@@ -26,18 +25,30 @@ export async function createLibraryDataForUser(
             },
         });
 
-        const platform = await tx.platform.create({
-            data: {
-                name: options.platform?.name ?? "Test Platform",
-            },
-        });
+        const selectedNames = options.selectedPlatforms ?? ["Test Platform"];
+        const unselectedNames = options.unselectedPlatforms ?? [];
 
-        const gamePlatform = await tx.gamePlatform.create({
-            data: {
-                gameId: game.id,
-                platformId: platform.id,
-            },
-        });
+        const selectedPlatforms = [];
+        const unselectedPlatforms = [];
+
+        for (const name of [...selectedNames, ...unselectedNames]) {
+            const platform = await tx.platform.create({
+                data: { name },
+            });
+
+            await tx.gamePlatform.create({
+                data: {
+                    gameId: game.id,
+                    platformId: platform.id,
+                },
+            });
+
+            if (selectedNames.includes(name)) {
+                selectedPlatforms.push(platform);
+            } else {
+                unselectedPlatforms.push(platform);
+            }
+        }
 
         const libraryEntry = await tx.libraryEntry.create({
             data: {
@@ -49,20 +60,21 @@ export async function createLibraryDataForUser(
             },
         });
 
-        const libraryEntryPlatform = await tx.libraryEntryPlatform.create({
-            data: {
-                userId,
-                gameId: game.id,
-                platformId: platform.id,
-            },
-        });
+        for (const platform of selectedPlatforms) {
+            await tx.libraryEntryPlatform.create({
+                data: {
+                    userId,
+                    gameId: game.id,
+                    platformId: platform.id,
+                },
+            });
+        }
 
         return {
             game,
-            platform,
-            gamePlatform,
             libraryEntry,
-            libraryEntryPlatform,
+            selectedPlatforms,
+            unselectedPlatforms,
         };
     });
 }
