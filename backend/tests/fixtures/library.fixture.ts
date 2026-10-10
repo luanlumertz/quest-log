@@ -14,8 +14,11 @@ type CreateLibraryDataForUserOptions = {
         playtimeMinutes?: number;
         startedAt?: Date | null;
         completedAt?: Date | null;
+        updatedAt?: Date;
     };
 };
+
+type LibraryEntryOptions = NonNullable<CreateLibraryDataForUserOptions["libraryEntry"]>;
 
 export async function createLibraryDataForUser(
     userId: number,
@@ -79,6 +82,32 @@ export async function createLibraryDataForUser(
             unselectedPlatforms,
         };
     });
+}
+
+let uniqueId = 1000;
+
+export async function createMultipleLibraryDataForUser(
+    userId: number,
+    entries: LibraryEntryOptions[],
+) {
+    const results = [];
+
+    for (const [index, libraryEntry] of entries.entries()) {
+        const id = uniqueId++;
+
+        const result = await createLibraryDataForUser(userId, {
+            game: {
+                externalId: id,
+                title: `Jogo ${index + 1}`,
+            },
+            selectedPlatforms: [`Plataforma ${id}`],
+            libraryEntry,
+        });
+
+        results.push(result);
+    }
+
+    return results;
 }
 
 export function createLibraryEntryForExistingGame(
