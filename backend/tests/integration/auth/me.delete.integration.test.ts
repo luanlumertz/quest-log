@@ -5,14 +5,12 @@ import { findGameByExternalId } from "../../../src/repositories/game.repository.
 import { findPlatformByName } from "../../../src/repositories/platform.repository.js";
 import { findLibraryEntryByUserAndGameId } from "../../../src/repositories/library.repository.js";
 
-import { countRefreshSessionsByUserId } from "../../helpers/database/refreshSession.helper.js";
 import { getAuthCookiesFromResponse } from "../../helpers/http/cookies.helper.js";
+import { countRefreshSessionsByUserId } from "../../helpers/database/refreshSession.helper.js";
+import { findGamePlatformByGameIdAndPlatformId } from "../../helpers/database/game.helper.js";
+import { findLibraryEntryPlatformByUserIdGameIdAndPlatformId } from "../../helpers/database/library.helper.js";
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
-import {
-    createLibraryDataForUser,
-    findLibraryEntryPlatformByUserIdGameIdAndPlatformId,
-} from "../../fixtures/library.fixture.js";
-import { findGamePlatformByGameIdAndPlatformId } from "../../fixtures/game.fixture.js";
+import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";
 import {
     deleteCurrentUser,
     deleteCurrentUserWithoutCookies,

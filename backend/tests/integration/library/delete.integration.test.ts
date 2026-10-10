@@ -6,11 +6,13 @@ import { findGameByExternalId } from "../../../src/repositories/game.repository.
 import {
     countLibraryEntriesByUserIdAndGameId,
     countLibraryEntryPlatformsByUserIdAndGameId,
+} from "../../helpers/database/library.helper.js";
+import { findGamePlatformByGameIdAndPlatformId } from "../../helpers/database/game.helper.js";
+import {
     createLibraryDataForUser,
     createLibraryEntryForExistingGame,
 } from "../../fixtures/library.fixture.js";
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
-import { findGamePlatformByGameIdAndPlatformId } from "../../fixtures/game.fixture.js";
 import {
     deleteLibraryEntry,
     deleteLibraryEntryWithoutCookies,

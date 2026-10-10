@@ -1,4 +1,4 @@
-import { prisma } from "../../src/lib/prisma.js";
+import { prisma } from "../../../src/lib/prisma.js";
 
 export function countGamesByExternalId(externalId: number) {
     return prisma.game.count({

@@ -3,15 +3,12 @@ import { assert, describe, test } from "vitest";
 import { AppError } from "../../../src/errors/AppError.js";
 
 import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
+import { mockRawgGameDetails, mockRawgGameDetailsError } from "../../fixtures/rawg.fixture.js";
+import { genericGameDetailsResult } from "../../factories/rawg.factory.js";
 import {
     getGameDetails,
     getGameDetailsWithoutCookies,
 } from "../../requests/games/details.request.js";
-import {
-    genericGameDetailsResult,
-    mockRawgGameDetails,
-    mockRawgGameDetailsError,
-} from "../../fixtures/rawg.fixture.js";
 
 describe("GET /games/:externalId", () => {
     test("deve retornar os detalhes de um jogo com externalId válido", async () => {

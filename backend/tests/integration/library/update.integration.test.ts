@@ -5,12 +5,10 @@ import { findLibraryEntryByUserAndGameId } from "../../../src/repositories/libra
 import { createPlatform } from "../../../src/repositories/platform.repository.js";
 
 import type { UpdatedLibraryEntryResponse } from "../../types/library.types.js";
+import { findGamePlatformsByGameId } from "../../helpers/database/game.helper.js";
+import { findLibraryEntryPlatformsByUserIdAndGameId } from "../../helpers/database/library.helper.js";
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
-import {
-    createLibraryDataForUser,
-    findLibraryEntryPlatformsByUserIdAndGameId,
-} from "../../fixtures/library.fixture.js";
-import { findGamePlatformsByGameId } from "../../fixtures/game.fixture.js";
+import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";
 import {
     updateLibraryEntry,
     updateLibraryEntryWithoutCookies,

@@ -5,26 +5,26 @@ import { findGameByExternalId } from "../../../src/repositories/game.repository.
 import { findPlatformByName } from "../../../src/repositories/platform.repository.js";
 import { findLibraryEntryByUserAndGameId } from "../../../src/repositories/library.repository.js";
 
-import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
 import {
     countLibraryEntries,
     countLibraryEntriesByUserIdAndGameId,
     countLibraryEntryPlatformsByUserIdAndGameId,
     countLibraryEntryPlatformsByUserIdGameIdPlatformId,
     findLibraryEntryPlatformByUserIdGameIdAndPlatformId,
-} from "../../fixtures/library.fixture.js";
+} from "../../helpers/database/library.helper.js";
 import {
     countGamePlatformsByGameId,
     countGamePlatformsByGameIdAndPlatformId,
     countGamesByExternalId,
     findGamePlatformByGameIdAndPlatformId,
-} from "../../fixtures/game.fixture.js";
+} from "../../helpers/database/game.helper.js";
+import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
 import { mockRawgGameDetails, mockRawgGameDetailsError } from "../../fixtures/rawg.fixture.js";
+import { createLibraryPayload } from "../../factories/library.factory.js";
 import {
     addGameToLibrary,
     addGameToLibraryWithoutCookies,
 } from "../../requests/library/create.request.js";
-import { createLibraryPayload } from "../../factories/library.factory.js";
 
 describe("POST /library", () => {
     test("deve adicionar um jogo como WANT_TO_PLAY à biblioteca do usuário", async () => {

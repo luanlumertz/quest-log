@@ -3,11 +3,8 @@ import { assert, describe, test } from "vitest";
 import { AppError } from "../../../src/errors/AppError.js";
 
 import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
-import {
-    genericGameSearchResult,
-    mockRawgSearch,
-    mockRawgSearchError,
-} from "../../fixtures/rawg.fixture.js";
+import { mockRawgSearch, mockRawgSearchError } from "../../fixtures/rawg.fixture.js";
+import { genericGameSearchResult } from "../../factories/rawg.factory.js";
 import { searchGames, searchGamesWithoutCookies } from "../../requests/games/search.request.js";
 
 describe("GET /games/search", () => {
