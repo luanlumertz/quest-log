@@ -81,6 +81,31 @@ export async function createLibraryDataForUser(
     });
 }
 
+export function createLibraryEntryForExistingGame(
+    userId: number,
+    gameId: number,
+    platformIds: number[],
+) {
+    return prisma.$transaction(async (tx) => {
+        const libraryEntry = await tx.libraryEntry.create({
+            data: {
+                userId,
+                gameId,
+            },
+        });
+
+        await tx.libraryEntryPlatform.createMany({
+            data: platformIds.map((platformId) => ({
+                userId,
+                gameId,
+                platformId,
+            })),
+        });
+
+        return libraryEntry;
+    });
+}
+
 export function countLibraryEntriesByUserIdAndGameId(userId: number, gameId: number) {
     return prisma.libraryEntry.count({
         where: {
