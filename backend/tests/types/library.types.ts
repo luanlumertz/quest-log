@@ -39,3 +39,16 @@ export type LibraryDetailsResponse = {
         }[];
     };
 };
+
+export type UpdateLibraryEntryPayload = {
+    status?: GameStatus;
+    rating?: number | null;
+    playtimeMinutes?: number;
+    startedAt?: string | null;
+    completedAt?: string | null;
+    platforms?: number[];
+};
+
+export type UpdatedLibraryEntryResponse = {
+    updatedLibraryEntry: LibraryEntryResponse;
+};

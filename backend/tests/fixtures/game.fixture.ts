@@ -19,6 +19,14 @@ export function findGamePlatformByGameIdAndPlatformId(gameId: number, platformId
     });
 }
 
+export function findGamePlatformsByGameId(gameId: number) {
+    return prisma.gamePlatform.findMany({
+        where: {
+            gameId,
+        },
+    });
+}
+
 export function countGamePlatformsByGameIdAndPlatformId(gameId: number, platformId: number) {
     return prisma.gamePlatform.count({
         where: {

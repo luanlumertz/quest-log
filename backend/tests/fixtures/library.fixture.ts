@@ -10,6 +10,10 @@ type CreateLibraryDataForUserOptions = {
     unselectedPlatforms?: string[];
     libraryEntry?: {
         status?: GameStatus;
+        rating?: number | null;
+        playtimeMinutes?: number;
+        startedAt?: Date | null;
+        completedAt?: Date | null;
     };
 };
 
@@ -54,9 +58,7 @@ export async function createLibraryDataForUser(
             data: {
                 userId,
                 gameId: game.id,
-                ...(options.libraryEntry?.status && {
-                    status: options.libraryEntry.status,
-                }),
+                ...options.libraryEntry,
             },
         });
 
@@ -129,6 +131,15 @@ export function countLibraryEntryPlatformsByUserIdAndGameId(userId: number, game
                 userId,
                 gameId,
             },
+        },
+    });
+}
+
+export function findLibraryEntryPlatformsByUserIdAndGameId(userId: number, gameId: number) {
+    return prisma.libraryEntryPlatform.findMany({
+        where: {
+            userId,
+            gameId,
         },
     });
 }
