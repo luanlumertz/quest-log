@@ -22,6 +22,30 @@ export const genericGameDetailsResult: GameDetailsResult = {
     publishers: ["Test Publisher"],
 };
 
+export const rawgSearchApiResponse = {
+    results: [
+        {
+            id: 123,
+            name: "Elden Ring",
+            background_image: "https://example.com/cover.jpg",
+            released: "2022-02-25",
+            platforms: [{ platform: { name: "PC" } }, { platform: { name: "PlayStation 5" } }],
+        },
+    ],
+};
+
+export const rawgDetailsApiResponse = {
+    id: 123,
+    name: "Elden Ring",
+    background_image: "https://example.com/cover.jpg",
+    released: "2022-02-25",
+    description_raw: "Um RPG de ação em mundo aberto.",
+    genres: [{ name: "Action" }, { name: "RPG" }],
+    platforms: [{ platform: { name: "PC" } }, { platform: { name: "PlayStation 5" } }],
+    developers: [{ name: "FromSoftware" }],
+    publishers: [{ name: "Bandai Namco Entertainment" }],
+};
+
 export function createRawgGameDetails(
     overrides: Partial<GameDetailsResult> = {},
 ): GameDetailsResult {
