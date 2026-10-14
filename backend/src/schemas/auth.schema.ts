@@ -1,25 +1,30 @@
 import { z } from "zod";
 
+const nameSchema = z
+    .string()
+    .trim()
+    .transform((name) => name.replace(/\s+/g, " "))
+    .pipe(
+        z
+            .string()
+            .min(2, { error: "Nome deve ter pelo menos 2 caracteres" })
+            .max(64, { error: "Nome muito grande. Máximo: 64 caracteres" })
+            .regex(/^[\p{L}\p{M}'’-]+(?: [\p{L}\p{M}'’-]+)*$/u, {
+                error: "Nome contém caracteres inválidos",
+            }),
+    );
+
+const emailSchema = z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ error: "Email inválido" }));
+
 export const registerUserSchema = z
     .object({
-        name: z
-            .string()
-            .transform((name) => name.trim().replace(/\s+/g, " "))
-            .pipe(
-                z
-                    .string()
-                    .min(2, { error: "Nome deve ter pelo menos 2 caracteres" })
-                    .max(64, { error: "Nome muito grande. Máximo: 64 caracteres" })
-                    .regex(/^[\p{L}\p{M}'’-]+(?: [\p{L}\p{M}'’-]+)*$/u, {
-                        error: "Nome contém caracteres inválidos",
-                    }),
-            ),
+        name: nameSchema,
 
-        email: z
-            .string()
-            .trim()
-            .toLowerCase()
-            .pipe(z.email({ error: "Email inválido" })),
+        email: emailSchema,
 
         password: z
             .string()
@@ -35,29 +40,26 @@ export const registerUserSchema = z
         message: "As senhas não coincidem",
         path: ["confirmPassword"],
     })
+    .strict()
     .transform(({ confirmPassword, ...data }) => data);
 
-export const loginUserSchema = z.object({
-    email: z
-        .string()
-        .trim()
-        .toLowerCase()
-        .pipe(z.email({ error: "Email inválido" })),
-    password: z.string().min(1, { error: "Senha é obrigatória" }).max(70, { error: "Senha inválida" }),
-});
+export const loginUserSchema = z
+    .object({
+        email: emailSchema,
+
+        password: z
+            .string()
+            .min(1, { error: "Senha é obrigatória" })
+            .max(70, { error: "Senha inválida" })
+            .refine((password) => password.trim().length > 0, {
+                error: "Senha é obrigatória",
+            }),
+    })
+    .strict();
 
 export const updateUserSchema = z
     .object({
-        name: z
-            .string()
-            .trim()
-            .transform((name) => name.replace(/\s+/g, " "))
-            .pipe(
-                z
-                    .string()
-                    .min(2, "Nome deve ter pelo menos 2 caracteres")
-                    .max(64, "Nome muito grande. Máximo: 64 caracteres"),
-            ),
+        name: nameSchema,
     })
     .strict();
 
