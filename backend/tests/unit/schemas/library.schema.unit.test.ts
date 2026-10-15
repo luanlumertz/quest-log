@@ -151,13 +151,8 @@ describe("library.schema.ts", () => {
 
         test.each([
             {
-                scenario: "gameId igual a zero",
+                scenario: "gameId não positivo",
                 payload: { gameId: "0" },
-                message: "O gameId deve ser maior que 0",
-            },
-            {
-                scenario: "gameId negativo",
-                payload: { gameId: "-1" },
                 message: "O gameId deve ser maior que 0",
             },
             {

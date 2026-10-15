@@ -43,3 +43,9 @@ export function countGamePlatformsByGameId(gameId: number) {
         },
     });
 }
+
+export function countPlatformsByName(name: string) {
+    return prisma.platform.count({
+        where: { name },
+    });
+}

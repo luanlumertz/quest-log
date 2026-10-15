@@ -16,6 +16,7 @@ import {
     countGamePlatformsByGameId,
     countGamePlatformsByGameIdAndPlatformId,
     countGamesByExternalId,
+    countPlatformsByName,
     findGamePlatformByGameIdAndPlatformId,
 } from "../../helpers/database/game.helper.js";
 import { createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
@@ -81,6 +82,28 @@ describe("POST /library", () => {
         );
 
         assert.ok(libraryEntryPlatform);
+    });
+
+    test("deve adicionar jogo sem data de lançamento", async () => {
+        const { agent } = await createAuthenticatedAgent();
+
+        const payload = createLibraryPayload();
+
+        const mockedDetails = mockRawgGameDetails({ releaseDate: null });
+
+        const response = await addGameToLibrary(agent, payload);
+
+        assert.equal(response.status, 201);
+
+        assert.equal(mockedDetails.mock.calls.length, 1);
+        assert.equal(mockedDetails.mock.calls[0]?.[0], payload.externalId);
+
+        const game = await findGameByExternalId(payload.externalId);
+
+        assert.exists(game);
+        assert.isNull(game.releaseDate);
+
+        assert.equal(response.body.libraryEntry.gameId, game.id);
     });
 
     test("não deve adicionar o mesmo jogo duas vezes à biblioteca do mesmo usuário", async () => {
@@ -303,6 +326,53 @@ describe("POST /library", () => {
         );
 
         assert.equal(libraryEntryPlatformsCount, 2);
+    });
+
+    test("deve reutilizar uma plataforma existente ao adicionar jogos diferentes", async () => {
+        const { agent } = await createAuthenticatedAgent();
+
+        const payloadA = createLibraryPayload({ externalId: 123 });
+        const payloadB = createLibraryPayload({ externalId: 456 });
+
+        mockRawgGameDetails({
+            externalId: payloadA.externalId,
+            title: "Jogo A",
+        });
+
+        const responseA = await addGameToLibrary(agent, payloadA);
+
+        assert.equal(responseA.status, 201);
+
+        mockRawgGameDetails({
+            externalId: payloadB.externalId,
+            title: "Jogo B",
+        });
+
+        const responseB = await addGameToLibrary(agent, payloadB);
+
+        assert.equal(responseB.status, 201);
+
+        const gameA = await findGameByExternalId(payloadA.externalId);
+        const gameB = await findGameByExternalId(payloadB.externalId);
+
+        assert.exists(gameA);
+        assert.exists(gameB);
+        assert.notEqual(gameA.id, gameB.id);
+
+        const platform = await findPlatformByName("PC");
+
+        assert.exists(platform);
+
+        const platformsCount = await countPlatformsByName("PC");
+
+        assert.equal(platformsCount, 1);
+
+        const gamePlatformA = await findGamePlatformByGameIdAndPlatformId(gameA.id, platform.id);
+
+        const gamePlatformB = await findGamePlatformByGameIdAndPlatformId(gameB.id, platform.id);
+
+        assert.exists(gamePlatformA);
+        assert.exists(gamePlatformB);
     });
 
     test("não deve adicionar jogo sem access token", async () => {
