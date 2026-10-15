@@ -10,6 +10,7 @@ import {
     findRefreshSessionByUserId,
 } from "../../helpers/database/refreshSession.helper.js";
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
+import { makeLoginUserPayload } from "../../factories/auth.factory.js";
 import {
     logoutUser,
     logoutUserWithoutCookies,
@@ -33,7 +34,8 @@ describe("POST /auth/logout", () => {
 
         assert.notExists(sessionAfter);
 
-        const { accessTokenCookie, refreshTokenCookie } = getAuthCookiesFromResponse(logoutResponse);
+        const { accessTokenCookie, refreshTokenCookie } =
+            getAuthCookiesFromResponse(logoutResponse);
 
         assert.exists(accessTokenCookie);
         assert.exists(refreshTokenCookie);
@@ -54,7 +56,8 @@ describe("POST /auth/logout", () => {
 
         assert.equal(session, 0);
 
-        const { accessTokenCookie, refreshTokenCookie } = getAuthCookiesFromResponse(logoutResponse);
+        const { accessTokenCookie, refreshTokenCookie } =
+            getAuthCookiesFromResponse(logoutResponse);
 
         assert.exists(accessTokenCookie);
         assert.exists(refreshTokenCookie);
@@ -88,7 +91,8 @@ describe("POST /auth/logout", () => {
 
         assert.equal(sessionCount, 1);
 
-        const { accessTokenCookie, refreshTokenCookie } = getAuthCookiesFromResponse(logoutResponse);
+        const { accessTokenCookie, refreshTokenCookie } =
+            getAuthCookiesFromResponse(logoutResponse);
 
         assert.exists(accessTokenCookie);
         assert.exists(refreshTokenCookie);
@@ -103,8 +107,16 @@ describe("POST /auth/logout", () => {
     test("deve revogar apenas a sessão atual quando o usuário possui múltiplas sessões", async () => {
         const { user, payload } = await createRegisteredUser();
 
-        const loginResponseA = await loginUser(payload);
-        const loginResponseB = await loginUser(payload);
+        const loginPayload = makeLoginUserPayload({
+            email: payload.email,
+            password: payload.password,
+        });
+
+        const loginResponseA = await loginUser(loginPayload);
+        const loginResponseB = await loginUser(loginPayload);
+
+        assert.equal(loginResponseA.status, 200);
+        assert.equal(loginResponseB.status, 200);
 
         const refreshTokenA = getCookieValue(loginResponseA, "refreshToken");
         const refreshTokenB = getCookieValue(loginResponseB, "refreshToken");
