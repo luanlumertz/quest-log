@@ -1,0 +1,40 @@
+import express from "express";
+import { Prisma } from "@prisma/client";
+import request from "supertest";
+
+import app from "../../../src/app.js";
+import { errorHandler } from "../../../src/middlewares/errorHandler.middleware.js";
+
+export function registerWithMalformedJson() {
+    return request(app)
+        .post("/auth/register")
+        .set("Content-Type", "application/json")
+        .send('{"name": "Test Name",');
+}
+
+export function requestUnexpectedError() {
+    const app = express();
+
+    app.get("/erro-teste", () => {
+        throw new Error("Erro interno de teste");
+    });
+
+    app.use(errorHandler);
+
+    return request(app).get("/erro-teste");
+}
+
+export function requestPrismaNotFound() {
+    const app = express();
+
+    app.get("/erro-prisma", () => {
+        throw new Prisma.PrismaClientKnownRequestError("Registro não encontrado", {
+            code: "P2025",
+            clientVersion: Prisma.prismaVersion.client,
+        });
+    });
+
+    app.use(errorHandler);
+
+    return request(app).get("/erro-prisma");
+}

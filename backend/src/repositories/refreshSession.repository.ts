@@ -5,54 +5,46 @@ export function createRefreshSession(userId: number, tokenHash: string, expiresA
         data: {
             userId,
             tokenHash,
-            expiresAt
-        }
-    })
+            expiresAt,
+        },
+    });
 }
 
 export function findRefreshSessionByTokenHash(tokenHash: string) {
     return prisma.refreshSession.findUnique({
         where: {
-            tokenHash
-        }
-    })
+            tokenHash,
+        },
+    });
 }
 
 export function deleteRefreshSessionById(id: number) {
     return prisma.refreshSession.delete({
         where: {
-            id
-        }
-    })
-}
-
-export function deleteRefreshSessionsByUserId(userId: number) {
-    return prisma.refreshSession.deleteMany({
-        where: {
-            userId
-        }
-    })
+            id,
+        },
+    });
 }
 
 export function rotateRefreshSession(
     oldSessionId: number,
     userId: number,
     newTokenHash: string,
-    expiresAt: Date
+    expiresAt: Date,
 ) {
     return prisma.$transaction(async (tx) => {
         await tx.refreshSession.delete({
             where: {
-                id: oldSessionId
-            }
+                id: oldSessionId,
+            },
         });
 
         return tx.refreshSession.create({
             data: {
                 userId,
                 tokenHash: newTokenHash,
-                expiresAt
-            }
+                expiresAt,
+            },
         });
     });
 }

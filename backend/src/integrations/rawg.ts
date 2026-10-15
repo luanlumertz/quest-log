@@ -1,5 +1,12 @@
+import { z } from "zod";
 import { AppError } from "../errors/AppError.js";
-import type { GameDetailsResult, GameSearchResult, RawgGame, RawgGameDetails } from "../types/rawgGame.types.js";
+import type { GameDetailsResult, GameSearchResult } from "../types/rawgGame.types.js";
+import {
+    rawgDetailsSchema,
+    rawgSearchResponseSchema,
+    type RawgGame,
+    type RawgGameDetails,
+} from "../schemas/rawg.schema.js";
 
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 
@@ -7,58 +14,78 @@ if (!RAWG_API_KEY) {
     throw new Error("RAWG_API_KEY não configurada");
 }
 
+async function fetchRawg<T extends z.ZodType>(
+    url: string,
+    schema: T,
+    errorMessage: string,
+    notFoundMessage?: string,
+): Promise<z.infer<T>> {
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            if (response.status === 404 && notFoundMessage) {
+                throw new AppError(notFoundMessage, 404);
+            }
+
+            throw new AppError(errorMessage, 502);
+        }
+
+        const data: unknown = await response.json();
+
+        return schema.parse(data);
+    } catch (error) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        throw new AppError(errorMessage, 502);
+    }
+}
+
+function mapRawgGame(game: RawgGame): GameSearchResult {
+    return {
+        externalId: game.id,
+        title: game.name,
+        coverUrl: game.background_image ?? null,
+        releaseDate: game.released ?? null,
+        platforms: game.platforms?.map((item) => item.platform.name) ?? [],
+    };
+}
+
+function mapRawgGameDetails(game: RawgGameDetails): GameDetailsResult {
+    return {
+        externalId: game.id,
+        title: game.name,
+        coverUrl: game.background_image ?? null,
+        releaseDate: game.released ?? null,
+        description: game.description_raw ?? "",
+        genres: game.genres?.map((item) => item.name) ?? [],
+        platforms: game.platforms?.map((item) => item.platform.name) ?? [],
+        developers: game.developers?.map((item) => item.name) ?? [],
+        publishers: game.publishers?.map((item) => item.name) ?? [],
+    };
+}
+
 export async function searchRawgGames(query: string): Promise<GameSearchResult[]> {
     const encodedQuery = encodeURIComponent(query);
 
-    const response = await fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodedQuery}&page_size=10`);
+    const data = await fetchRawg(
+        `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodedQuery}&page_size=10`,
+        rawgSearchResponseSchema,
+        "Erro ao buscar jogos na RAWG",
+    );
 
-    if (!response.ok) {
-        throw new Error(`Erro na RAWG: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return data.results.map((game: RawgGame) => ({
-        externalId: game.id,
-        title: game.name,
-        coverUrl: game.background_image,
-        releaseDate: game.released,
-        platforms: game.platforms?.map(item => item.platform.name) ?? []
-    }));
+    return data.results.map(mapRawgGame);
 }
 
 export async function getRawgGameById(externalId: number): Promise<GameDetailsResult> {
-    const response = await fetch(`https://api.rawg.io/api/games/${externalId}?key=${RAWG_API_KEY}`);
+    const data = await fetchRawg(
+        `https://api.rawg.io/api/games/${externalId}?key=${RAWG_API_KEY}`,
+        rawgDetailsSchema,
+        "Erro ao buscar jogo na RAWG",
+        "Jogo não encontrado",
+    );
 
-    if (!response.ok) {
-        if (response.status === 404) {
-            throw new AppError("Jogo não encontrado", 404);
-        }
-
-        throw new AppError("Erro ao buscar jogo na RAWG", 502);
-    }
-
-    const data: RawgGameDetails = await response.json();
-
-    const game: GameDetailsResult = {
-        externalId: data.id,
-        title: data.name,
-        coverUrl: data.background_image,
-        releaseDate: data.released,
-        description: data.description_raw ?? "",
-        genres: data.genres?.map(
-            item => item.name
-        ) ?? [],
-        platforms: data.platforms?.map(
-            item => item.platform.name
-        ) ?? [],
-        developers: data.developers?.map(
-            item => item.name
-        ) ?? [],
-        publishers: data.publishers?.map(
-            item => item.name
-        ) ?? []
-    };
-
-    return game;
+    return mapRawgGameDetails(data);
 }

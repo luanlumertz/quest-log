@@ -2,11 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/AppError.js";
 import { verifyToken } from "../lib/jwt.js";
 
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
     const accessToken = req.cookies.accessToken;
 
     if (!accessToken) {
-        throw new AppError("Não autenticado", 401)
+        throw new AppError("Não autenticado", 401);
     }
 
     try {
@@ -15,6 +15,6 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     } catch {
         throw new AppError("Não autenticado", 401);
     }
-    
+
     next();
 }

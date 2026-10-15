@@ -1,71 +1,115 @@
 name: CI
 
 on:
-  push:
-  pull_request:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
 
 jobs:
-  backend:
-    name: Backend
-    runs-on: ubuntu-latest
+    backend:
+        name: Backend
+        runs-on: ubuntu-latest
 
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/questlog_ci
+        services:
+            postgres:
+                image: postgres:18
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: quest_log_test
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U postgres -d quest_log_test"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
 
-    defaults:
-      run:
-        working-directory: backend
+        env:
+            NODE_ENV: test
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quest_log_test
+            JWT_SECRET: chave_secreta_exclusiva_para_testes_na_ci
+            RAWG_API_KEY: chave_ficticia_para_testes
+            FRONTEND_URL: http://localhost:5173
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+        defaults:
+            run:
+                working-directory: backend
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
 
-      - name: Instalar dependências
-        run: npm ci
+            - name: Configurar Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: npm
+                  cache-dependency-path: backend/package-lock.json
 
-      - name: Lint
-        run: npm run lint
+            - name: Instalar dependências
+              run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
+            - name: Gerar Prisma Client
+              run: npx prisma generate
 
-      - name: Build
-        run: npm run build
+            - name: Lint
+              run: npm run lint
 
-  frontend:
-    name: Frontend
-    runs-on: ubuntu-latest
+            - name: Typecheck
+              run: npm run typecheck
 
-    defaults:
-      run:
-        working-directory: frontend
+            - name: Typecheck dos testes
+              run: npm run typecheck:tests
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+            - name: Build
+              run: npm run build
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
+            - name: Aplicar migrations no banco de testes
+              run: npm run test:migrate
 
-      - name: Instalar dependências
-        run: npm ci
+            - name: Executar testes com coverage
+              run: npm run test:coverage
 
-      - name: Lint
-        run: npm run lint
+            - name: Publicar relatório de coverage
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: backend-coverage
+                  path: backend/coverage/
+                  if-no-files-found: ignore
+                  retention-days: 7
 
-      - name: Typecheck
-        run: npm run typecheck
+    frontend:
+        name: Frontend
+        runs-on: ubuntu-latest
 
-      - name: Build
-        run: npm run build
+        defaults:
+            run:
+                working-directory: frontend
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+
+            - name: Configurar Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: npm
+                  cache-dependency-path: frontend/package-lock.json
+
+            - name: Instalar dependências
+              run: npm ci
+
+            - name: Lint
+              run: npm run lint
+
+            - name: Typecheck
+              run: npm run typecheck
+
+            - name: Build
+              run: npm run build

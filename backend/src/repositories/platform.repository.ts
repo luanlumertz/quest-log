@@ -3,19 +3,17 @@ import { prisma } from "../lib/prisma.js";
 export function findPlatformByName(namePlatform: string) {
     return prisma.platform.findUnique({
         where: {
-            name: namePlatform
-        }
-    })
+            name: namePlatform,
+        },
+    });
 }
 
 export function createPlatform(namePlatform: string) {
-    const platform = prisma.platform.create({
+    return prisma.platform.create({
         data: {
-            name: namePlatform
-        }
-    })
-
-    return platform;
+            name: namePlatform,
+        },
+    });
 }
 
 export function findPlatformsByGameId(gameId: number) {
@@ -23,13 +21,13 @@ export function findPlatformsByGameId(gameId: number) {
         where: {
             games: {
                 some: {
-                    gameId
-                }
-            }
+                    gameId,
+                },
+            },
         },
         select: {
             id: true,
-            name: true
-        }
+            name: true,
+        },
     });
 }

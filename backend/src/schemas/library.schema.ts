@@ -6,6 +6,10 @@ const platformSchema = z
     .trim()
     .min(1, { error: "A plataforma não pode estar vazia" });
 
+const gameStatusSchema = z.enum(GameStatus, {
+    error: "Status inválido",
+});
+
 export const addGameToLibrarySchema = z
     .object({
         externalId: z
@@ -13,35 +17,27 @@ export const addGameToLibrarySchema = z
             .int({ error: "O externalId deve ser um número inteiro" })
             .positive({ error: "O externalId deve ser um número positivo" }),
 
-        status: z
-            .enum(GameStatus, { error: "Status inválido" })
-            .default(GameStatus.WANT_TO_PLAY),
+        status: gameStatusSchema.default(GameStatus.WANT_TO_PLAY),
 
         platforms: z
             .array(platformSchema, { error: "As plataformas devem ser enviadas em uma lista" })
             .min(1, { error: "Informe pelo menos uma plataforma" })
             .refine((platforms) => new Set(platforms).size === platforms.length, {
-                error: "Não é permitido repetir plataformas"
-            })
+                error: "As plataformas não podem se repetir",
+            }),
     })
     .strict();
 
-export const gameIdParamsSchema = z
-    .object({
-        gameId: z
-            .coerce
-            .number({ error: "O gameId deve ser um número" })
-            .int({ error: "O gameId deve ser um número inteiro" })
-            .positive({ error: "O gameId deve ser maior que 0" })
-    })
-
-export type GameIdParams = z.infer<typeof gameIdParamsSchema>;
+export const gameIdParamsSchema = z.object({
+    gameId: z.coerce
+        .number({ error: "O gameId deve ser um número" })
+        .int({ error: "O gameId deve ser um número inteiro" })
+        .positive({ error: "O gameId deve ser maior que 0" }),
+});
 
 export const updateLibraryEntrySchema = z
     .object({
-        status: z
-            .enum(GameStatus, { error: "Status inválido" })
-            .optional(),
+        status: gameStatusSchema.optional(),
 
         rating: z
             .number({ error: "O rating deve ser um número" })
@@ -62,32 +58,29 @@ export const updateLibraryEntrySchema = z
                 z
                     .number({ error: "O id da plataforma deve ser um número" })
                     .int({ error: "O id da plataforma deve ser um número inteiro" })
-                    .positive({ error: "O id da plataforma deve ser maior que 0" })
+                    .positive({ error: "O id da plataforma deve ser maior que 0" }),
+                { error: "As plataformas devem ser enviadas em uma lista" },
             )
-            .min(1, { error: "Deve ser informada pelo menos uma plataforma" })
-            .refine(
-                platforms => new Set(platforms).size === platforms.length,
-                { error: "As plataformas não podem se repetir" }
-            )
+            .min(1, { error: "Informe pelo menos uma plataforma" })
+            .refine((platforms) => new Set(platforms).size === platforms.length, {
+                error: "As plataformas não podem se repetir",
+            })
             .optional(),
 
-        startedAt: z
-            .coerce
+        startedAt: z.coerce
             .date({ error: "A data de início deve ser uma data válida" })
             .nullable()
             .optional(),
 
-        completedAt: z
-            .coerce
+        completedAt: z.coerce
             .date({ error: "A data de conclusão deve ser uma data válida" })
             .nullable()
-            .optional()
+            .optional(),
     })
-    .strict()
-    .refine(
-        data => Object.values(data).some(value => value !== undefined),
-        { error: "Pelo menos um campo deve ser informado para atualização" }
-    )
+    .refine((data) => Object.values(data).some((value) => value !== undefined), {
+        error: "Pelo menos um campo deve ser informado para atualização",
+    })
+    .strict();
 
 export const libraryQuerySchema = z
     .object({
@@ -97,8 +90,8 @@ export const libraryQuerySchema = z
             .nonempty({ error: "A busca não pode estar vazia" })
             .optional(),
 
-        status: z
-            .enum(GameStatus, { error: "Status inválido" })
-            .optional()
+        status: gameStatusSchema.optional(),
     })
-    .strict()
+    .strict();
+
+export type GameIdParams = z.infer<typeof gameIdParamsSchema>;
