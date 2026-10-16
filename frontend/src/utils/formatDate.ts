@@ -3,13 +3,12 @@ export function formatDate(date: string) {
         month: "short",
         day: "numeric",
         year: "numeric",
+        timeZone: "UTC",
     }).formatToParts(new Date(date));
 
     const day = parts.find((part) => part.type === "day")?.value;
 
-    const month = parts
-        .find((part) => part.type === "month")
-        ?.value.replace(".", "");
+    const month = parts.find((part) => part.type === "month")?.value.replace(".", "");
 
     const year = parts.find((part) => part.type === "year")?.value;
 
