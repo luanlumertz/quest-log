@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { registerSchema, type RegisterData } from "../schema/auth.schema";
+import { registerSchema, type RegisterData, type RegisterFormData } from "../schema/auth.schema";
 import { register as signUp } from "../services/auth.service";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { getErrorMessage } from "../utils/getErrorMessage";
@@ -22,22 +22,19 @@ export function Register() {
         register,
         handleSubmit,
         setError,
-        formState: {
-            errors,
-            isSubmitting
-        }
-    } = useForm<RegisterData>({ resolver: zodResolver(registerSchema) })
+        formState: { errors, isSubmitting },
+    } = useForm<RegisterFormData, unknown, RegisterData>({ resolver: zodResolver(registerSchema) });
 
     async function onSubmit(data: RegisterData) {
         try {
             await signUp(data);
-            navigate("/login")
+            navigate("/login");
         } catch (error) {
             setError("root", {
                 message: getErrorMessage(
                     error,
-                    "Não foi possível criar sua conta. Tente novamente."
-                )
+                    "Não foi possível criar sua conta. Tente novamente.",
+                ),
             });
         }
     }
@@ -48,10 +45,7 @@ export function Register() {
                 <h1 className="font-display text-3xl font-bold text-white">Crie uma conta!</h1>
                 <p className="mt-1 text-ink-dim">Comece a acompanhar seus jogos.</p>
 
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="mt-10 space-y-6"
-                >
+                <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6">
                     <AuthInput
                         label="Nome"
                         type="text"
@@ -88,11 +82,7 @@ export function Register() {
                         error={errors.confirmPassword?.message}
                     />
 
-                    {errors.root?.message && (
-                        <Alert>
-                            {errors.root.message}
-                        </Alert>
-                    )}
+                    {errors.root?.message && <Alert>{errors.root.message}</Alert>}
 
                     <Button
                         type="submit"
@@ -108,13 +98,12 @@ export function Register() {
                 <div className="mt-8 text-center">
                     <p className="text-sm text-ink-dim">
                         Já tem uma conta?{" "}
-                        <Link
-                            to="/login"
-                            className="font-semibold text-brand hover:underline"
-                        >Entrar</Link>
+                        <Link to="/login" className="font-semibold text-brand hover:underline">
+                            Entrar
+                        </Link>
                     </p>
                 </div>
             </div>
         </AuthLayout>
-    )
+    );
 }

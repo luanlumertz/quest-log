@@ -12,15 +12,13 @@ describe("auth.schema.ts", () => {
             name: "João Silva",
             email: "teste@email.com",
             password: "12345678",
-            confirmPassword: "12345678",
         };
 
-        test("deve normalizar os dados do usuário e remover confirmPassword", () => {
+        test("deve normalizar os dados do usuário", () => {
             const result = registerUserSchema.parse({
                 name: "  João   Silva  ",
                 email: "  TESTE@EMAIL.COM  ",
                 password: "12345678",
-                confirmPassword: "12345678",
             });
 
             assert.deepEqual(result, {
@@ -33,25 +31,21 @@ describe("auth.schema.ts", () => {
         test("deve rejeitar propriedades não permitidas no cadastro do usuário", () => {
             const result = registerUserSchema.safeParse({
                 ...validPayload,
-                isAdmin: true,
+                confirmPassword: true,
             });
 
             assert.isFalse(result.success);
 
             assert.isTrue(
                 result.error.issues.some(
-                    (issue) => issue.code === "unrecognized_keys" && issue.keys.includes("isAdmin"),
+                    (issue) =>
+                        issue.code === "unrecognized_keys" &&
+                        issue.keys.includes("confirmPassword"),
                 ),
             );
         });
 
         test.each([
-            {
-                scenario: "valores diferentes entre password e confirmPassword",
-                override: { confirmPassword: "87654321" },
-                field: "confirmPassword",
-                message: "As senhas não coincidem",
-            },
             {
                 scenario: "nome muito curto",
                 override: { name: "A" },
@@ -84,19 +78,19 @@ describe("auth.schema.ts", () => {
             },
             {
                 scenario: "senha muito curta",
-                override: { password: "1234567", confirmPassword: "1234567" },
+                override: { password: "1234567" },
                 field: "password",
                 message: "Senha deve ter pelo menos 8 caracteres",
             },
             {
                 scenario: "senha muito longa",
-                override: { password: "1".repeat(71), confirmPassword: "1".repeat(71) },
+                override: { password: "1".repeat(71) },
                 field: "password",
                 message: "Senha muito grande. Máximo: 70 caracteres",
             },
             {
                 scenario: "senha contendo apenas espaços",
-                override: { password: "        ", confirmPassword: "        " },
+                override: { password: "        " },
                 field: "password",
                 message: "A senha não pode conter apenas espaços",
             },
@@ -131,11 +125,6 @@ describe("auth.schema.ts", () => {
                 override: { password: 123 },
                 field: "password",
             },
-            {
-                scenario: "confirmação de senha numérica",
-                override: { confirmPassword: 123 },
-                field: "confirmPassword",
-            },
         ])("deve rejeitar $scenario", ({ override, field }) => {
             const result = registerUserSchema.safeParse({
                 ...validPayload,
@@ -151,7 +140,7 @@ describe("auth.schema.ts", () => {
             );
         });
 
-        test.each(["name", "email", "password", "confirmPassword"] as const)(
+        test.each(["name", "email", "password"] as const)(
             "deve rejeitar registro sem o campo %s",
             (field) => {
                 const payload: Partial<typeof validPayload> = { ...validPayload };
@@ -172,7 +161,6 @@ describe("auth.schema.ts", () => {
                 override: {
                     name: "AB",
                     password: "1".repeat(8),
-                    confirmPassword: "1".repeat(8),
                 },
             },
             {
@@ -180,7 +168,6 @@ describe("auth.schema.ts", () => {
                 override: {
                     name: "A".repeat(64),
                     password: "1".repeat(70),
-                    confirmPassword: "1".repeat(70),
                 },
             },
             {

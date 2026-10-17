@@ -1,7 +1,14 @@
-import { createUser, deleteUserById, findUserByEmail, findUserById, updateUserById } from "../repositories/user.repository.js";
+import {
+    createUser,
+    deleteUserById,
+    findUserByEmail,
+    findUserById,
+    updateUserById,
+} from "../repositories/user.repository.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { AppError } from "../errors/AppError.js";
-import type { LoginUserData, RegisterUserData, UpdateUserData } from "../types/auth.types.js";
+import type { RegisterUserData } from "../schemas/auth.schema.js";
+import type { LoginUserData, UpdateUserData } from "../types/auth.types.js";
 import { generateToken } from "../lib/jwt.js";
 import { createRefreshSessionForUser } from "./refreshSession.service.js";
 
@@ -12,9 +19,9 @@ export async function registerUser(data: RegisterUserData) {
         throw new AppError("Este e-mail já está em uso", 409);
     }
 
-    const passwordHash = await hashPassword(data.password)
+    const passwordHash = await hashPassword(data.password);
 
-    const user = await createUser({ name: data.name, email: data.email, passwordHash })
+    const user = await createUser({ name: data.name, email: data.email, passwordHash });
 
     return {
         id: user.id,
@@ -47,12 +54,12 @@ export async function loginUser(data: LoginUserData) {
             email: user.email,
         },
         accessToken,
-        refreshToken
+        refreshToken,
     };
 }
 
 export async function getCurrentUser(id: number) {
-    const user = await findUserById(id)
+    const user = await findUserById(id);
 
     if (!user) {
         throw new AppError("Usuário não encontrado", 404);
@@ -61,8 +68,8 @@ export async function getCurrentUser(id: number) {
     return {
         id: user.id,
         name: user.name,
-        email: user.email
-    }
+        email: user.email,
+    };
 }
 
 export async function updateUser(id: number, data: UpdateUserData) {
@@ -71,8 +78,8 @@ export async function updateUser(id: number, data: UpdateUserData) {
     return {
         id: updatedUser.id,
         name: updatedUser.name,
-        email: updatedUser.email
-    }
+        email: updatedUser.email,
+    };
 }
 
 export async function deleteUser(id: number) {

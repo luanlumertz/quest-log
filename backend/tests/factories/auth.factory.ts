@@ -15,7 +15,6 @@ export function makeRegisterUserPayload(
         name: defaultUser.name,
         email: defaultUser.email,
         password,
-        confirmPassword: password,
         ...overrides,
     };
 }

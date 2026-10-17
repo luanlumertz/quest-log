@@ -40,7 +40,6 @@ describe("POST /auth/register", () => {
         const secondUser = makeRegisterUserPayload({
             name: "Fulano",
             password: "87654321",
-            confirmPassword: "87654321",
         });
 
         const responseValid = await registerUser(firstUser);
