@@ -1,0 +1,58 @@
+import { http, HttpResponse } from "msw";
+
+import { API_URL } from "../../src/services/api";
+import { server } from "./server.mock";
+
+type MockJson = string | number | boolean | null | MockJson[] | { [key: string]: MockJson };
+
+type MockApiOptions = {
+    method: "GET" | "POST";
+    endpoint: string;
+    responseBody?: MockJson;
+    status?: number;
+};
+
+type CapturedRequest = {
+    method: string;
+    body: unknown;
+    contentType: string | null;
+};
+
+export function mockApiResponse({
+    method,
+    endpoint,
+    responseBody = { ok: true },
+    status = 200,
+}: MockApiOptions) {
+    const requests: CapturedRequest[] = [];
+
+    async function handleRequest(request: Request) {
+        const contentType = request.headers.get("Content-Type");
+
+        let body: unknown;
+
+        if (!request.body) {
+            body = undefined;
+        } else if (contentType?.includes("application/json")) {
+            body = await request.json();
+        } else {
+            body = await request.text();
+        }
+
+        requests.push({
+            method: request.method,
+            body,
+            contentType,
+        });
+
+        return HttpResponse.json(responseBody, { status });
+    }
+
+    if (method === "GET") {
+        server.use(http.get(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)));
+    } else {
+        server.use(http.post(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)));
+    }
+
+    return { requests };
+}
