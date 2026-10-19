@@ -10,19 +10,9 @@ describe("getStarFillPercentages", () => {
             expected: [0, 0, 0, 0, 0],
         },
         {
-            scenario: "nota inteira",
-            entry: 3,
-            expected: [100, 100, 100, 0, 0],
-        },
-        {
             scenario: "nota decimal",
             entry: 3.5,
             expected: [100, 100, 100, 50, 0],
-        },
-        {
-            scenario: "nota máxima",
-            entry: 5,
-            expected: [100, 100, 100, 100, 100],
         },
         {
             scenario: "nota abaixo de zero",

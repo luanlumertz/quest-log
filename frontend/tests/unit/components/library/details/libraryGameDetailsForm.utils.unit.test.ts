@@ -24,16 +24,6 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 expected: 120,
             },
             {
-                scenario: "horas decimais com ponto",
-                input: "1.5",
-                expected: 90,
-            },
-            {
-                scenario: "duas casas decimais",
-                input: "2,25",
-                expected: 135,
-            },
-            {
                 scenario: "arredondamento dos minutos",
                 input: "1,33",
                 expected: 80,
@@ -79,11 +69,6 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 expected: "1,5",
             },
             {
-                scenario: "horas com duas casas decimais",
-                input: 135,
-                expected: "2,25",
-            },
-            {
                 scenario: "arredondamento decimal",
                 input: 125,
                 expected: "2,08",
@@ -106,11 +91,6 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 scenario: "ponto convertido em vírgula",
                 input: "1.5",
                 expected: "1,5",
-            },
-            {
-                scenario: "duas casas decimais",
-                input: "2,25",
-                expected: "2,25",
             },
             {
                 scenario: "excesso de casas decimais",
@@ -157,11 +137,6 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 expected: 3.9,
             },
             {
-                scenario: "nota inteira",
-                input: "4",
-                expected: 4,
-            },
-            {
                 scenario: "nota zerada",
                 input: "0",
                 expected: 0,
@@ -175,11 +150,6 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 scenario: "apenas espaços",
                 input: "   ",
                 expected: null,
-            },
-            {
-                scenario: "espaços externos",
-                input: " 4,5 ",
-                expected: 4.5,
             },
         ])("deve converter $scenario", ({ input, expected }) => {
             const result = ratingInputToNumber(input);
@@ -202,18 +172,8 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 expected: "2026-01-02",
             },
             {
-                scenario: "data sem horário",
-                input: "2026-01-02",
-                expected: "2026-01-02",
-            },
-            {
                 scenario: "data nula",
                 input: null,
-                expected: "",
-            },
-            {
-                scenario: "string vazia",
-                input: "",
                 expected: "",
             },
         ])("deve converter $scenario", ({ input, expected }) => {

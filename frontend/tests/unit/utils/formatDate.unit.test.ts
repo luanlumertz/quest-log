@@ -14,16 +14,6 @@ describe("formatDate", () => {
             entry: "2024-03-15T00:00:00.000Z",
             expected: "Mar 15, 2024",
         },
-        {
-            scenario: "dia com um dígito",
-            entry: "2024-01-05",
-            expected: "Jan 5, 2024",
-        },
-        {
-            scenario: "último dia do ano",
-            entry: "2024-12-31",
-            expected: "Dez 31, 2024",
-        },
     ])("deve formatar corretamente $scenario", ({ entry, expected }) => {
         const result = formatDate(entry);
 

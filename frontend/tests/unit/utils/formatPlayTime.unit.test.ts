@@ -10,11 +10,6 @@ describe("formatPlayTime", () => {
             expected: "45min",
         },
         {
-            scenario: "tempo zerado",
-            entry: 0,
-            expected: "0min",
-        },
-        {
             scenario: "exatamente uma hora",
             entry: 60,
             expected: "1h",

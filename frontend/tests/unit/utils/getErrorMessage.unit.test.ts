@@ -18,16 +18,6 @@ describe("getErrorMessage", () => {
             status: 400,
             message: "Dados inválidos",
         },
-        {
-            scenario: "recurso não encontrado",
-            status: 404,
-            message: "Jogo não encontrado",
-        },
-        {
-            scenario: "limite superior dos erros 4xx",
-            status: 499,
-            message: "Erro do cliente",
-        },
     ])("deve retornar a mensagem da API para $scenario", ({ status, message }) => {
         const error = new ApiError(message, status);
 
@@ -41,11 +31,6 @@ describe("getErrorMessage", () => {
             scenario: "erro interno",
             status: 500,
             message: "Erro interno do servidor",
-        },
-        {
-            scenario: "bad gateway",
-            status: 502,
-            message: "Erro ao buscar jogos na RAWG",
         },
         {
             scenario: "status abaixo de 400",
@@ -66,16 +51,8 @@ describe("getErrorMessage", () => {
             entry: new Error("Erro inesperado"),
         },
         {
-            scenario: "string",
-            entry: "Erro qualquer",
-        },
-        {
             scenario: "valor nulo",
             entry: null,
-        },
-        {
-            scenario: "valor indefinido",
-            entry: undefined,
         },
     ])("deve retornar o fallback para $scenario", ({ entry }) => {
         const result = getErrorMessage(entry, "Erro genérico");

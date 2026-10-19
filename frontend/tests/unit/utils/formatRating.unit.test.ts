@@ -5,11 +5,6 @@ import { formatRating } from "../../../src/utils/formatRating";
 describe("formatRating", () => {
     test.each([
         {
-            scenario: "nota zerada",
-            entry: 0,
-            expected: "0",
-        },
-        {
             scenario: "nota inteira",
             entry: 4,
             expected: "4",

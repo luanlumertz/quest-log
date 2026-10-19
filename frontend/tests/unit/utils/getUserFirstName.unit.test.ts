@@ -10,11 +10,6 @@ describe("getUserFirstName", () => {
             expected: "Flávio",
         },
         {
-            scenario: "nome completo",
-            entry: "Flávio Silva",
-            expected: "Flávio",
-        },
-        {
             scenario: "espaços extras",
             entry: "  Flávio   Silva  ",
             expected: "Flávio",

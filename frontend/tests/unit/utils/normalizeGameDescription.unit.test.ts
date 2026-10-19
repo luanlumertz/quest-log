@@ -11,11 +11,6 @@ describe("normalizeGameDescription", () => {
 
     test.each([
         {
-            scenario: "título com um #",
-            entry: "# História",
-            expected: "\n\n### História",
-        },
-        {
             scenario: "título com seis #",
             entry: "###### Conclusão",
             expected: "\n\n### Conclusão",

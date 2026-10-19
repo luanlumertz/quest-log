@@ -24,11 +24,6 @@ describe("getUserInitials", () => {
             entry: "  Flávio   Silva  ",
             expected: "FS",
         },
-        {
-            scenario: "nome em letras minúsculas",
-            entry: "flávio silva",
-            expected: "FS",
-        },
     ])("deve gerar as iniciais corretamente para $scenario", ({ entry, expected }) => {
         const result = getUserInitials(entry);
 

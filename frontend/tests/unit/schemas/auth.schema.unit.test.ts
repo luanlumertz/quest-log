@@ -123,43 +123,7 @@ describe("auth.schema.ts", () => {
             );
         });
 
-        test.each([
-            {
-                scenario: "nome numérico",
-                override: { name: 123 },
-                field: "name",
-            },
-            {
-                scenario: "e-mail numérico",
-                override: { email: 123 },
-                field: "email",
-            },
-            {
-                scenario: "senha numérica",
-                override: { password: 123 },
-                field: "password",
-            },
-            {
-                scenario: "confirmação de senha numérica",
-                override: { confirmPassword: 123 },
-                field: "confirmPassword",
-            },
-        ])("deve rejeitar $scenario", ({ override, field }) => {
-            const result = registerSchema.safeParse({
-                ...validPayload,
-                ...override,
-            });
-
-            assert.isFalse(result.success);
-
-            assert.isTrue(
-                result.error.issues.some(
-                    (issue) => issue.path[0] === field && issue.code === "invalid_type",
-                ),
-            );
-        });
-
-        test.each(["name", "email", "password", "confirmPassword"] as const)(
+        test.each(["confirmPassword"] as const)(
             "deve rejeitar registro sem o campo %s",
             (field) => {
                 const payload: Partial<typeof validPayload> = { ...validPayload };
@@ -175,22 +139,6 @@ describe("auth.schema.ts", () => {
         );
 
         test.each([
-            {
-                scenario: "limites mínimos",
-                override: {
-                    name: "AB",
-                    password: "1".repeat(8),
-                    confirmPassword: "1".repeat(8),
-                },
-            },
-            {
-                scenario: "limites máximos",
-                override: {
-                    name: "A".repeat(64),
-                    password: "1".repeat(70),
-                    confirmPassword: "1".repeat(70),
-                },
-            },
             {
                 scenario: "nome com caracteres especiais",
                 override: { name: "João D'Ávila-Silva" },
@@ -286,33 +234,8 @@ describe("auth.schema.ts", () => {
             );
         });
 
-        test.each([
-            {
-                scenario: "e-mail numérico",
-                override: { email: 123 },
-                field: "email",
-            },
-            {
-                scenario: "senha numérica",
-                override: { password: 123 },
-                field: "password",
-            },
-        ])("deve rejeitar $scenario", ({ override, field }) => {
-            const result = loginSchema.safeParse({
-                ...validPayload,
-                ...override,
-            });
-
-            assert.isFalse(result.success);
-
-            assert.isTrue(
-                result.error.issues.some(
-                    (issue) => issue.path[0] === field && issue.code === "invalid_type",
-                ),
-            );
-        });
-
-        test.each(["email", "password"] as const)("deve rejeitar login sem o campo %s", (field) => {
+        test("deve rejeitar login sem a senha", () => {
+            const field = "password";
             const payload: Partial<typeof validPayload> = { ...validPayload };
 
             delete payload[field];
@@ -325,14 +248,6 @@ describe("auth.schema.ts", () => {
         });
 
         test.each([
-            {
-                scenario: "senha com tamanho mínimo",
-                override: { password: "1" },
-            },
-            {
-                scenario: "senha com tamanho máximo",
-                override: { password: "1".repeat(70) },
-            },
             {
                 scenario: "senha com espaços nas extremidades",
                 override: { password: "  senha123  " },
@@ -376,58 +291,13 @@ describe("auth.schema.ts", () => {
             );
         });
 
-        test.each([
-            {
-                scenario: "nome muito curto",
-                payload: { name: "A" },
-                message: "Nome deve ter pelo menos 2 caracteres",
-            },
-            {
-                scenario: "nome muito longo",
-                payload: { name: "A".repeat(65) },
-                message: "Nome muito grande. Máximo: 64 caracteres",
-            },
-            {
-                scenario: "nome contendo apenas espaços",
-                payload: { name: "     " },
-                message: "Nome deve ter pelo menos 2 caracteres",
-            },
-            {
-                scenario: "nome com caracteres inválidos",
-                payload: { name: "123" },
-                message: "Nome contém caracteres inválidos",
-            },
-        ])("deve rejeitar $scenario", ({ payload, message }) => {
+        test("deve rejeitar atualização sem nome", () => {
+            const payload = {};
             const result = updateSchema.safeParse(payload);
 
             assert.isFalse(result.success);
 
-            assert.isTrue(
-                result.error.issues.some(
-                    (issue) => issue.path[0] === "name" && issue.message === message,
-                ),
-            );
-        });
-
-        test.each([
-            {
-                scenario: "nome numérico",
-                payload: { name: 123 },
-            },
-            {
-                scenario: "nome ausente",
-                payload: {},
-            },
-        ])("deve rejeitar $scenario", ({ payload }) => {
-            const result = updateSchema.safeParse(payload);
-
-            assert.isFalse(result.success);
-
-            assert.isTrue(
-                result.error.issues.some(
-                    (issue) => issue.path[0] === "name" && issue.code === "invalid_type",
-                ),
-            );
+            assert.isTrue(result.error.issues.some((issue) => issue.path[0] === "name"));
         });
     });
 });

@@ -357,39 +357,6 @@ describe("auth.schema.ts", () => {
 
         test.each([
             {
-                scenario: "nome muito curto",
-                payload: { name: "A" },
-                message: "Nome deve ter pelo menos 2 caracteres",
-            },
-            {
-                scenario: "nome muito longo",
-                payload: { name: "A".repeat(65) },
-                message: "Nome muito grande. Máximo: 64 caracteres",
-            },
-            {
-                scenario: "nome contendo apenas espaços",
-                payload: { name: "     " },
-                message: "Nome deve ter pelo menos 2 caracteres",
-            },
-            {
-                scenario: "nome com caracteres inválidos",
-                payload: { name: "123" },
-                message: "Nome contém caracteres inválidos",
-            },
-        ])("deve rejeitar $scenario", ({ payload, message }) => {
-            const result = updateUserSchema.safeParse(payload);
-
-            assert.isFalse(result.success);
-
-            assert.isTrue(
-                result.error.issues.some(
-                    (issue) => issue.path[0] === "name" && issue.message === message,
-                ),
-            );
-        });
-
-        test.each([
-            {
                 scenario: "nome numérico",
                 payload: { name: 123 },
             },

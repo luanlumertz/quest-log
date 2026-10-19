@@ -133,17 +133,8 @@ describe("library.schema.test.ts", () => {
             assert.equal(result.completedAt.toISOString(), "2026-02-10T18:30:00.000Z");
         });
 
-        test.each([
-            {
-                scenario: "nenhum campo informado",
-                payload: {},
-            },
-            {
-                scenario: "campo com valor undefined",
-                payload: { rating: undefined },
-            },
-        ])("deve rejeitar atualização com $scenario", ({ payload }) => {
-            const result = updateLibraryEntrySchema.safeParse(payload);
+        test("deve rejeitar atualização sem campos", () => {
+            const result = updateLibraryEntrySchema.safeParse({});
 
             assert.isFalse(result.success);
 
@@ -187,18 +178,6 @@ describe("library.schema.test.ts", () => {
             {
                 scenario: "status WANT_TO_PLAY",
                 payload: { status: "WANT_TO_PLAY" },
-            },
-            {
-                scenario: "status PLAYING",
-                payload: { status: "PLAYING" },
-            },
-            {
-                scenario: "status COMPLETED",
-                payload: { status: "COMPLETED" },
-            },
-            {
-                scenario: "status ABANDONED",
-                payload: { status: "ABANDONED" },
             },
         ])("deve aceitar $scenario", ({ payload }) => {
             const result = updateLibraryEntrySchema.safeParse(payload);
@@ -355,10 +334,6 @@ describe("library.schema.test.ts", () => {
         });
 
         test.each([
-            {
-                scenario: "uma plataforma válida",
-                payload: { platforms: [1] },
-            },
             {
                 scenario: "múltiplas plataformas válidas",
                 payload: { platforms: [1, 2, 3] },

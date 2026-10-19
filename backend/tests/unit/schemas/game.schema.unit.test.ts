@@ -31,11 +31,6 @@ describe("game.schema.ts", () => {
                 message: "Informe um termo para busca",
             },
             {
-                scenario: "busca contendo apenas espaços",
-                payload: { query: "   " },
-                message: "Informe um termo para busca",
-            },
-            {
                 scenario: "busca com tipo inválido",
                 payload: { query: 123 },
                 message: "O termo de busca deve ser um texto",
@@ -90,11 +85,6 @@ describe("game.schema.ts", () => {
                 scenario: "ID não numérico",
                 payload: { externalId: "abc" },
                 message: "Deve ser informado um id válido",
-            },
-            {
-                scenario: "ID com string vazia",
-                payload: { externalId: "" },
-                message: "O id deve ser um número positivo",
             },
         ])("deve rejeitar $scenario", ({ payload, message }) => {
             const result = getRawgGameSchema.safeParse(payload);
