@@ -1,6 +1,5 @@
 import { assert, describe, test } from "vitest";
 
-import type { LibraryEntryDetails } from "../../../../../src/types/library.types";
 import {
     applyStatusRules,
     createDefaultValues,
@@ -10,6 +9,8 @@ import {
     getFieldsClearedOnSave,
     type LibraryGameDetailsFormValues,
 } from "../../../../../src/components/library/details/libraryGameDetailsForm.rules";
+
+import { createLibraryEntryDetails } from "../../../../fixtures/library.fixture";
 
 describe("libraryGameDetailsForm.rules.ts", () => {
     const baseFormValues: LibraryGameDetailsFormValues = {
@@ -21,28 +22,13 @@ describe("libraryGameDetailsForm.rules.ts", () => {
         completedAt: "2026-01-02",
     };
 
-    const baseLibraryEntry: LibraryEntryDetails = {
-        rating: 4.5,
-        platforms: [{ id: 1, name: "PC" }],
+    const baseLibraryEntry = createLibraryEntryDetails({
         status: "PLAYING",
+        rating: 4.5,
         playtimeMinutes: 720,
+        platforms: [{ id: 1, name: "PC" }],
         startedAt: "2026-01-01",
-        completedAt: null,
-        createdAt: "2025-01-01T12:00:00.000Z",
-        updatedAt: "2025-01-12T12:00:00.000Z",
-        game: {
-            id: 1,
-            externalId: 123,
-            title: "Elden Ring",
-            coverUrl: "https://example.com/elden-ring.jpg",
-            releaseDate: "2022-02-25",
-        },
-        availablePlatforms: [
-            { id: 1, name: "PC" },
-            { id: 2, name: "PlayStation 5" },
-            { id: 3, name: "Xbox Series X" },
-        ],
-    };
+    });
 
     describe("applyStatusRules", () => {
         test.each([

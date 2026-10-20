@@ -6,7 +6,7 @@ import { server } from "./server.mock";
 type MockJson = string | number | boolean | null | MockJson[] | { [key: string]: MockJson };
 
 type MockApiOptions = {
-    method: "GET" | "POST";
+    method: "GET" | "POST" | "PATCH";
     endpoint: string;
     responseBody?: MockJson;
     status?: number;
@@ -48,10 +48,18 @@ export function mockApiResponse({
         return HttpResponse.json(responseBody, { status });
     }
 
-    if (method === "GET") {
-        server.use(http.get(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)));
-    } else {
-        server.use(http.post(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)));
+    switch (method) {
+        case "GET":
+            server.use(http.get(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)));
+            break;
+        case "POST":
+            server.use(http.post(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)));
+            break;
+        case "PATCH":
+            server.use(
+                http.patch(`${API_URL}${endpoint}`, ({ request }) => handleRequest(request)),
+            );
+            break;
     }
 
     return { requests };
