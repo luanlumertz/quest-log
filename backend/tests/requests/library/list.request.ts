@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import type { LibraryQueryData } from "../../../src/types/library.types.js";
+import type { LibraryQueryData } from "../../../src/schemas/library.schema.js";
 import app from "../../../src/app.js";
 
 import type { AppTestAgent } from "../../types/http.types.js";

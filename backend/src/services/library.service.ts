@@ -1,10 +1,31 @@
 import { AppError } from "../errors/AppError.js";
-import { createLibraryEntry, createLibraryEntryPlatform, gameInUserLibraryEntryExists, findLibraryEntriesByUserId, findLibraryEntryByUserAndGameId, updateLibraryEntryByUserAndGameId, replaceLibraryEntryPlatforms, deleteLibraryEntryByUserAndGameId } from "../repositories/library.repository.js";
-import type { AddGameToLibraryRepositoryData, AddGameToLibraryServiceData, LibraryQueryData, UpdateLibraryEntryServiceData } from "../types/library.types.js";
+import {
+    createLibraryEntry,
+    createLibraryEntryPlatform,
+    gameInUserLibraryEntryExists,
+    findLibraryEntriesByUserId,
+    findLibraryEntryByUserAndGameId,
+    updateLibraryEntryByUserAndGameId,
+    replaceLibraryEntryPlatforms,
+    deleteLibraryEntryByUserAndGameId,
+} from "../repositories/library.repository.js";
+import type {
+    AddGameToLibraryRepositoryData,
+    AddGameToLibraryServiceData,
+} from "../types/library.types.js";
+import type { LibraryQueryData, UpdateLibraryEntryServiceData } from "../schemas/library.schema.js";
 import { runInTransaction } from "../repositories/transaction.repository.js";
-import { applyLibraryEntryStatusRules, formatLibraryEntry, getInitialDates, validateLibraryEntryDates } from "./library.helpers.js";
+import {
+    applyLibraryEntryStatusRules,
+    formatLibraryEntry,
+    getInitialDates,
+    validateLibraryEntryDates,
+} from "./library.helpers.js";
 import { getOrCreateGame } from "./library-game.service.js";
-import { validateLibraryEntryPlatformIds, validateSelectedPlatforms } from "./library-platform.service.js";
+import {
+    validateLibraryEntryPlatformIds,
+    validateSelectedPlatforms,
+} from "./library-platform.service.js";
 import { findPlatformsByGameId } from "../repositories/platform.repository.js";
 
 async function findLibraryEntryOrThrow(userId: number, gameId: number) {
@@ -35,14 +56,14 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
         gameId: game.id,
         status: data.status,
         startedAt,
-        completedAt
+        completedAt,
     };
 
     const libraryEntry = await runInTransaction(async (tx) => {
         const createdLibraryEntry = await createLibraryEntry(createLibraryEntryData, tx);
 
         for (const namePlatform of data.platforms) {
-            const platform = availablePlatforms.find(platform => platform.name === namePlatform);
+            const platform = availablePlatforms.find((platform) => platform.name === namePlatform);
 
             if (!platform) {
                 throw new AppError("Erro ao associar plataforma à biblioteca", 500);
@@ -69,11 +90,15 @@ export async function getLibraryEntryDetails(userId: number, gameId: number) {
 
     return {
         ...formatLibraryEntry(libraryDetails),
-        availablePlatforms
+        availablePlatforms,
     };
 }
 
-export async function updateLibraryEntry(userId: number, gameId: number, data: UpdateLibraryEntryServiceData) {
+export async function updateLibraryEntry(
+    userId: number,
+    gameId: number,
+    data: UpdateLibraryEntryServiceData,
+) {
     const { platforms, ...libraryEntryData } = data;
 
     const libraryEntry = await findLibraryEntryOrThrow(userId, gameId);

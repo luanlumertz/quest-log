@@ -95,3 +95,8 @@ export const libraryQuerySchema = z
     .strict();
 
 export type GameIdParams = z.infer<typeof gameIdParamsSchema>;
+export type AddGameToLibraryPayload = z.input<typeof addGameToLibrarySchema>;
+export type AddGameToLibraryData = z.output<typeof addGameToLibrarySchema>;
+export type UpdateLibraryEntryPayload = z.input<typeof updateLibraryEntrySchema>;
+export type UpdateLibraryEntryServiceData = z.output<typeof updateLibraryEntrySchema>;
+export type LibraryQueryData = z.output<typeof libraryQuerySchema>;

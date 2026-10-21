@@ -4,15 +4,6 @@ export type CreateUserData = {
     passwordHash: string;
 };
 
-export type LoginUserData = {
-    email: string;
-    password: string;
-};
-
-export type UpdateUserData = {
-    name: string;
-};
-
 export type PublicUser = {
     id: number;
     name: string;

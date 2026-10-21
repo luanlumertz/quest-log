@@ -1,3 +1,4 @@
+import type { AddGameToLibraryFormData } from "../schema/library.schema";
 import type { GameStatus } from "./game.types";
 import type { Platform } from "./platform.types";
 
@@ -34,8 +35,6 @@ export type LibraryResponse = {
     libraryEntries: LibraryEntry[];
 };
 
-export type AddGameToLibraryData = {
+export type AddGameToLibraryData = AddGameToLibraryFormData & {
     externalId: number;
-    status: GameStatus;
-    platforms: string[];
 };

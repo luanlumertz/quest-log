@@ -7,8 +7,7 @@ import {
 } from "../repositories/user.repository.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { AppError } from "../errors/AppError.js";
-import type { RegisterUserData } from "../schemas/auth.schema.js";
-import type { LoginUserData, UpdateUserData } from "../types/auth.types.js";
+import type { RegisterUserData, LoginUserData, UpdateUserData } from "../schemas/auth.schema.js";
 import { generateToken } from "../lib/jwt.js";
 import { createRefreshSessionForUser } from "./refreshSession.service.js";
 
