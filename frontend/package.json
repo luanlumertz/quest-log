@@ -13,6 +13,7 @@
         "dev": "vite",
         "build": "tsc -b && vite build",
         "typecheck": "tsc -b",
+        "typecheck:tests": "tsc --project tests/tsconfig.json --noEmit",
         "preview": "vite preview"
     },
     "dependencies": {
