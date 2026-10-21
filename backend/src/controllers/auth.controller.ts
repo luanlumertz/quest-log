@@ -21,9 +21,9 @@ export async function registerUserController(
 ) {
     const data = req.body;
 
-    const user = await registerUser(data);
+    const result = await registerUser(data);
 
-    return res.status(201).json({ user });
+    return res.status(202).json(result);
 }
 
 export async function loginUserController(

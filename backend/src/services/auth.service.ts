@@ -1,5 +1,4 @@
 import {
-    createUser,
     deleteUserById,
     findUserByEmail,
     findUserById,
@@ -10,6 +9,13 @@ import { AppError } from "../errors/AppError.js";
 import type { RegisterUserData, LoginUserData, UpdateUserData } from "../schemas/auth.schema.js";
 import { generateToken } from "../lib/jwt.js";
 import { createRefreshSessionForUser } from "./refreshSession.service.js";
+import { generateVerificationCode, hashVerificationCode } from "../lib/verificationCode.js";
+import { savePendingRegistration } from "../repositories/pendingRegistration.repository.js";
+import {
+    PENDING_REGISTRATION_EXPIRES_IN_MS,
+    VERIFICATION_CODE_EXPIRES_IN_MS,
+} from "../constants/auth.js";
+import { sendEmail } from "../integrations/mail.js";
 
 export async function registerUser(data: RegisterUserData) {
     const existingUser = await findUserByEmail(data.email);
@@ -18,14 +24,31 @@ export async function registerUser(data: RegisterUserData) {
         throw new AppError("Este e-mail já está em uso", 409);
     }
 
-    const passwordHash = await hashPassword(data.password);
+    const code = generateVerificationCode();
 
-    const user = await createUser({ name: data.name, email: data.email, passwordHash });
+    const passwordHash = await hashPassword(data.password);
+    const codeHash = await hashVerificationCode(code);
+
+    const now = Date.now();
+
+    const pendingRegistration = await savePendingRegistration({
+        name: data.name,
+        email: data.email,
+        passwordHash,
+        codeHash,
+        codeExpiresAt: new Date(now + VERIFICATION_CODE_EXPIRES_IN_MS),
+        expiresAt: new Date(now + PENDING_REGISTRATION_EXPIRES_IN_MS),
+    });
+
+    await sendEmail({
+        to: data.email,
+        subject: "Código de verificação - QuestLog",
+        text: `Seu código de verificação é ${code}. Ele é válido por 10 minutos.`,
+    });
 
     return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+        pendingRegistrationId: pendingRegistration.id,
+        email: pendingRegistration.email,
     };
 }
 
