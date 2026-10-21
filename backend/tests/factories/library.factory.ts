@@ -1,8 +1,8 @@
-import type { AddGameToLibraryData } from "../types/library.types.js";
+import type { AddGameToLibraryPayload } from "../../src/schemas/library.schema.js";
 
 export function createLibraryPayload(
-    overrides: Partial<AddGameToLibraryData> = {},
-): AddGameToLibraryData {
+    overrides: Partial<AddGameToLibraryPayload> = {},
+): AddGameToLibraryPayload {
     return {
         externalId: 123,
         status: "WANT_TO_PLAY" as const,

@@ -1,9 +1,9 @@
 import { prisma } from "../lib/prisma.js";
 import type {
     AddGameToLibraryRepositoryData,
-    LibraryQueryData,
     UpdateLibraryEntryData,
 } from "../types/library.types.js";
+import type { LibraryQueryData } from "../schemas/library.schema.js";
 import { Prisma } from "@prisma/client";
 
 export const libraryEntrySelect = {
@@ -129,7 +129,13 @@ export function updateLibraryEntryByUserAndGameId(
                 gameId,
             },
         },
-        data,
+        data: {
+            ...(data.status !== undefined && { status: data.status }),
+            ...(data.rating !== undefined && { rating: data.rating }),
+            ...(data.playtimeMinutes !== undefined && { playtimeMinutes: data.playtimeMinutes }),
+            ...(data.startedAt !== undefined && { startedAt: data.startedAt }),
+            ...(data.completedAt !== undefined && { completedAt: data.completedAt }),
+        },
     });
 }
 

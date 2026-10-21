@@ -1,0 +1,47 @@
+services:
+    postgres:
+        image: postgres:18
+        container_name: questlog-postgres
+        restart: unless-stopped
+
+        environment:
+            POSTGRES_USER: questlog
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: quest_log
+
+        ports:
+            - "127.0.0.1:5432:5432"
+
+        volumes:
+            - postgres_data:/var/lib/postgresql
+            - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U questlog -d quest_log"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    pgadmin:
+        image: dpage/pgadmin4:9
+        container_name: questlog-pgadmin
+        restart: unless-stopped
+
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+
+        ports:
+            - "127.0.0.1:5050:80"
+
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+            - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+volumes:
+    postgres_data:
+    pgadmin_data:

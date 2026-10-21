@@ -4,13 +4,15 @@ export const searchGameSchema = z.object({
     query: z
         .string({ error: "O termo de busca deve ser um texto" })
         .trim()
-        .min(1, { error: "Informe um termo para busca" })
+        .min(1, { error: "Informe um termo para busca" }),
 });
 
 export const getRawgGameSchema = z.object({
-    externalId: z
-        .coerce
+    externalId: z.coerce
         .number({ error: "Deve ser informado um id válido" })
         .int({ error: "O id deve ser um número inteiro" })
-        .positive({ error: "O id deve ser um número positivo" })
+        .positive({ error: "O id deve ser um número positivo" }),
 });
+
+export type SearchGameQuery = z.output<typeof searchGameSchema>;
+export type GetRawgGameParams = z.output<typeof getRawgGameSchema>;

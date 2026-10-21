@@ -59,4 +59,6 @@ export const updateUserSchema = z
 export type RegisterUserPayload = z.input<typeof registerUserSchema>;
 export type RegisterUserData = z.output<typeof registerUserSchema>;
 export type LoginUserPayload = z.input<typeof loginUserSchema>;
+export type LoginUserData = z.output<typeof loginUserSchema>;
 export type UpdateUserPayload = z.input<typeof updateUserSchema>;
+export type UpdateUserData = z.output<typeof updateUserSchema>;

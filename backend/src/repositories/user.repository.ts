@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
-import type { CreateUserData, UpdateUserData } from "../types/auth.types.js";
+import type { CreateUserData } from "../types/auth.types.js";
+import type { UpdateUserData } from "../schemas/auth.schema.js";
 
 export function findUserByEmail(email: string) {
     return prisma.user.findUnique({

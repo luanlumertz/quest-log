@@ -1,10 +1,5 @@
 import type { GameStatus } from "@prisma/client";
-
-export type AddGameToLibraryData = {
-    externalId: number;
-    status: GameStatus;
-    platforms: string[];
-};
+import type { UpdateLibraryEntryPayload as SchemaUpdateLibraryEntryPayload } from "../../src/schemas/library.schema.js";
 
 export type LibraryEntryResponse = {
     rating: number | null;
@@ -40,13 +35,13 @@ export type LibraryDetailsResponse = {
     };
 };
 
-export type UpdateLibraryEntryPayload = {
-    status?: GameStatus;
-    rating?: number | null;
-    playtimeMinutes?: number;
+// HTTP envia datas como texto; o schema converte essas entradas para Date.
+export type UpdateLibraryEntryPayload = Omit<
+    SchemaUpdateLibraryEntryPayload,
+    "startedAt" | "completedAt"
+> & {
     startedAt?: string | null;
     completedAt?: string | null;
-    platforms?: number[];
 };
 
 export type UpdatedLibraryEntryResponse = {
