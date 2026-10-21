@@ -2,12 +2,7 @@ export const API_URL = import.meta.env.VITE_API_URL;
 
 export const AUTH_SESSION_EXPIRED_EVENT = "auth:session-expired";
 
-const NO_REFRESH_ENDPOINTS = [
-    "/auth/login",
-    "/auth/logout",
-    "/auth/register",
-    "/auth/refresh"
-];
+const NO_REFRESH_ENDPOINTS = ["/auth/login", "/auth/logout", "/auth/register", "/auth/refresh"];
 
 const INVALID_REFRESH_STATUSES = [400, 401, 403];
 
@@ -35,9 +30,12 @@ export class NetworkError extends Error {
 type RefreshResult = "refreshed" | "expired";
 
 let refreshPromise: Promise<RefreshResult> | null = null;
+let sessionExpiredNotified = false;
 
 function isNoRefreshEndpoint(endpoint: string) {
-    return NO_REFRESH_ENDPOINTS.some((path) => endpoint === path || endpoint.startsWith(`${path}?`));
+    return NO_REFRESH_ENDPOINTS.some(
+        (path) => endpoint === path || endpoint.startsWith(`${path}?`),
+    );
 }
 
 async function fetchWithNetworkHandling(url: string, options: RequestInit) {
@@ -50,19 +48,18 @@ async function fetchWithNetworkHandling(url: string, options: RequestInit) {
 
 async function tryRefreshSession(): Promise<RefreshResult> {
     if (!refreshPromise) {
-        refreshPromise = fetchWithNetworkHandling(`${API_URL}/auth/refresh`,
-            {
-                method: "POST",
-                credentials: "include"
-            }
-        )
+        refreshPromise = fetchWithNetworkHandling(`${API_URL}/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+        })
             .then((response) => {
                 if (response.ok) {
+                    sessionExpiredNotified = false;
+
                     return "refreshed" as const;
                 }
 
-                if (INVALID_REFRESH_STATUSES.includes(response.status)
-                ) {
+                if (INVALID_REFRESH_STATUSES.includes(response.status)) {
                     return "expired" as const;
                 }
 
@@ -77,6 +74,10 @@ async function tryRefreshSession(): Promise<RefreshResult> {
 }
 
 function expireSession() {
+    if (sessionExpiredNotified) return;
+
+    sessionExpiredNotified = true;
+
     window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 }
 
@@ -107,13 +108,11 @@ function createRequestHeaders(options: RequestInit) {
 export async function apiRequest(endpoint: string, options: RequestInit = {}, canRetry = true) {
     const headers = createRequestHeaders(options);
 
-    const response = await fetchWithNetworkHandling(`${API_URL}${endpoint}`,
-        {
-            ...options,
-            credentials: "include",
-            headers
-        }
-    );
+    const response = await fetchWithNetworkHandling(`${API_URL}${endpoint}`, {
+        ...options,
+        credentials: "include",
+        headers,
+    });
 
     const isProtectedUnauthorized = response.status === 401 && !isNoRefreshEndpoint(endpoint);
 
@@ -133,6 +132,10 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}, ca
 
     if (!response.ok) {
         throw await createApiError(response);
+    }
+
+    if (endpoint === "/auth/login" || endpoint === "/auth/register") {
+        sessionExpiredNotified = false;
     }
 
     return response;

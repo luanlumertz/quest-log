@@ -7,8 +7,8 @@ export async function login(data: LoginData): Promise<User> {
         method: "POST",
         body: JSON.stringify({
             email: data.email,
-            password: data.password
-        })
+            password: data.password,
+        }),
     });
 
     const result: AuthResponse = await response.json();
@@ -19,12 +19,7 @@ export async function login(data: LoginData): Promise<User> {
 export async function register(data: RegisterData): Promise<User> {
     const response = await apiRequest("/auth/register", {
         method: "POST",
-        body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            confirmPassword: data.confirmPassword
-        })
+        body: JSON.stringify(data),
     });
 
     const result: AuthResponse = await response.json();
@@ -34,12 +29,12 @@ export async function register(data: RegisterData): Promise<User> {
 
 export async function logout() {
     await apiRequest("/auth/logout", {
-        method: "POST"
-    })
+        method: "POST",
+    });
 }
 
 export async function getCurrentUser(): Promise<User> {
-    const response = await apiRequest("/auth/me")
+    const response = await apiRequest("/auth/me");
 
     const result: AuthResponse = await response.json();
 
@@ -50,8 +45,8 @@ export async function updateCurrentUser(data: UpdateData): Promise<User> {
     const response = await apiRequest("/auth/me", {
         method: "PATCH",
         body: JSON.stringify({
-            name: data.name
-        })
+            name: data.name,
+        }),
     });
 
     const result: AuthResponse = await response.json();
@@ -61,6 +56,6 @@ export async function updateCurrentUser(data: UpdateData): Promise<User> {
 
 export async function deleteCurrentUser(): Promise<void> {
     await apiRequest("/auth/me", {
-        method: "DELETE"
-    })
+        method: "DELETE",
+    });
 }

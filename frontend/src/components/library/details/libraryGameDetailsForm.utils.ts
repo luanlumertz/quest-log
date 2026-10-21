@@ -57,7 +57,7 @@ export function normalizeHoursInput(value: string) {
         return hours;
     }
 
-    return `${hours},${decimal?.slice(0, 1) ?? ""}`;
+    return `${hours},${decimal.slice(0, 2)}`;
 }
 
 export function ratingInputToNumber(value: string): number | null {

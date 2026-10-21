@@ -33,15 +33,8 @@ export const registerUserSchema = z
             .refine((password) => password.trim().length > 0, {
                 error: "A senha não pode conter apenas espaços",
             }),
-
-        confirmPassword: z.string(),
     })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: "As senhas não coincidem",
-        path: ["confirmPassword"],
-    })
-    .strict()
-    .transform(({ confirmPassword, ...data }) => data);
+    .strict();
 
 export const loginUserSchema = z
     .object({

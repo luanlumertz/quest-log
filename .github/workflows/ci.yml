@@ -111,5 +111,22 @@ jobs:
             - name: Typecheck
               run: npm run typecheck
 
+            - name: Typecheck dos testes
+              run: npm run typecheck:tests
+
             - name: Build
               run: npm run build
+
+            - name: Executar testes com coverage
+              run: npm run test:coverage
+              env:
+                  VITE_API_URL: http://localhost:3999
+
+            - name: Publicar relatório de coverage
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: frontend-coverage
+                  path: frontend/coverage/
+                  if-no-files-found: ignore
+                  retention-days: 7

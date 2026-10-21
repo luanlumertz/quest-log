@@ -1,20 +1,31 @@
 import z from "zod";
 import { GAME_STATUSES } from "../types/game.types";
 
+const platformSchema = z
+    .string({ error: "A plataforma deve ser um texto" })
+    .trim()
+    .min(1, { error: "A plataforma não pode estar vazia" });
 
-export const addGameToLibraryFormSchema = z.object({
-    status: z.enum(GAME_STATUSES, { error: "Selecione um status válido" }),
-
-    platforms: z
-        .array(z.string())
-        .min(1, { error: "Selecione pelo menos uma plataforma" })
+const gameStatusSchema = z.enum(GAME_STATUSES, {
+    error: "Status inválido",
 });
+
+export const addGameToLibraryFormSchema = z
+    .object({
+        status: gameStatusSchema,
+
+        platforms: z
+            .array(platformSchema, { error: "As plataformas devem ser enviadas em uma lista" })
+            .min(1, { error: "Informe pelo menos uma plataforma" })
+            .refine((platforms) => new Set(platforms).size === platforms.length, {
+                error: "As plataformas não podem se repetir",
+            }),
+    })
+    .strict();
 
 export const updateLibraryEntrySchema = z
     .object({
-        status: z
-            .enum(GAME_STATUSES, { error: "Status inválido" })
-            .optional(),
+        status: gameStatusSchema.optional(),
 
         rating: z
             .number({ error: "O rating deve ser um número" })
@@ -35,32 +46,29 @@ export const updateLibraryEntrySchema = z
                 z
                     .number({ error: "O id da plataforma deve ser um número" })
                     .int({ error: "O id da plataforma deve ser um número inteiro" })
-                    .positive({ error: "O id da plataforma deve ser maior que 0" })
+                    .positive({ error: "O id da plataforma deve ser maior que 0" }),
+                { error: "As plataformas devem ser enviadas em uma lista" },
             )
-            .min(1, { error: "Deve ser informada pelo menos uma plataforma" })
-            .refine(
-                platforms => new Set(platforms).size === platforms.length,
-                { error: "As plataformas não podem se repetir" }
-            )
+            .min(1, { error: "Informe pelo menos uma plataforma" })
+            .refine((platforms) => new Set(platforms).size === platforms.length, {
+                error: "As plataformas não podem se repetir",
+            })
             .optional(),
 
-        startedAt: z
-            .coerce
+        startedAt: z.coerce
             .date({ error: "A data de início deve ser uma data válida" })
             .nullable()
             .optional(),
 
-        completedAt: z
-            .coerce
+        completedAt: z.coerce
             .date({ error: "A data de conclusão deve ser uma data válida" })
             .nullable()
-            .optional()
+            .optional(),
     })
-    .strict()
-    .refine(
-        data => Object.values(data).some(value => value !== undefined),
-        { error: "Pelo menos um campo deve ser informado para atualização" }
-    )
+    .refine((data) => Object.values(data).some((value) => value !== undefined), {
+        error: "Pelo menos um campo deve ser informado para atualização",
+    })
+    .strict();
 
 export type UpdateLibraryEntryData = z.infer<typeof updateLibraryEntrySchema>;
 export type AddGameToLibraryFormData = z.infer<typeof addGameToLibraryFormSchema>;

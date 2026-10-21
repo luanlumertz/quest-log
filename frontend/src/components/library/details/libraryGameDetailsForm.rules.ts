@@ -1,7 +1,13 @@
 import type { GameStatus } from "../../../types/game.types";
 import type { LibraryEntryDetails } from "../../../types/library.types";
 import type { UpdateLibraryEntryData } from "../../../schema/library.schema";
-import { dateInputToDate, dateToInputValue, hoursInputToMinutes, minutesToHoursInput, ratingInputToNumber } from "./libraryGameDetailsForm.utils";
+import {
+    dateInputToDate,
+    dateToInputValue,
+    hoursInputToMinutes,
+    minutesToHoursInput,
+    ratingInputToNumber,
+} from "./libraryGameDetailsForm.utils";
 
 export type LibraryGameDetailsFormValues = {
     status: GameStatus;
@@ -12,18 +18,17 @@ export type LibraryGameDetailsFormValues = {
     completedAt: string;
 };
 
-export type DataLossField =
-    | "rating"
-    | "playtimeMinutes"
-    | "startedAt"
-    | "completedAt";
+export type DataLossField = "rating" | "playtimeMinutes" | "startedAt" | "completedAt";
 
 export type DateValidationError = {
     field: "startedAt" | "completedAt";
     message: string;
 };
 
-export function applyStatusRules(values: LibraryGameDetailsFormValues, today: string): LibraryGameDetailsFormValues {
+export function applyStatusRules(
+    values: LibraryGameDetailsFormValues,
+    today: string,
+): LibraryGameDetailsFormValues {
     const nextValues = { ...values };
 
     switch (nextValues.status) {
@@ -58,7 +63,7 @@ export function applyStatusRules(values: LibraryGameDetailsFormValues, today: st
 
 export function createDefaultValues(
     entry: LibraryEntryDetails,
-    today: string
+    today: string,
 ): LibraryGameDetailsFormValues {
     const values: LibraryGameDetailsFormValues = {
         status: entry.status,
@@ -71,7 +76,7 @@ export function createDefaultValues(
 
         startedAt: dateToInputValue(entry.startedAt),
 
-        completedAt: dateToInputValue(entry.completedAt)
+        completedAt: dateToInputValue(entry.completedAt),
     };
 
     return applyStatusRules(values, today);
@@ -80,17 +85,14 @@ export function createDefaultValues(
 export function createValuesForStatus(
     values: LibraryGameDetailsFormValues,
     status: GameStatus,
-    today: string
+    today: string,
 ) {
-    return applyStatusRules(
-        { ...values, status },
-        today
-    );
+    return applyStatusRules({ ...values, status }, today);
 }
 
 export function createUpdateCandidate(
     values: LibraryGameDetailsFormValues,
-    today: string
+    today: string,
 ): UpdateLibraryEntryData {
     const normalizedValues = applyStatusRules(values, today);
 
@@ -105,13 +107,13 @@ export function createUpdateCandidate(
 
         startedAt: dateInputToDate(normalizedValues.startedAt),
 
-        completedAt: dateInputToDate(normalizedValues.completedAt)
+        completedAt: dateInputToDate(normalizedValues.completedAt),
     };
 }
 
 export function getDateValidationError(
     values: LibraryGameDetailsFormValues,
-    today: string
+    today: string,
 ): DateValidationError | null {
     const normalizedValues = applyStatusRules(values, today);
     const { startedAt, completedAt } = normalizedValues;
@@ -119,21 +121,21 @@ export function getDateValidationError(
     if (startedAt && startedAt > today) {
         return {
             field: "startedAt",
-            message: "A data de início não pode estar no futuro"
+            message: "A data de início não pode estar no futuro",
         };
     }
 
     if (completedAt && completedAt > today) {
         return {
             field: "completedAt",
-            message: "A data de conclusão não pode estar no futuro"
+            message: "A data de conclusão não pode estar no futuro",
         };
     }
 
     if (startedAt && completedAt && completedAt < startedAt) {
         return {
             field: "completedAt",
-            message: "A data de conclusão não pode ser anterior à data de início"
+            message: "A data de conclusão não pode ser anterior à data de início",
         };
     }
 
@@ -142,7 +144,7 @@ export function getDateValidationError(
 
 export function getFieldsClearedOnSave(
     entry: LibraryEntryDetails,
-    data: UpdateLibraryEntryData
+    data: UpdateLibraryEntryData,
 ): DataLossField[] {
     const fields: DataLossField[] = [];
 
