@@ -96,3 +96,15 @@ model RefreshSession {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model PendingRegistration {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  codeHash      String
+  codeExpiresAt DateTime
+  expiresAt     DateTime
+  attempts      Int      @default(0)
+  createdAt     DateTime @default(now())
+}
