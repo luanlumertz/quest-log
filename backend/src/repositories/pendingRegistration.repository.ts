@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { Prisma } from "@prisma/client";
+import { AppError } from "../errors/AppError.js";
 import type { PendingRegistration } from "@prisma/client";
 import { MAX_VERIFICATION_ATTEMPTS, VERIFICATION_RESEND_COOLDOWN_MS } from "../constants/auth.js";
 import { prisma } from "../lib/prisma.js";
@@ -12,34 +15,49 @@ type SavePendingRegistrationData = {
 };
 
 export async function savePendingRegistration(data: SavePendingRegistrationData) {
-    const now = new Date();
+    // Serializable impede que uma confirmação concorrente passe despercebida.
+    // Em caso de conflito, a transação inteira precisa ler os dados novamente.
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            return await prisma.$transaction(
+                async (tx) => {
+                    const existingUser = await tx.user.findUnique({
+                        where: { email: data.email },
+                    });
 
-    const cooldownLimit = new Date(now.getTime() - VERIFICATION_RESEND_COOLDOWN_MS);
+                    if (existingUser) {
+                        throw new AppError("Este e-mail já está em uso", 409);
+                    }
 
-    const updated = await prisma.pendingRegistration.updateMany({
-        where: {
-            email: data.email,
-            OR: [{ expiresAt: { lte: now } }, { lastCodeSentAt: { lte: cooldownLimit } }],
-        },
-        data: {
-            ...data,
-            attempts: 0,
-            lastCodeSentAt: now,
-        },
-    });
+                    const now = new Date();
+                    const registration = {
+                        ...data,
+                        id: randomUUID(),
+                        attempts: 0,
+                        createdAt: now,
+                        lastCodeSentAt: now,
+                    };
 
-    if (updated.count === 1) {
-        return prisma.pendingRegistration.findUniqueOrThrow({
-            where: { email: data.email },
-        });
+                    // Renova também a chave primária, invalidando a tentativa anterior.
+                    return tx.pendingRegistration.upsert({
+                        where: { email: data.email },
+                        create: registration,
+                        update: registration,
+                    });
+                },
+                { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+            );
+        } catch (error) {
+            if (
+                !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+                !["P2034", "P2002", "P2028"].includes(error.code)
+            ) {
+                throw error;
+            }
+        }
     }
 
-    return prisma.pendingRegistration.create({
-        data: {
-            ...data,
-            lastCodeSentAt: now,
-        },
-    });
+    throw new AppError("Não foi possível iniciar o cadastro neste momento. Tente novamente.", 409);
 }
 
 export function findPendingRegistrationById(id: string) {

@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
 import { validateBody } from "../middlewares/validate.middleware.js";
-import { registrationRateLimiter } from "../middlewares/rateLimit.middleware.js";
+import {
+    registrationRateLimiter,
+    resendRateLimiter,
+    verificationRateLimiter,
+} from "../middlewares/rateLimit.middleware.js";
 import {
     loginUserSchema,
     registerUserSchema,
@@ -37,11 +41,13 @@ userRoutes.delete("/me", authenticateToken, deleteUserController);
 userRoutes.post("/refresh", refreshTokenController);
 userRoutes.post(
     "/register/verify",
+    verificationRateLimiter,
     validateBody(verifyRegistrationSchema),
     verifyRegistrationController,
 );
 userRoutes.post(
     "/register/resend",
+    resendRateLimiter,
     validateBody(resendRegistrationCodeSchema),
     resendRegistrationCodeController,
 );
