@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
 import { validateBody } from "../middlewares/validate.middleware.js";
+import { registrationRateLimiter } from "../middlewares/rateLimit.middleware.js";
 import {
     loginUserSchema,
     registerUserSchema,
@@ -22,7 +23,12 @@ import {
 
 export const userRoutes = Router();
 
-userRoutes.post("/register", validateBody(registerUserSchema), registerUserController);
+userRoutes.post(
+    "/register",
+    registrationRateLimiter,
+    validateBody(registerUserSchema),
+    registerUserController,
+);
 userRoutes.post("/login", validateBody(loginUserSchema), loginUserController);
 userRoutes.post("/logout", logoutUserController);
 userRoutes.get("/me", authenticateToken, getCurrentUserController);
