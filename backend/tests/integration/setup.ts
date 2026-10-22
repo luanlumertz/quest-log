@@ -1,5 +1,13 @@
 import { beforeEach } from "vitest";
+import { ipKeyGenerator } from "express-rate-limit";
+
 import { prisma } from "../../src/lib/prisma.js";
+import {
+    loginRateLimiter,
+    registrationRateLimiter,
+    verificationRateLimiter,
+    resendRateLimiter,
+} from "../../src/middlewares/rateLimit.middleware.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -19,6 +27,18 @@ if (databaseName !== "quest_log_test" || !allowedHosts.includes(url.hostname)) {
 }
 
 beforeEach(async () => {
+    // Cada teste começa com contadores vazios; o bloqueio continua ativo dentro dele.
+    for (const limiter of [
+        loginRateLimiter,
+        registrationRateLimiter,
+        verificationRateLimiter,
+        resendRateLimiter,
+    ]) {
+        for (const ip of ["127.0.0.1", "::ffff:127.0.0.1", "::1"]) {
+            await limiter.resetKey(ipKeyGenerator(ip));
+        }
+    }
+    await prisma.pendingRegistration.deleteMany();
     await prisma.libraryEntryPlatform.deleteMany();
     await prisma.libraryEntry.deleteMany();
     await prisma.gamePlatform.deleteMany();
