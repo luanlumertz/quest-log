@@ -1,3 +1,5 @@
+import type { PendingRegistration } from "@prisma/client";
+import { MAX_VERIFICATION_ATTEMPTS } from "../constants/auth.js";
 import { prisma } from "../lib/prisma.js";
 
 type SavePendingRegistrationData = {
@@ -23,5 +25,56 @@ export function savePendingRegistration(data: SavePendingRegistrationData) {
             expiresAt: data.expiresAt,
             attempts: 0,
         },
+    });
+}
+
+export function findPendingRegistrationById(id: string) {
+    return prisma.pendingRegistration.findUnique({
+        where: { id },
+    });
+}
+
+export function incrementVerificationAttempts(id: string, codeHash: string) {
+    const now = new Date();
+
+    return prisma.pendingRegistration.updateMany({
+        where: {
+            id,
+            codeHash,
+            attempts: { lt: MAX_VERIFICATION_ATTEMPTS },
+            codeExpiresAt: { gt: now },
+            expiresAt: { gt: now },
+        },
+        data: {
+            attempts: { increment: 1 },
+        },
+    });
+}
+
+export function completePendingRegistration(pending: PendingRegistration) {
+    return prisma.$transaction(async (tx) => {
+        const now = new Date();
+
+        const deleted = await tx.pendingRegistration.deleteMany({
+            where: {
+                id: pending.id,
+                codeHash: pending.codeHash,
+                attempts: { lt: MAX_VERIFICATION_ATTEMPTS },
+                codeExpiresAt: { gt: now },
+                expiresAt: { gt: now },
+            },
+        });
+
+        if (deleted.count !== 1) {
+            return null;
+        }
+
+        return tx.user.create({
+            data: {
+                name: pending.name,
+                email: pending.email,
+                passwordHash: pending.passwordHash,
+            },
+        });
     });
 }

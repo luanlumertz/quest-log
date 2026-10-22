@@ -5,6 +5,7 @@ import {
     getCurrentUser,
     updateUser,
     deleteUser,
+    verifyRegistration,
 } from "../services/auth.service.js";
 import {
     clearAccessTokenCookie,
@@ -91,4 +92,10 @@ export async function refreshTokenController(req: Request, res: Response) {
     setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(204).send();
+}
+
+export async function verifyRegistrationController(req: Request, res: Response) {
+    const user = await verifyRegistration(req.body);
+
+    return res.status(201).json({ user });
 }

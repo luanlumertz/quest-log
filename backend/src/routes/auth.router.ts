@@ -1,8 +1,22 @@
 import { Router } from "express";
-import { deleteUserController, getCurrentUserController, loginUserController, logoutUserController, refreshTokenController, registerUserController, updateUserController } from "../controllers/auth.controller.js";
-import { validateBody } from "../middlewares/validate.middleware.js";
-import { loginUserSchema, registerUserSchema, updateUserSchema } from "../schemas/auth.schema.js";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
+import { validateBody } from "../middlewares/validate.middleware.js";
+import {
+    loginUserSchema,
+    registerUserSchema,
+    updateUserSchema,
+    verifyRegistrationSchema,
+} from "../schemas/auth.schema.js";
+import {
+    deleteUserController,
+    getCurrentUserController,
+    loginUserController,
+    logoutUserController,
+    refreshTokenController,
+    registerUserController,
+    updateUserController,
+    verifyRegistrationController,
+} from "../controllers/auth.controller.js";
 
 export const userRoutes = Router();
 
@@ -13,3 +27,8 @@ userRoutes.get("/me", authenticateToken, getCurrentUserController);
 userRoutes.patch("/me", authenticateToken, validateBody(updateUserSchema), updateUserController);
 userRoutes.delete("/me", authenticateToken, deleteUserController);
 userRoutes.post("/refresh", refreshTokenController);
+userRoutes.post(
+    "/register/verify",
+    validateBody(verifyRegistrationSchema),
+    verifyRegistrationController,
+);
