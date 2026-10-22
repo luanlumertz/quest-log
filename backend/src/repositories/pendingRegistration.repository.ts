@@ -112,3 +112,17 @@ export function updatePendingRegistrationCode(id: string, codeHash: string, code
         },
     });
 }
+
+export function invalidatePendingCodeAfterEmailFailure(id: string, codeHash: string) {
+    return prisma.pendingRegistration.updateMany({
+        where: {
+            id,
+            codeHash,
+        },
+        data: {
+            codeExpiresAt: new Date(0),
+            lastCodeSentAt: new Date(0),
+            attempts: 0,
+        },
+    });
+}
