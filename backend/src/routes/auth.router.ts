@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
 import { validateBody } from "../middlewares/validate.middleware.js";
 import {
+    loginRateLimiter,
     registrationRateLimiter,
     resendRateLimiter,
     verificationRateLimiter,
@@ -33,7 +34,7 @@ userRoutes.post(
     validateBody(registerUserSchema),
     registerUserController,
 );
-userRoutes.post("/login", validateBody(loginUserSchema), loginUserController);
+userRoutes.post("/login", loginRateLimiter, validateBody(loginUserSchema), loginUserController);
 userRoutes.post("/logout", logoutUserController);
 userRoutes.get("/me", authenticateToken, getCurrentUserController);
 userRoutes.patch("/me", authenticateToken, validateBody(updateUserSchema), updateUserController);
