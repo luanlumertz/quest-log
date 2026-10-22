@@ -6,6 +6,7 @@ import {
     updateUser,
     deleteUser,
     verifyRegistration,
+    resendRegistrationCode,
 } from "../services/auth.service.js";
 import {
     clearAccessTokenCookie,
@@ -98,4 +99,10 @@ export async function verifyRegistrationController(req: Request, res: Response) 
     const user = await verifyRegistration(req.body);
 
     return res.status(201).json({ user });
+}
+
+export async function resendRegistrationCodeController(req: Request, res: Response) {
+    const result = await resendRegistrationCode(req.body);
+
+    return res.status(200).json(result);
 }

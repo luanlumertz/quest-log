@@ -1,5 +1,5 @@
 import type { PendingRegistration } from "@prisma/client";
-import { MAX_VERIFICATION_ATTEMPTS } from "../constants/auth.js";
+import { MAX_VERIFICATION_ATTEMPTS, VERIFICATION_RESEND_COOLDOWN_MS } from "../constants/auth.js";
 import { prisma } from "../lib/prisma.js";
 
 type SavePendingRegistrationData = {
@@ -24,6 +24,7 @@ export function savePendingRegistration(data: SavePendingRegistrationData) {
             codeExpiresAt: data.codeExpiresAt,
             expiresAt: data.expiresAt,
             attempts: 0,
+            lastCodeSentAt: new Date(),
         },
     });
 }
@@ -76,5 +77,25 @@ export function completePendingRegistration(pending: PendingRegistration) {
                 passwordHash: pending.passwordHash,
             },
         });
+    });
+}
+
+export function updatePendingRegistrationCode(id: string, codeHash: string, codeExpiresAt: Date) {
+    const now = new Date();
+
+    return prisma.pendingRegistration.updateMany({
+        where: {
+            id,
+            expiresAt: { gt: now },
+            lastCodeSentAt: {
+                lte: new Date(now.getTime() - VERIFICATION_RESEND_COOLDOWN_MS),
+            },
+        },
+        data: {
+            codeHash,
+            codeExpiresAt,
+            lastCodeSentAt: now,
+            attempts: 0,
+        },
     });
 }

@@ -11,6 +11,7 @@ import type {
     LoginUserData,
     UpdateUserData,
     VerifyRegistrationData,
+    ResendRegistrationCodeData,
 } from "../schemas/auth.schema.js";
 import { generateToken } from "../lib/jwt.js";
 import { createRefreshSessionForUser } from "./refreshSession.service.js";
@@ -24,11 +25,13 @@ import {
     findPendingRegistrationById,
     incrementVerificationAttempts,
     savePendingRegistration,
+    updatePendingRegistrationCode,
 } from "../repositories/pendingRegistration.repository.js";
 import {
     MAX_VERIFICATION_ATTEMPTS,
     PENDING_REGISTRATION_EXPIRES_IN_MS,
     VERIFICATION_CODE_EXPIRES_IN_MS,
+    VERIFICATION_RESEND_COOLDOWN_MS,
 } from "../constants/auth.js";
 import { sendEmail } from "../integrations/mail.js";
 import { Prisma } from "@prisma/client";
@@ -168,4 +171,41 @@ export async function verifyRegistration(data: VerifyRegistrationData) {
 
         throw error;
     }
+}
+
+export async function resendRegistrationCode(data: ResendRegistrationCodeData) {
+    const pending = await findPendingRegistrationById(data.pendingRegistrationId);
+
+    if (!pending || pending.expiresAt <= new Date()) {
+        throw new AppError("Cadastro expirado ou não encontrado.", 400);
+    }
+
+    const now = Date.now();
+
+    if (now - pending.lastCodeSentAt.getTime() < VERIFICATION_RESEND_COOLDOWN_MS) {
+        throw new AppError("Aguarde 60 segundos antes de reenviar o código.", 429);
+    }
+
+    const code = generateVerificationCode();
+    const codeHash = await hashVerificationCode(code);
+
+    const codeExpiresAt = new Date(
+        Math.min(now + VERIFICATION_CODE_EXPIRES_IN_MS, pending.expiresAt.getTime()),
+    );
+
+    const updated = await updatePendingRegistrationCode(pending.id, codeHash, codeExpiresAt);
+
+    if (updated.count !== 1) {
+        throw new AppError("Não foi possível reenviar o código neste momento.", 429);
+    }
+
+    await sendEmail({
+        to: pending.email,
+        subject: "Novo código de verificação - QuestLog",
+        text: `Seu novo código de verificação é ${code}. Ele é válido por até 10 minutos, respeitando o prazo do cadastro.`,
+    });
+
+    return {
+        message: "Novo código de verificação enviado.",
+    };
 }

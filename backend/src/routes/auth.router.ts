@@ -4,6 +4,7 @@ import { validateBody } from "../middlewares/validate.middleware.js";
 import {
     loginUserSchema,
     registerUserSchema,
+    resendRegistrationCodeSchema,
     updateUserSchema,
     verifyRegistrationSchema,
 } from "../schemas/auth.schema.js";
@@ -14,6 +15,7 @@ import {
     logoutUserController,
     refreshTokenController,
     registerUserController,
+    resendRegistrationCodeController,
     updateUserController,
     verifyRegistrationController,
 } from "../controllers/auth.controller.js";
@@ -31,4 +33,9 @@ userRoutes.post(
     "/register/verify",
     validateBody(verifyRegistrationSchema),
     verifyRegistrationController,
+);
+userRoutes.post(
+    "/register/resend",
+    validateBody(resendRegistrationCodeSchema),
+    resendRegistrationCodeController,
 );

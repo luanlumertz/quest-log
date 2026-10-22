@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "PendingRegistration" ADD COLUMN     "lastCodeSentAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
