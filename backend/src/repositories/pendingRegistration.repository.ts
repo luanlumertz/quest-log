@@ -11,20 +11,33 @@ type SavePendingRegistrationData = {
     expiresAt: Date;
 };
 
-export function savePendingRegistration(data: SavePendingRegistrationData) {
-    return prisma.pendingRegistration.upsert({
+export async function savePendingRegistration(data: SavePendingRegistrationData) {
+    const now = new Date();
+
+    const cooldownLimit = new Date(now.getTime() - VERIFICATION_RESEND_COOLDOWN_MS);
+
+    const updated = await prisma.pendingRegistration.updateMany({
         where: {
             email: data.email,
+            OR: [{ expiresAt: { lte: now } }, { lastCodeSentAt: { lte: cooldownLimit } }],
         },
-        create: data,
-        update: {
-            name: data.name,
-            passwordHash: data.passwordHash,
-            codeHash: data.codeHash,
-            codeExpiresAt: data.codeExpiresAt,
-            expiresAt: data.expiresAt,
+        data: {
+            ...data,
             attempts: 0,
-            lastCodeSentAt: new Date(),
+            lastCodeSentAt: now,
+        },
+    });
+
+    if (updated.count === 1) {
+        return prisma.pendingRegistration.findUniqueOrThrow({
+            where: { email: data.email },
+        });
+    }
+
+    return prisma.pendingRegistration.create({
+        data: {
+            ...data,
+            lastCodeSentAt: now,
         },
     });
 }

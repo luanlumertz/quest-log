@@ -50,14 +50,24 @@ export async function registerUser(data: RegisterUserData) {
 
     const now = Date.now();
 
-    const pendingRegistration = await savePendingRegistration({
-        name: data.name,
-        email: data.email,
-        passwordHash,
-        codeHash,
-        codeExpiresAt: new Date(now + VERIFICATION_CODE_EXPIRES_IN_MS),
-        expiresAt: new Date(now + PENDING_REGISTRATION_EXPIRES_IN_MS),
-    });
+    let pendingRegistration;
+
+    try {
+        pendingRegistration = await savePendingRegistration({
+            name: data.name,
+            email: data.email,
+            passwordHash,
+            codeHash,
+            codeExpiresAt: new Date(now + VERIFICATION_CODE_EXPIRES_IN_MS),
+            expiresAt: new Date(now + PENDING_REGISTRATION_EXPIRES_IN_MS),
+        });
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+            throw new AppError("Aguarde 60 segundos antes de solicitar outro código.", 429);
+        }
+
+        throw error;
+    }
 
     await sendEmail({
         to: data.email,
