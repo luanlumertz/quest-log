@@ -6,6 +6,11 @@ import {
     registrationRateLimiter,
     resendRateLimiter,
     verificationRateLimiter,
+    passwordChangeRateLimiter,
+    passwordChangeIpRateLimiter,
+    passwordRecoveryRateLimiter,
+    passwordResetRateLimiter,
+    passwordVerificationRateLimiter,
 } from "../middlewares/rateLimit.middleware.js";
 import {
     loginUserSchema,
@@ -13,6 +18,10 @@ import {
     resendRegistrationCodeSchema,
     updateUserSchema,
     verifyRegistrationSchema,
+    changePasswordSchema,
+    requestPasswordRecoverySchema,
+    resetPasswordSchema,
+    verifyPasswordRecoverySchema,
 } from "../schemas/auth.schema.js";
 import {
     deleteUserController,
@@ -25,6 +34,12 @@ import {
     updateUserController,
     verifyRegistrationController,
 } from "../controllers/auth.controller.js";
+import {
+    changePasswordController,
+    requestPasswordRecoveryController,
+    resetPasswordController,
+    verifyPasswordRecoveryController,
+} from "../controllers/password.controller.js";
 
 export const userRoutes = Router();
 
@@ -51,4 +66,36 @@ userRoutes.post(
     resendRateLimiter,
     validateBody(resendRegistrationCodeSchema),
     resendRegistrationCodeController,
+);
+userRoutes.post(
+    "/password/forgot",
+    passwordRecoveryRateLimiter,
+    validateBody(requestPasswordRecoverySchema),
+    requestPasswordRecoveryController,
+);
+userRoutes.post(
+    "/password/resend",
+    passwordRecoveryRateLimiter,
+    validateBody(requestPasswordRecoverySchema),
+    requestPasswordRecoveryController,
+);
+userRoutes.post(
+    "/password/verify",
+    passwordVerificationRateLimiter,
+    validateBody(verifyPasswordRecoverySchema),
+    verifyPasswordRecoveryController,
+);
+userRoutes.post(
+    "/password/reset",
+    passwordResetRateLimiter,
+    validateBody(resetPasswordSchema),
+    resetPasswordController,
+);
+userRoutes.patch(
+    "/me/password",
+    passwordChangeIpRateLimiter,
+    authenticateToken,
+    passwordChangeRateLimiter,
+    validateBody(changePasswordSchema),
+    changePasswordController,
 );
