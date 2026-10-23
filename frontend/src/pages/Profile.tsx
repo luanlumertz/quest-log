@@ -5,6 +5,7 @@ import { useDeleteCurrentUser } from "../hooks/auth.hook";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { AccountInformation } from "../components/profile/AccountInformation";
+import { ChangePasswordSection } from "../components/profile/ChangePasswordSection";
 import { LogoutSection } from "../components/profile/LogoutSection";
 import { DangerZone } from "../components/profile/DangerZone";
 import { ConfirmDeleteAccountModal } from "../components/profile/ConfirmDeleteAccountModal";
@@ -15,6 +16,7 @@ export function Profile() {
 
     const { user, signOut } = useAuth();
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -23,7 +25,7 @@ export function Profile() {
         mutateAsync: deleteUser,
         isPending: isDeleting,
         error: deleteError,
-        reset: resetDelete
+        reset: resetDelete,
     } = useDeleteCurrentUser();
 
     async function handleLogout() {
@@ -33,12 +35,7 @@ export function Profile() {
         try {
             await signOut();
         } catch (error) {
-            setLogoutError(
-                getErrorMessage(
-                    error,
-                    "Não foi possível encerrar a sessão."
-                )
-            );
+            setLogoutError(getErrorMessage(error, "Não foi possível encerrar a sessão."));
         } finally {
             setIsLoggingOut(false);
         }
@@ -70,25 +67,29 @@ export function Profile() {
     return (
         <>
             <div className="mx-auto w-full max-w-142.5 pt-8 pb-6">
-                <h1 className="font-display text-3xl! font-bold text-white">
-                    Meu Perfil
-                </h1>
+                <h1 className="font-display text-3xl! font-bold text-white">Meu Perfil</h1>
 
                 <AccountInformation
                     user={user}
-                    disabled={isLoggingOut || isDeleting}
+                    disabled={isChangingPassword || isLoggingOut || isDeleting}
                     onUpdatingChange={setIsUpdating}
+                />
+
+                <ChangePasswordSection
+                    email={user.email}
+                    disabled={isUpdating || isLoggingOut || isDeleting}
+                    onChangingChange={setIsChangingPassword}
                 />
 
                 <LogoutSection
                     isLoggingOut={isLoggingOut}
                     logoutError={logoutError}
-                    disabled={isUpdating || isDeleting}
+                    disabled={isUpdating || isChangingPassword || isDeleting}
                     onLogout={handleLogout}
                 />
 
                 <DangerZone
-                    disabled={isUpdating || isLoggingOut || isDeleting}
+                    disabled={isUpdating || isChangingPassword || isLoggingOut || isDeleting}
                     onDelete={handleOpenDeleteModal}
                 />
             </div>
@@ -96,11 +97,9 @@ export function Profile() {
             {isDeleteModalOpen && (
                 <ConfirmDeleteAccountModal
                     isDeleting={isDeleting}
-                    error={ deleteError
-                            ? getErrorMessage(
-                                deleteError,
-                                "Não foi possível excluir sua conta."
-                            )
+                    error={
+                        deleteError
+                            ? getErrorMessage(deleteError, "Não foi possível excluir sua conta.")
                             : undefined
                     }
                     onConfirm={handleConfirmDelete}

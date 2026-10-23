@@ -9,6 +9,7 @@ export const MATERIAL_ICON_NAMES = [
     "error",
     "library_add",
     "library_books",
+    "lock",
     "logout",
     "mail",
     "person",
