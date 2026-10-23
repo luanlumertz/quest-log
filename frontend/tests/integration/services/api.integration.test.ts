@@ -13,6 +13,31 @@ import { server } from "../../mocks/server.mock";
 import { mockApiResponse } from "../../mocks/api.mock";
 
 describe("api.ts", () => {
+    test.each(["/auth/register/verify", "/auth/register/resend"])(
+        "não deve renovar sessão ao receber 401 em %s",
+        async (endpoint) => {
+            mockApiResponse({
+                method: "POST",
+                endpoint,
+                status: 401,
+                responseBody: { message: "Verificação recusada" },
+            });
+
+            const refresh = mockApiResponse({
+                method: "POST",
+                endpoint: "/auth/refresh",
+                status: 401,
+            });
+
+            await expect(apiRequest(endpoint, { method: "POST" })).rejects.toMatchObject({
+                status: 401,
+                message: "Verificação recusada",
+            });
+
+            assert.equal(refresh.requests.length, 0);
+        },
+    );
+
     test("deve realizar uma requisição GET com credentials include", async () => {
         const { requests } = mockApiResponse({
             method: "GET",

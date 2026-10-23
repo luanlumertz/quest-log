@@ -39,6 +39,7 @@ function renderGameDetails(initialEntry = "/games/123") {
 describe("GameDetails.tsx", () => {
     test("deve carregar o jogo e permitir abrir e cancelar a adição à biblioteca", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({ method: "GET", endpoint: "/games/123", responseBody: game });
         mockApiResponse({
             method: "GET",
@@ -50,10 +51,13 @@ describe("GameDetails.tsx", () => {
 
         expect(await screen.findByRole("heading", { name: "Elden Ring", level: 1 })).toBeVisible();
         expect(screen.getByText("Explore as Terras Intermédias.")).toBeVisible();
+
         await user.click(await screen.findByRole("button", { name: "Adicionar à biblioteca" }));
 
         const dialog = await screen.findByRole("dialog", { name: "Elden Ring" });
+
         expect(within(dialog).getByRole("button", { name: "PC" })).toBeVisible();
+
         await user.click(within(dialog).getByRole("button", { name: "Cancelar" }));
 
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -62,6 +66,7 @@ describe("GameDetails.tsx", () => {
 
     test("deve identificar o jogo já adicionado e navegar usando o ID interno da biblioteca", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({ method: "GET", endpoint: "/games/123", responseBody: game });
         mockApiResponse({
             method: "GET",
@@ -74,6 +79,7 @@ describe("GameDetails.tsx", () => {
         renderGameDetails();
 
         const link = await screen.findByRole("link", { name: "Ver na minha biblioteca" });
+
         expect(link).toHaveAttribute("href", "/library/1");
         expect(screen.getByText("Jogando")).toBeVisible();
         expect(
@@ -81,11 +87,13 @@ describe("GameDetails.tsx", () => {
         ).not.toBeInTheDocument();
 
         await user.click(link);
+
         expect(await screen.findByText("Jogo na biblioteca de teste")).toBeVisible();
     });
 
     test("deve recuperar os detalhes ao tentar novamente após uma falha", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({ method: "GET", endpoint: "/games/123", status: 500 });
         mockApiResponse({
             method: "GET",
@@ -105,6 +113,7 @@ describe("GameDetails.tsx", () => {
             endpoint: "/games/123",
             responseBody: game,
         });
+
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
 
         expect(await screen.findByRole("heading", { name: "Elden Ring", level: 1 })).toBeVisible();
@@ -115,6 +124,7 @@ describe("GameDetails.tsx", () => {
 
     test("deve preservar os detalhes e recuperar a identificação na biblioteca após falha", async () => {
         const user = userEvent.setup();
+
         const details = mockApiResponse({
             method: "GET",
             endpoint: "/games/123",
@@ -125,6 +135,7 @@ describe("GameDetails.tsx", () => {
         renderGameDetails();
 
         const erro = "Não foi possível verificar sua biblioteca.";
+
         expect(await screen.findByText(erro)).toBeVisible();
         expect(screen.getByRole("heading", { name: "Elden Ring", level: 1 })).toBeVisible();
         expect(screen.getByText("Explore as Terras Intermédias.")).toBeVisible();
@@ -137,6 +148,7 @@ describe("GameDetails.tsx", () => {
             endpoint: "/library",
             responseBody: { libraryEntries: [createLibraryEntry({ status: "PLAYING" })] },
         });
+
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
 
         expect(
@@ -156,6 +168,7 @@ describe("GameDetails.tsx", () => {
         "deve informar jogo não encontrado e permitir buscar jogos quando $scenario",
         async ({ path }) => {
             const user = userEvent.setup();
+
             const { requests } = mockApiResponse({
                 method: "GET",
                 endpoint: "/games/123",
@@ -173,11 +186,13 @@ describe("GameDetails.tsx", () => {
             expect(
                 screen.queryByRole("button", { name: "Adicionar à biblioteca" }),
             ).not.toBeInTheDocument();
+
             if (path === "/games/invalido") {
                 expect(requests).toHaveLength(0);
             }
 
             await user.click(screen.getByRole("link", { name: "Procurar jogos" }));
+
             expect(await screen.findByText("Busca de teste")).toBeVisible();
         },
     );

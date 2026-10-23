@@ -84,15 +84,19 @@ describe("Profile.tsx", () => {
 
     test("deve preservar o nome editado e o contexto quando a atualização falhar", async () => {
         const user = userEvent.setup();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/auth/me",
             status: 500,
         });
+
         const { setUser } = renderProfile();
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
+
         const nome = screen.getByRole("textbox", { name: "Nome" });
+
         await user.clear(nome);
         await user.type(nome, "João Almeida");
         await user.click(screen.getByRole("button", { name: "Salvar" }));
@@ -108,18 +112,24 @@ describe("Profile.tsx", () => {
 
     test("deve cancelar a edição sem enviar atualização e restaurar o nome ao editar novamente", async () => {
         const user = userEvent.setup();
+
         const { requests } = mockApiResponse({ method: "PATCH", endpoint: "/auth/me" });
+
         const { setUser } = renderProfile();
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
+
         const nome = screen.getByRole("textbox", { name: "Nome" });
+
         await user.clear(nome);
         await user.type(nome, "João Almeida");
         await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
         expect(screen.queryByRole("textbox", { name: "Nome" })).not.toBeInTheDocument();
         expect(screen.getByText("João Silva")).toBeVisible();
+
         await user.click(screen.getByRole("button", { name: "Editar" }));
+
         expect(screen.getByRole("textbox", { name: "Nome" })).toHaveValue("João Silva");
         expect(requests).toHaveLength(0);
         expect(setUser).not.toHaveBeenCalled();
@@ -127,10 +137,12 @@ describe("Profile.tsx", () => {
 
     test("deve bloquear logout e exclusão enquanto salva o nome", async () => {
         const user = userEvent.setup();
+
         let liberarResposta!: () => void;
         const respostaPendente = new Promise<void>((resolve) => {
             liberarResposta = resolve;
         });
+
         server.use(
             http.patch(`${API_URL}/auth/me`, async () => {
                 await respostaPendente;
@@ -140,24 +152,32 @@ describe("Profile.tsx", () => {
             }),
         );
         const signOut = vi.fn(async () => {});
+
         const { setUser } = renderProfile({ signOut });
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
+
         const nome = screen.getByRole("textbox", { name: "Nome" });
+
         await user.clear(nome);
         await user.type(nome, "João Almeida");
 
         try {
             await user.click(screen.getByRole("button", { name: "Salvar" }));
+
             expect(await screen.findByRole("button", { name: "Salvando..." })).toBeDisabled();
             expect(nome).toBeDisabled();
             expect(screen.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+
             const sair = screen.getByRole("button", { name: "Sair" });
             const excluir = screen.getByRole("button", { name: "Excluir conta" });
+
             expect(sair).toBeDisabled();
             expect(excluir).toBeDisabled();
+
             await user.click(sair);
             await user.click(excluir);
+
             expect(signOut).not.toHaveBeenCalled();
             expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         } finally {
@@ -171,6 +191,7 @@ describe("Profile.tsx", () => {
                 email: "joao@email.com",
             }),
         );
+
         expect(await screen.findByRole("button", { name: "Editar" })).toBeEnabled();
         expect(screen.getByRole("button", { name: "Sair" })).toBeEnabled();
         expect(screen.getByRole("button", { name: "Excluir conta" })).toBeEnabled();
@@ -178,18 +199,22 @@ describe("Profile.tsx", () => {
 
     test("deve exibir falha de logout e permitir tentar novamente", async () => {
         const user = userEvent.setup();
+
         const signOut = vi
             .fn<() => Promise<void>>()
             .mockRejectedValueOnce(new Error("Falha temporária"))
             .mockResolvedValueOnce(undefined);
+
         renderProfile({ signOut });
 
         await user.click(screen.getByRole("button", { name: "Sair" }));
+
         expect(await screen.findByText("Não foi possível encerrar a sessão.")).toBeVisible();
         expect(screen.getByRole("button", { name: "Sair" })).toBeEnabled();
         expect(screen.getByText("João Silva")).toBeVisible();
 
         await user.click(screen.getByRole("button", { name: "Sair" }));
+
         await waitFor(() => {
             expect(signOut).toHaveBeenCalledTimes(2);
             expect(
@@ -200,6 +225,7 @@ describe("Profile.tsx", () => {
 
     test("deve excluir a conta somente após confirmação e limpar a sessão e o cache", async () => {
         const user = userEvent.setup();
+
         const deleteRequest = vi.fn();
         server.use(
             http.delete(`${API_URL}/auth/me`, () => {
@@ -207,13 +233,19 @@ describe("Profile.tsx", () => {
                 return new HttpResponse(null, { status: 204 });
             }),
         );
+
         const { setUser, queryClient } = renderProfile();
+
         queryClient.setQueryData(["library"], { privateData: "biblioteca do usuário" });
 
         await user.click(screen.getByRole("button", { name: "Excluir conta" }));
+
         const dialog = await screen.findByRole("dialog", { name: "Excluir conta?" });
+
         expect(deleteRequest).not.toHaveBeenCalled();
+
         await user.click(within(dialog).getByRole("button", { name: "Cancelar" }));
+
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(deleteRequest).not.toHaveBeenCalled();
         expect(setUser).not.toHaveBeenCalled();
@@ -226,12 +258,14 @@ describe("Profile.tsx", () => {
         );
 
         await waitFor(() => expect(setUser).toHaveBeenCalledWith(null));
+
         expect(deleteRequest).toHaveBeenCalledTimes(1);
         expect(queryClient.getQueryData(["library"])).toBeUndefined();
     });
 
     test("deve preservar a sessão e permitir nova tentativa quando a exclusão da conta falhar", async () => {
         const user = userEvent.setup();
+
         const deleteRequest = vi.fn();
         server.use(
             http.delete(`${API_URL}/auth/me`, () => {
@@ -239,12 +273,17 @@ describe("Profile.tsx", () => {
                 return HttpResponse.json({ message: "Erro interno" }, { status: 500 });
             }),
         );
+
         const { setUser, queryClient } = renderProfile();
+
         const cachedLibrary = { privateData: "biblioteca do usuário" };
+
         queryClient.setQueryData(["library"], cachedLibrary);
 
         await user.click(screen.getByRole("button", { name: "Excluir conta" }));
+
         const dialog = await screen.findByRole("dialog");
+
         await user.click(within(dialog).getByRole("button", { name: "Excluir conta" }));
 
         expect(
@@ -260,8 +299,11 @@ describe("Profile.tsx", () => {
                 return new HttpResponse(null, { status: 204 });
             }),
         );
+
         await user.click(within(dialog).getByRole("button", { name: "Excluir conta" }));
+
         await waitFor(() => expect(setUser).toHaveBeenCalledWith(null));
+
         expect(deleteRequest).toHaveBeenCalledTimes(2);
         expect(queryClient.getQueryData(["library"])).toBeUndefined();
     });

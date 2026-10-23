@@ -30,6 +30,7 @@ function renderAppLayout(overrides: Partial<AuthContextType> = {}) {
     );
 
     const header = screen.getByRole("banner");
+
     const desktopNavigation = within(header).getByRole("navigation");
     const mobileNavigation = screen
         .getAllByRole("navigation")
@@ -48,7 +49,9 @@ function renderAppLayout(overrides: Partial<AuthContextType> = {}) {
 describe("AppLayout.tsx", () => {
     test("deve renderizar as rotas filhas e navegar pelo cabeçalho com indicação da página ativa", async () => {
         const user = userEvent.setup();
+
         const { desktopNavigation } = renderAppLayout();
+
         const nav = within(desktopNavigation);
 
         expect(
@@ -60,6 +63,7 @@ describe("AppLayout.tsx", () => {
         );
 
         await user.click(nav.getByRole("link", { name: "Biblioteca" }));
+
         expect(await screen.findByRole("heading", { name: "Biblioteca de teste" })).toBeVisible();
         expect(nav.getByRole("link", { name: "Biblioteca" })).toHaveAttribute(
             "aria-current",
@@ -68,6 +72,7 @@ describe("AppLayout.tsx", () => {
         expect(nav.getByRole("link", { name: "Visão Geral" })).not.toHaveAttribute("aria-current");
 
         await user.click(nav.getByRole("link", { name: "Procurar Jogos" }));
+
         expect(await screen.findByRole("heading", { name: "Busca de teste" })).toBeVisible();
         expect(nav.getByRole("link", { name: "Procurar Jogos" })).toHaveAttribute(
             "aria-current",
@@ -75,12 +80,15 @@ describe("AppLayout.tsx", () => {
         );
 
         await user.click(nav.getByRole("link", { name: "Visão Geral" }));
+
         expect(await screen.findByRole("heading", { name: "Dashboard de teste" })).toBeVisible();
     });
 
     test("deve navegar pelas opções mobile e marcar a rota selecionada", async () => {
         const user = userEvent.setup();
+
         const { mobileNavigation } = renderAppLayout();
+
         const nav = within(mobileNavigation);
         const destinations = [
             { label: "Biblioteca", heading: "Biblioteca de teste" },
@@ -91,6 +99,7 @@ describe("AppLayout.tsx", () => {
 
         for (const destination of destinations) {
             await user.click(nav.getByRole("link", { name: destination.label }));
+
             expect(await screen.findByRole("heading", { name: destination.heading })).toBeVisible();
             expect(nav.getByRole("link", { name: destination.label })).toHaveAttribute(
                 "aria-current",
@@ -101,28 +110,39 @@ describe("AppLayout.tsx", () => {
 
     test("deve fechar o menu com Escape restaurando o foco e ao clicar fora", async () => {
         const user = userEvent.setup();
+
         const { profileTrigger } = renderAppLayout();
 
         expect(profileTrigger).toHaveAttribute("aria-expanded", "false");
+
         await user.click(profileTrigger);
+
         expect(profileTrigger).toHaveAttribute("aria-expanded", "true");
+
         await user.tab();
         await user.keyboard("{Escape}");
+
         expect(profileTrigger).toHaveAttribute("aria-expanded", "false");
         expect(profileTrigger).toHaveFocus();
 
         await user.click(profileTrigger);
+
         expect(profileTrigger).toHaveAttribute("aria-expanded", "true");
+
         await user.click(screen.getByRole("heading", { name: "Dashboard de teste" }));
+
         expect(profileTrigger).toHaveAttribute("aria-expanded", "false");
     });
 
     test("deve acessar o perfil pelo menu e fechá-lo após a navegação", async () => {
         const user = userEvent.setup();
+
         const { profileTrigger } = renderAppLayout();
+
         await user.click(profileTrigger);
 
         const header = within(screen.getByRole("banner"));
+
         await user.click(header.getByRole("link", { name: "Perfil" }));
 
         expect(await screen.findByRole("heading", { name: "Perfil de teste" })).toBeVisible();
@@ -131,19 +151,27 @@ describe("AppLayout.tsx", () => {
 
     test("deve bloquear novo logout durante o envio e fechar o menu após sucesso", async () => {
         const user = userEvent.setup();
+
         let finalizarLogout!: () => void;
         const pendingLogout = new Promise<void>((resolve) => {
             finalizarLogout = resolve;
         });
+
         const signOut = vi.fn(() => pendingLogout);
+
         const { profileTrigger } = renderAppLayout({ signOut });
+
         await user.click(profileTrigger);
 
         try {
             await user.click(screen.getByRole("button", { name: "Sair" }));
+
             const sair = await screen.findByRole("button", { name: "Saindo..." });
+
             expect(sair).toBeDisabled();
+
             await user.click(sair);
+
             expect(signOut).toHaveBeenCalledTimes(1);
             expect(profileTrigger).toHaveAttribute("aria-expanded", "true");
         } finally {
@@ -151,16 +179,20 @@ describe("AppLayout.tsx", () => {
         }
 
         await waitFor(() => expect(profileTrigger).toHaveAttribute("aria-expanded", "false"));
+
         expect(signOut).toHaveBeenCalledTimes(1);
     });
 
     test("deve preservar o menu aberto após falha no logout e permitir nova tentativa", async () => {
         const user = userEvent.setup();
+
         const signOut = vi
             .fn<() => Promise<void>>()
             .mockRejectedValueOnce(new Error("Falha temporária"))
             .mockResolvedValueOnce(undefined);
+
         const { profileTrigger } = renderAppLayout({ signOut });
+
         await user.click(profileTrigger);
         await user.click(screen.getByRole("button", { name: "Sair" }));
 
@@ -169,7 +201,9 @@ describe("AppLayout.tsx", () => {
         expect(screen.getByRole("button", { name: "Sair" })).toBeEnabled();
 
         await user.click(screen.getByRole("button", { name: "Sair" }));
+
         await waitFor(() => expect(profileTrigger).toHaveAttribute("aria-expanded", "false"));
+
         expect(screen.queryByText("Não foi possível encerrar a sessão.")).not.toBeInTheDocument();
         expect(signOut).toHaveBeenCalledTimes(2);
     });

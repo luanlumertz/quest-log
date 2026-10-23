@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Register } from "../../../src/pages/Register";
+import { RegistrationProvider } from "../../../src/contexts/RegistrationProvider";
 
 import { mockApiResponse } from "../../mocks/api.mock";
 
@@ -11,7 +12,10 @@ function renderRegister() {
     return render(
         <MemoryRouter initialEntries={["/register"]}>
             <Routes>
-                <Route path="/register" element={<Register />} />
+                <Route element={<RegistrationProvider />}>
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/register/verify" element={<div>Verificação de e-mail</div>} />
+                </Route>
                 <Route path="/login" element={<div>Página de login</div>} />
             </Routes>
         </MemoryRouter>,
@@ -19,20 +23,17 @@ function renderRegister() {
 }
 
 describe("Register.tsx", () => {
-    test("deve cadastrar o usuário sem enviar confirmPassword e redirecionar para o login", async () => {
+    test("deve iniciar o cadastro sem enviar confirmPassword e abrir a verificação", async () => {
         const user = userEvent.setup();
 
         const { requests } = mockApiResponse({
             method: "POST",
             endpoint: "/auth/register",
             responseBody: {
-                user: {
-                    id: 1,
-                    name: "João Silva",
-                    email: "joao@email.com",
-                },
+                pendingRegistrationId: "11111111-1111-4111-8111-111111111111",
+                email: "joao@email.com",
             },
-            status: 201,
+            status: 202,
         });
 
         renderRegister();
@@ -43,7 +44,7 @@ describe("Register.tsx", () => {
         await user.type(screen.getByLabelText("Confirme sua senha"), "12345678");
         await user.click(screen.getByRole("button", { name: "Cadastrar" }));
 
-        expect(await screen.findByText("Página de login")).toBeInTheDocument();
+        expect(await screen.findByText("Verificação de e-mail")).toBeInTheDocument();
         assert.equal(requests.length, 1);
         assert.deepEqual(requests[0]?.body, {
             name: "João Silva",

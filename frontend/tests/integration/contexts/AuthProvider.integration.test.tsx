@@ -88,7 +88,9 @@ describe("AuthProvider.tsx", () => {
 
     test("deve distinguir falha temporária de sessão inválida e recuperar ao tentar novamente", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({ method: "GET", endpoint: "/auth/me", status: 500 });
+
         renderAuthContext();
 
         expect(await screen.findByText("Status: error")).toBeVisible();
@@ -100,6 +102,7 @@ describe("AuthProvider.tsx", () => {
             endpoint: "/auth/me",
             responseBody: { user: authenticatedUser },
         });
+
         await user.click(screen.getByRole("button", { name: "Verificar novamente" }));
 
         expect(await screen.findByText("Status: authenticated")).toBeVisible();
@@ -113,10 +116,13 @@ describe("AuthProvider.tsx", () => {
             endpoint: "/auth/me",
             responseBody: { user: authenticatedUser },
         });
+
         const { queryClient } = renderAuthContext();
+
         await screen.findByText("Status: authenticated");
 
         queryClient.setQueryData(["library"], { privateData: "dados do usuário" });
+
         expect(queryClient.getQueryData(["library"])).toBeDefined();
 
         act(() => {
@@ -132,6 +138,7 @@ describe("AuthProvider.tsx", () => {
         "deve encerrar a sessão e limpar o cache quando logout retornar %s",
         async (status) => {
             const user = userEvent.setup();
+
             mockApiResponse({
                 method: "GET",
                 endpoint: "/auth/me",
@@ -142,7 +149,9 @@ describe("AuthProvider.tsx", () => {
                 endpoint: "/auth/logout",
                 status,
             });
+
             const { queryClient } = renderAuthContext();
+
             await screen.findByText("Status: authenticated");
 
             queryClient.setQueryData(["library"], { privateData: "dados do usuário" });
@@ -158,16 +167,20 @@ describe("AuthProvider.tsx", () => {
 
     test("deve propagar falha de logout sem apagar o usuário ou o cache", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/auth/me",
             responseBody: { user: authenticatedUser },
         });
         mockApiResponse({ method: "POST", endpoint: "/auth/logout", status: 500 });
+
         const { queryClient } = renderAuthContext();
+
         await screen.findByText("Status: authenticated");
 
         const cachedLibrary = { privateData: "dados do usuário" };
+
         queryClient.setQueryData(["library"], cachedLibrary);
         await user.click(screen.getByRole("button", { name: "Sair" }));
 
@@ -179,15 +192,20 @@ describe("AuthProvider.tsx", () => {
 
     test("deve sincronizar usuário e status ao definir e limpar o usuário pelo contexto", async () => {
         const user = userEvent.setup();
+
         const { requests } = mockApiResponse({ method: "GET", endpoint: "/auth/me", status: 500 });
+
         renderAuthContext();
+
         await screen.findByText("Status: error");
 
         await user.click(screen.getByRole("button", { name: "Definir usuário" }));
+
         expect(screen.getByText("Status: authenticated")).toBeVisible();
         expect(screen.getByText("Usuário: João Silva")).toBeVisible();
 
         await user.click(screen.getByRole("button", { name: "Limpar usuário" }));
+
         expect(screen.getByText("Status: unauthenticated")).toBeVisible();
         expect(screen.getByText("Usuário: Nenhum")).toBeVisible();
         expect(requests).toHaveLength(1);

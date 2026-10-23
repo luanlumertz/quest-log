@@ -10,6 +10,7 @@ beforeAll(() => {
 
 afterEach(() => {
     cleanup();
+    sessionStorage.clear();
     server.resetHandlers();
 });
 

@@ -58,6 +58,7 @@ describe("ProtectedRoute.tsx", () => {
 
     test("deve permitir tentar verificar a sessão novamente após um erro sem liberar a rota", async () => {
         const user = userEvent.setup();
+
         const { retryAuth } = renderProtectedRoute({ status: "error" });
 
         expect(screen.getByText("Não foi possível verificar sua sessão")).toBeVisible();

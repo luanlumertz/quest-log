@@ -11,6 +11,7 @@ import { createAuthContextMock } from "../../mocks/authContext.mock";
 
 function LocalizacaoDeTeste() {
     const { pathname } = useLocation();
+
     return <output data-testid="rota-atual">{pathname}</output>;
 }
 
@@ -69,6 +70,7 @@ describe("AppRoutes.tsx", () => {
 
     test("deve redirecionar a raiz para o dashboard dentro do layout quando autenticado", async () => {
         mockDashboard();
+
         renderAppRoutes("/", true);
 
         expect(
@@ -78,10 +80,11 @@ describe("AppRoutes.tsx", () => {
         expect(screen.getByRole("banner")).toBeInTheDocument();
     });
 
-    test.each(["/login", "/register"])(
+    test.each(["/login", "/register", "/register/verify"])(
         "deve impedir acesso autenticado à rota real %s",
         async (path) => {
             mockDashboard();
+
             renderAppRoutes(path, true);
 
             expect(
