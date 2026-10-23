@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import type { User } from "../types/auth.types";
@@ -21,19 +21,19 @@ async function getCurrentUserState(): Promise<CurrentUserState> {
 
         return {
             user,
-            status: "authenticated"
+            status: "authenticated",
         };
     } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
             return {
                 user: null,
-                status: "unauthenticated"
+                status: "unauthenticated",
             };
         }
 
         return {
             user: null,
-            status: "error"
+            status: "error",
         };
     }
 }
@@ -43,8 +43,10 @@ export const AuthProvider = ({ children }: Props) => {
     const [status, setStatus] = useState<AuthStatus>("loading");
 
     const queryClient = useQueryClient();
+    const authVersion = useRef(0);
 
     const setUser = useCallback((user: User | null) => {
+        authVersion.current += 1;
         setUserState(user);
 
         setStatus(user ? "authenticated" : "unauthenticated");
@@ -54,28 +56,22 @@ export const AuthProvider = ({ children }: Props) => {
         function handleSessionExpired() {
             queryClient.clear();
 
-            setUserState(null);
-            setStatus("unauthenticated");
+            setUser(null);
         }
 
-        window.addEventListener(
-            AUTH_SESSION_EXPIRED_EVENT,
-            handleSessionExpired
-        );
+        window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
 
         return () => {
-            window.removeEventListener(
-                AUTH_SESSION_EXPIRED_EVENT,
-                handleSessionExpired
-            );
+            window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
         };
-    }, [queryClient]);
+    }, [queryClient, setUser]);
 
     useEffect(() => {
         let isActive = true;
+        const version = authVersion.current;
 
         void getCurrentUserState().then((nextState) => {
-            if (!isActive) {
+            if (!isActive || version !== authVersion.current) {
                 return;
             }
 
@@ -89,9 +85,13 @@ export const AuthProvider = ({ children }: Props) => {
     }, []);
 
     const retryAuth = useCallback(async () => {
+        const version = ++authVersion.current;
         setStatus("loading");
 
         const nextState = await getCurrentUserState();
+
+        // Uma consulta antiga não restaura uma sessão encerrada após trocar a senha.
+        if (version !== authVersion.current) return;
 
         setUserState(nextState.user);
         setStatus(nextState.status);
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }: Props) => {
                 status,
                 setUser,
                 retryAuth,
-                signOut
+                signOut,
             }}
         >
             {children}

@@ -1,12 +1,23 @@
 import { prisma } from "../lib/prisma.js";
+import { AppError } from "../errors/AppError.js";
+import { lockUserForSession, runSessionTransaction } from "./session.repository.js";
 
-export function createRefreshSession(userId: number, tokenHash: string, expiresAt: Date) {
-    return prisma.refreshSession.create({
-        data: {
-            userId,
-            tokenHash,
-            expiresAt,
-        },
+export function createRefreshSession(
+    userId: number,
+    tokenHash: string,
+    expiresAt: Date,
+    sessionVersion = 0,
+) {
+    return runSessionTransaction(async (tx) => {
+        const user = await lockUserForSession(tx, userId);
+
+        if (!user || user.sessionVersion !== sessionVersion) {
+            throw new AppError("Sessão inválida", 401);
+        }
+
+        return tx.refreshSession.create({
+            data: { userId, tokenHash, expiresAt },
+        });
     });
 }
 
@@ -15,6 +26,7 @@ export function findRefreshSessionByTokenHash(tokenHash: string) {
         where: {
             tokenHash,
         },
+        include: { user: { select: { sessionVersion: true } } },
     });
 }
 
@@ -31,13 +43,26 @@ export function rotateRefreshSession(
     userId: number,
     newTokenHash: string,
     expiresAt: Date,
+    sessionVersion = 0,
 ) {
-    return prisma.$transaction(async (tx) => {
-        await tx.refreshSession.delete({
+    return runSessionTransaction(async (tx) => {
+        const user = await lockUserForSession(tx, userId);
+
+        if (!user || user.sessionVersion !== sessionVersion) {
+            throw new AppError("Sessão inválida", 401);
+        }
+
+        const deleted = await tx.refreshSession.deleteMany({
             where: {
                 id: oldSessionId,
+                userId,
+                expiresAt: { gt: new Date() },
             },
         });
+
+        if (deleted.count !== 1) {
+            throw new AppError("Sessão inválida", 401);
+        }
 
         return tx.refreshSession.create({
             data: {

@@ -88,9 +88,9 @@ export async function loginUser(data: LoginUserData) {
         throw new AppError("Email ou senha inválidos", 401);
     }
 
-    const accessToken = generateToken(user.id);
+    const accessToken = generateToken(user.id, user.sessionVersion);
 
-    const refreshToken = await createRefreshSessionForUser(user.id);
+    const refreshToken = await createRefreshSessionForUser(user.id, user.sessionVersion);
 
     return {
         user: {

@@ -23,9 +23,9 @@ export default defineConfig({
                     name: "integration",
                     include: ["tests/integration/**/*.test.ts"],
                     setupFiles: [
-                        "./tests/integration/setup.ts",
                         "./tests/mocks/rawg.mock.ts",
                         "./tests/mocks/mail.mock.ts",
+                        "./tests/integration/setup.ts",
                     ],
                     fileParallelism: false,
                     mockReset: true,

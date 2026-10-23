@@ -4,6 +4,10 @@ import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
 import { VerifyRegistration } from "../pages/VerifyRegistration";
 import { RegistrationProvider } from "../contexts/RegistrationProvider";
+import { PasswordRecoveryProvider } from "../contexts/PasswordRecoveryProvider";
+import { ForgotPassword } from "../pages/ForgotPassword";
+import { VerifyPasswordRecovery } from "../pages/VerifyPasswordRecovery";
+import { ResetPassword } from "../pages/ResetPassword";
 import { Dashboard } from "../pages/Dashboard";
 import { SearchGames } from "../pages/SearchGames";
 import { GameDetails } from "../pages/GameDetails";
@@ -25,6 +29,12 @@ export function AppRoutes() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/register/verify" element={<VerifyRegistration />} />
                 </Route>
+            </Route>
+
+            <Route element={<PasswordRecoveryProvider />}>
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/forgot-password/verify" element={<VerifyPasswordRecovery />} />
+                <Route path="/forgot-password/reset" element={<ResetPassword />} />
             </Route>
 
             <Route element={<ProtectedRoute />}>

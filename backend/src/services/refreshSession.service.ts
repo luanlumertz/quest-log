@@ -2,15 +2,20 @@ import { REFRESH_TOKEN_EXPIRES_IN_MS } from "../constants/auth.js";
 import { AppError } from "../errors/AppError.js";
 import { generateToken } from "../lib/jwt.js";
 import { generateRefreshToken, hashRefreshToken } from "../lib/refreshToken.js";
-import { createRefreshSession, deleteRefreshSessionById, findRefreshSessionByTokenHash, rotateRefreshSession } from "../repositories/refreshSession.repository.js";
+import {
+    createRefreshSession,
+    deleteRefreshSessionById,
+    findRefreshSessionByTokenHash,
+    rotateRefreshSession,
+} from "../repositories/refreshSession.repository.js";
 
-export async function createRefreshSessionForUser(userId: number) {
+export async function createRefreshSessionForUser(userId: number, sessionVersion = 0) {
     const refreshToken = generateRefreshToken();
     const tokenHash = hashRefreshToken(refreshToken);
 
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_MS);
 
-    await createRefreshSession(userId, tokenHash, expiresAt);
+    await createRefreshSession(userId, tokenHash, expiresAt, sessionVersion);
 
     return refreshToken;
 }
@@ -39,13 +44,19 @@ export async function refreshAccessToken(refreshToken?: string) {
 
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_MS);
 
-    await rotateRefreshSession(session.id, session.userId, newTokenHash, expiresAt);
+    await rotateRefreshSession(
+        session.id,
+        session.userId,
+        newTokenHash,
+        expiresAt,
+        session.user.sessionVersion,
+    );
 
-    const accessToken = generateToken(session.userId);
+    const accessToken = generateToken(session.userId, session.user.sessionVersion);
 
     return {
         accessToken,
-        refreshToken: newRefreshToken
+        refreshToken: newRefreshToken,
     };
 }
 

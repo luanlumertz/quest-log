@@ -8,15 +8,17 @@ datasource db {
 }
 
 model User {
-    id           Int      @id @default(autoincrement())
-    name         String
-    email        String   @unique
-    passwordHash String
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
+    id             Int      @id @default(autoincrement())
+    name           String
+    email          String   @unique
+    passwordHash   String
+    sessionVersion Int      @default(0)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
 
-    libraryEntries  LibraryEntry[]
-    refreshSessions RefreshSession[]
+    libraryEntries   LibraryEntry[]
+    refreshSessions  RefreshSession[]
+    passwordRecovery PasswordRecovery?
 }
 
 model Game {
@@ -108,4 +110,22 @@ model PendingRegistration {
     attempts       Int      @default(0)
     createdAt      DateTime @default(now())
     lastCodeSentAt DateTime @default(now())
+}
+
+model PasswordRecovery {
+    id                  String    @id @default(uuid())
+    userId              Int       @unique
+    codeHash            String?
+    codeExpiresAt       DateTime
+    attempts            Int       @default(0)
+    resetTokenHash      String?   @unique
+    resetTokenExpiresAt DateTime?
+    lastCodeSentAt      DateTime
+    sendWindowStartedAt DateTime
+    sentCount           Int       @default(1)
+    expiresAt           DateTime
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([expiresAt])
 }

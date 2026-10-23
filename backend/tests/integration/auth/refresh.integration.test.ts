@@ -91,6 +91,34 @@ describe("POST /auth/refresh", () => {
         assert.isUndefined(refreshInvalid.headers["set-cookie"]);
     });
 
+    test("deve permitir uma única rotação em pedidos simultâneos com o mesmo refresh token", async () => {
+        const { user, loginResponse } = await createAuthenticatedAgent();
+        const refreshToken = getCookieValue(loginResponse, "refreshToken");
+
+        assert.exists(refreshToken);
+
+        const responses = await Promise.all([
+            refreshUserWithToken(refreshToken),
+            refreshUserWithToken(refreshToken),
+        ]);
+
+        assert.sameMembers(
+            responses.map((response) => response.status),
+            [204, 401],
+        );
+        assert.equal(await countRefreshSessionsByUserId(user.id), 1);
+
+        const successful = responses.find((response) => response.status === 204)!;
+        const newRefreshToken = getCookieValue(successful, "refreshToken");
+
+        assert.exists(newRefreshToken);
+
+        const nextRefresh = await refreshUserWithToken(newRefreshToken);
+
+        assert.equal(nextRefresh.status, 204);
+        assert.equal(await countRefreshSessionsByUserId(user.id), 1);
+    });
+
     test("não deve renovar sessão sem refresh token", async () => {
         const refreshInvalid = await refreshUserWithoutToken();
 

@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 
 import { Login } from "../../../src/pages/Login";
 import { AuthContext } from "../../../src/contexts/AuthContext";
+import { storePasswordChangeNotice } from "../../../src/lib/passwordChangeNotice";
 
 import { mockApiResponse } from "../../mocks/api.mock";
 import { createAuthContextMock } from "../../mocks/authContext.mock";
@@ -18,7 +19,7 @@ function renderLogin() {
         setUser,
     });
 
-    render(
+    const result = render(
         <AuthContext.Provider value={authValue}>
             <MemoryRouter initialEntries={["/login"]}>
                 <Routes>
@@ -29,10 +30,26 @@ function renderLogin() {
         </AuthContext.Provider>,
     );
 
-    return { setUser };
+    return { ...result, setUser };
 }
 
 describe("Login.tsx", () => {
+    test("deve apresentar e consumir o aviso de senha alterada mesmo sem estado de navegação", () => {
+        storePasswordChangeNotice("joao@email.com");
+
+        const initial = renderLogin();
+
+        expect(screen.getByRole("status")).toHaveTextContent("Senha alterada com sucesso!");
+        expect(screen.getByRole("textbox", { name: "Email" })).toHaveValue("joao@email.com");
+        expect(sessionStorage.getItem("questlog:password-changed")).toBeNull();
+
+        initial.unmount();
+        renderLogin();
+
+        expect(screen.queryByRole("status")).not.toBeInTheDocument();
+        expect(screen.getByRole("textbox", { name: "Email" })).toHaveValue("");
+    });
+
     test("deve mostrar e ocultar a senha sem alterar o valor nem enviar o formulário", async () => {
         const user = userEvent.setup();
 

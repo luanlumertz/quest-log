@@ -9,6 +9,10 @@ const NO_REFRESH_ENDPOINTS = [
     "/auth/refresh",
     "/auth/register/verify",
     "/auth/register/resend",
+    "/auth/password/forgot",
+    "/auth/password/resend",
+    "/auth/password/verify",
+    "/auth/password/reset",
 ];
 
 const INVALID_REFRESH_STATUSES = [400, 401, 403];

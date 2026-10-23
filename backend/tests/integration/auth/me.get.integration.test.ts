@@ -51,7 +51,7 @@ describe("GET /auth/me", () => {
 
         const meResponse = await getCurrentUserResponse(agent);
 
-        assert.equal(meResponse.status, 404);
-        assert.equal(meResponse.body.message, "Usuário não encontrado");
+        assert.equal(meResponse.status, 401);
+        assert.equal(meResponse.body.message, "Não autenticado");
     });
 });

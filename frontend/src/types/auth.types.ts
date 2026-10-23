@@ -17,3 +17,18 @@ export type PendingRegistration = RegistrationResponse & {
     expiresAt: number;
     resendAvailableAt: number;
 };
+
+export type PasswordRecovery = {
+    email: string;
+    resendAvailableAt: number;
+};
+
+export type PasswordResetResponse = {
+    resetToken: string;
+    expiresIn: number;
+};
+
+export type PasswordResetAuthorization = {
+    resetToken: string;
+    expiresAt: number;
+};

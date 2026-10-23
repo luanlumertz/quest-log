@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { loginSchema, type LoginData } from "../schema/auth.schema";
@@ -15,14 +15,17 @@ import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Alert } from "../components/ui/Alert";
 import { SuccessAlert } from "../components/ui/SuccessAlert";
+import { readPasswordChangeNotice, clearPasswordChangeNotice } from "../lib/passwordChangeNotice";
 
 export function Login() {
     useDocumentTitle("Entrar");
 
     const navigate = useNavigate();
     const location = useLocation();
+    const [passwordNotice] = useState(readPasswordChangeNotice);
+    const passwordChanged = location.state?.passwordChanged === true || !!passwordNotice;
     const [showSuccess, setShowSuccess] = useState(
-        () => location.state?.registrationSuccess === true,
+        () => location.state?.registrationSuccess === true || passwordChanged,
     );
 
     const { setUser } = useAuth();
@@ -31,8 +34,23 @@ export function Login() {
         register,
         handleSubmit,
         setError,
+        control,
         formState: { errors, isSubmitting },
-    } = useForm<LoginData>({ resolver: zodResolver(loginSchema) });
+    } = useForm<LoginData>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email:
+                typeof location.state?.email === "string"
+                    ? location.state.email
+                    : (passwordNotice?.email ?? ""),
+            password: "",
+        },
+    });
+    const email = useWatch({ control, name: "email" });
+
+    useEffect(() => {
+        clearPasswordChangeNotice();
+    }, []);
 
     async function onSubmit(data: LoginData) {
         try {
@@ -59,7 +77,9 @@ export function Login() {
                     onVisibleChange={setShowSuccess}
                     className="mt-6"
                 >
-                    E-mail confirmado! Sua conta foi criada. Entre para começar.
+                    {passwordChanged
+                        ? "Senha alterada com sucesso! Entre com sua nova senha."
+                        : "E-mail confirmado! Sua conta foi criada. Entre para começar."}
                 </SuccessAlert>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6">
@@ -82,6 +102,16 @@ export function Login() {
                     />
 
                     {errors.root?.message && <Alert>{errors.root.message}</Alert>}
+
+                    <div className="-mt-2 text-right">
+                        <Link
+                            to="/forgot-password"
+                            state={{ email }}
+                            className="text-sm font-semibold text-brand hover:underline"
+                        >
+                            Esqueceu sua senha?
+                        </Link>
+                    </div>
 
                     <Button
                         type="submit"

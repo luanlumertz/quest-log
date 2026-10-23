@@ -1,5 +1,18 @@
-import type { LoginData, RegisterData, UpdateData, VerificationData } from "../schema/auth.schema";
-import type { AuthResponse, RegistrationResponse, User } from "../types/auth.types";
+import type {
+    LoginData,
+    RegisterData,
+    UpdateData,
+    VerificationData,
+    ForgotPasswordData,
+    ResetPasswordData,
+    ChangePasswordData,
+} from "../schema/auth.schema";
+import type {
+    AuthResponse,
+    RegistrationResponse,
+    User,
+    PasswordResetResponse,
+} from "../types/auth.types";
 import { apiRequest } from "./api";
 
 export async function login(data: LoginData): Promise<User> {
@@ -76,5 +89,45 @@ export async function updateCurrentUser(data: UpdateData): Promise<User> {
 export async function deleteCurrentUser(): Promise<void> {
     await apiRequest("/auth/me", {
         method: "DELETE",
+    });
+}
+
+export async function requestPasswordRecovery(data: ForgotPasswordData): Promise<void> {
+    await apiRequest("/auth/password/forgot", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function resendPasswordRecoveryCode(email: string): Promise<void> {
+    await apiRequest("/auth/password/resend", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+    });
+}
+
+export async function verifyPasswordRecovery(
+    email: string,
+    data: VerificationData,
+): Promise<PasswordResetResponse> {
+    const response = await apiRequest("/auth/password/verify", {
+        method: "POST",
+        body: JSON.stringify({ email, code: data.code }),
+    });
+
+    return response.json();
+}
+
+export async function resetPassword(resetToken: string, data: ResetPasswordData): Promise<void> {
+    await apiRequest("/auth/password/reset", {
+        method: "POST",
+        body: JSON.stringify({ resetToken, password: data.password }),
+    });
+}
+
+export async function changePassword(data: ChangePasswordData): Promise<void> {
+    await apiRequest("/auth/me/password", {
+        method: "PATCH",
+        body: JSON.stringify(data),
     });
 }

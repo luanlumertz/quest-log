@@ -20,19 +20,21 @@ const emailSchema = z
     .toLowerCase()
     .pipe(z.email({ error: "Email inválido" }));
 
+const passwordSchema = z
+    .string()
+    .min(8, { error: "Senha deve ter pelo menos 8 caracteres" })
+    .max(70, { error: "Senha muito grande. Máximo: 70 caracteres" })
+    .refine((password) => password.trim().length > 0, {
+        error: "A senha não pode conter apenas espaços",
+    });
+
 export const registerSchema = z
     .object({
         name: nameSchema,
 
         email: emailSchema,
 
-        password: z
-            .string()
-            .min(8, { error: "Senha deve ter pelo menos 8 caracteres" })
-            .max(70, { error: "Senha muito grande. Máximo: 70 caracteres" })
-            .refine((password) => password.trim().length > 0, {
-                error: "A senha não pode conter apenas espaços",
-            }),
+        password: passwordSchema,
 
         confirmPassword: z.string(),
     })
@@ -69,6 +71,40 @@ export const verificationSchema = z
     })
     .strict();
 
+export const forgotPasswordSchema = z.object({ email: emailSchema }).strict();
+
+const newPasswordFields = {
+    password: passwordSchema,
+    confirmPassword: z.string(),
+};
+
+export const resetPasswordSchema = z
+    .object(newPasswordFields)
+    .strict()
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "As senhas não coincidem",
+        path: ["confirmPassword"],
+    })
+    .transform(({ confirmPassword, ...data }) => data);
+
+export const changePasswordSchema = z
+    .object({ currentPassword: loginSchema.shape.password, ...newPasswordFields })
+    .strict()
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "As senhas não coincidem",
+        path: ["confirmPassword"],
+    })
+    .refine((data) => data.password !== data.currentPassword, {
+        message: "A nova senha deve ser diferente da senha atual.",
+        path: ["password"],
+    })
+    .transform(({ confirmPassword, ...data }) => data);
+
+export type ForgotPasswordData = z.output<typeof forgotPasswordSchema>;
+export type ResetPasswordFormData = z.input<typeof resetPasswordSchema>;
+export type ResetPasswordData = z.output<typeof resetPasswordSchema>;
+export type ChangePasswordFormData = z.input<typeof changePasswordSchema>;
+export type ChangePasswordData = z.output<typeof changePasswordSchema>;
 export type VerificationData = z.infer<typeof verificationSchema>;
 export type RegisterFormData = z.input<typeof registerSchema>;
 export type RegisterData = z.output<typeof registerSchema>;

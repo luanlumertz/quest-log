@@ -1,10 +1,11 @@
+import { describe, expect, test } from "vitest";
+import { MemoryRouter, useLocation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter, useLocation } from "react-router";
-import { describe, expect, test } from "vitest";
 
 import { AuthContext } from "../../../src/contexts/AuthContext";
 import { AppRoutes } from "../../../src/routes/AppRoutes";
+
 import { createTestQueryClient } from "../../helpers/createTestQueryClient.helper";
 import { mockApiResponse } from "../../mocks/api.mock";
 import { createAuthContextMock } from "../../mocks/authContext.mock";
@@ -99,6 +100,14 @@ describe("AppRoutes.tsx", () => {
 
         expect(screen.getByRole("heading", { name: "Crie uma conta!" })).toBeVisible();
         expect(screen.getByTestId("rota-atual")).toHaveTextContent(/^\/register$/);
+    });
+
+    test.each([false, true])("deve permitir recuperação com autenticação %s", (authenticated) => {
+        renderAppRoutes("/forgot-password", authenticated);
+
+        expect(screen.getByRole("heading", { name: "Esqueceu sua senha?" })).toBeVisible();
+        expect(screen.getByTestId("rota-atual")).toHaveTextContent(/^\/forgot-password$/);
+        expect(screen.queryByRole("banner")).not.toBeInTheDocument();
     });
 
     test("deve exibir NotFound para um endereço desconhecido sem exigir autenticação", () => {
