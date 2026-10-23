@@ -1,10 +1,11 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { useState } from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClientProvider } from "@tanstack/react-query";
 
-import { AUTH_SESSION_EXPIRED_EVENT } from "../../../src/services/api";
+import { ApiError, AUTH_SESSION_EXPIRED_EVENT } from "../../../src/services/api";
+import * as authService from "../../../src/services/auth.service";
 import { useAuth } from "../../../src/contexts/AuthContext";
 import { AuthProvider } from "../../../src/contexts/AuthProvider";
 
@@ -55,6 +56,44 @@ function renderAuthContext(queryClient = createTestQueryClient()) {
 }
 
 describe("AuthProvider.tsx", () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    test.each(["inicial", "nova consulta"])(
+        "não deve restaurar a sessão encerrada durante uma resposta atrasada: %s",
+        async (scenario) => {
+            const user = userEvent.setup();
+            let finishRequest!: (value: typeof authenticatedUser) => void;
+            const pending = new Promise<typeof authenticatedUser>((resolve) => {
+                finishRequest = resolve;
+            });
+            const currentUser = vi.spyOn(authService, "getCurrentUser");
+
+            if (scenario === "nova consulta") {
+                currentUser.mockRejectedValueOnce(new ApiError("Indisponível", 503));
+            }
+
+            currentUser.mockReturnValueOnce(pending);
+
+            renderAuthContext();
+
+            try {
+                if (scenario === "nova consulta") {
+                    await screen.findByText("Status: error");
+                    await user.click(screen.getByRole("button", { name: "Verificar novamente" }));
+                }
+
+                await user.click(screen.getByRole("button", { name: "Limpar usuário" }));
+
+                expect(screen.getByText("Status: unauthenticated")).toBeVisible();
+            } finally {
+                await act(async () => finishRequest(authenticatedUser));
+            }
+
+            expect(screen.getByText("Status: unauthenticated")).toBeVisible();
+            expect(screen.getByText("Usuário: Nenhum")).toBeVisible();
+        },
+    );
+
     test("deve restaurar a sessão ao carregar o usuário autenticado", async () => {
         const { requests } = mockApiResponse({
             method: "GET",

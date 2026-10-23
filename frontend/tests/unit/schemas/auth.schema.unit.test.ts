@@ -1,6 +1,13 @@
 import { assert, describe, test } from "vitest";
 
-import { loginSchema, registerSchema, updateSchema } from "../../../src/schema/auth.schema";
+import {
+    loginSchema,
+    registerSchema,
+    updateSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
+    changePasswordSchema,
+} from "../../../src/schema/auth.schema";
 
 describe("auth.schema.ts", () => {
     describe("registerSchema", () => {
@@ -266,6 +273,62 @@ describe("auth.schema.ts", () => {
                 email: payload.email,
                 password: payload.password,
             });
+        });
+    });
+
+    describe("Recuperação e troca de senha", () => {
+        const passwords = { password: "nova senha123", confirmPassword: "nova senha123" };
+
+        test("deve normalizar o e-mail da recuperação", () => {
+            assert.deepEqual(forgotPasswordSchema.parse({ email: "  JOAO@EMAIL.COM  " }), {
+                email: "joao@email.com",
+            });
+        });
+
+        test.each([
+            { name: "resetPasswordSchema", schema: resetPasswordSchema, payload: passwords },
+            {
+                name: "changePasswordSchema",
+                schema: changePasswordSchema,
+                payload: { ...passwords, currentPassword: "senha anterior123" },
+            },
+        ])(
+            "$name deve remover a confirmação e rejeitar confirmações diferentes",
+            ({ schema, payload }) => {
+                const parsed = schema.parse(payload);
+                const invalid = schema.safeParse({ ...payload, confirmPassword: "outra senha123" });
+
+                assert.equal(parsed.password, passwords.password);
+                assert.notProperty(parsed, "confirmPassword");
+                assert.isFalse(invalid.success);
+                assert.isTrue(
+                    invalid.error.issues.some((issue) => issue.path[0] === "confirmPassword"),
+                );
+            },
+        );
+
+        test.each([
+            {
+                name: "senha atual vazia",
+                currentPassword: "",
+                password: "nova senha123",
+                field: "currentPassword",
+            },
+            {
+                name: "nova senha igual à atual",
+                currentPassword: "nova senha123",
+                password: "nova senha123",
+                field: "password",
+            },
+        ])("deve rejeitar $name", ({ currentPassword, password, field }) => {
+            const result = changePasswordSchema.safeParse({
+                currentPassword,
+                password,
+                confirmPassword: password,
+            });
+
+            assert.isFalse(result.success);
+            assert.isTrue(result.error.issues.some((issue) => issue.path[0] === field));
         });
     });
 
