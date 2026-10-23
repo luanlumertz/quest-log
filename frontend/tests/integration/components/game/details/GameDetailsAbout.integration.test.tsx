@@ -6,6 +6,7 @@ import { GameDetailsAbout } from "../../../../../src/components/game/details/Gam
 
 function mockDescriptionHeight(initialHeight: number) {
     let height = initialHeight;
+
     vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockImplementation(() => height);
     vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
 
@@ -30,30 +31,42 @@ afterEach(() => {
 describe("GameDetailsAbout.tsx", () => {
     test("deve permitir expandir e recolher uma descrição que ultrapassa o limite", async () => {
         const user = userEvent.setup();
+
         mockDescriptionHeight(300);
+
         renderAbout();
+
         const description = screen.getByText("Uma aventura nas Terras Intermédias.").parentElement;
 
         expect(description).toHaveClass("line-clamp-4");
+
         await user.click(screen.getByRole("button", { name: /Ver mais/ }));
+
         expect(description).not.toHaveClass("line-clamp-4");
+
         await user.click(screen.getByRole("button", { name: /Ver menos/ }));
+
         expect(description).toHaveClass("line-clamp-4");
         expect(screen.getByRole("button", { name: /Ver mais/ })).toBeVisible();
     });
 
     test("deve retirar a expansão quando o texto passa a caber e recalcular ao diminuir o espaço", async () => {
         const user = userEvent.setup();
+
         const { resize } = mockDescriptionHeight(300);
+
         renderAbout();
+
         await user.click(screen.getByRole("button", { name: /Ver mais/ }));
 
         resize(80);
+
         expect(
             screen.queryByRole("button", { name: /Ver menos|Ver mais/ }),
         ).not.toBeInTheDocument();
 
         resize(300);
+
         expect(screen.getByRole("button", { name: /Ver mais/ })).toBeVisible();
         expect(screen.getByText("Uma aventura nas Terras Intermédias.").parentElement).toHaveClass(
             "line-clamp-4",
@@ -62,6 +75,7 @@ describe("GameDetailsAbout.tsx", () => {
 
     test("não deve oferecer expansão para uma descrição curta", () => {
         mockDescriptionHeight(80);
+
         renderAbout();
 
         expect(screen.getByText("Uma aventura nas Terras Intermédias.")).toBeVisible();

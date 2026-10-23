@@ -2,7 +2,14 @@ export const API_URL = import.meta.env.VITE_API_URL;
 
 export const AUTH_SESSION_EXPIRED_EVENT = "auth:session-expired";
 
-const NO_REFRESH_ENDPOINTS = ["/auth/login", "/auth/logout", "/auth/register", "/auth/refresh"];
+const NO_REFRESH_ENDPOINTS = [
+    "/auth/login",
+    "/auth/logout",
+    "/auth/register",
+    "/auth/refresh",
+    "/auth/register/verify",
+    "/auth/register/resend",
+];
 
 const INVALID_REFRESH_STATUSES = [400, 401, 403];
 

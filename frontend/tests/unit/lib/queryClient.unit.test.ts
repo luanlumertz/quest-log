@@ -5,7 +5,9 @@ import { ApiError, NetworkError } from "../../../src/services/api";
 
 function shouldRetry(failureCount: number, error: Error) {
     const retry = queryClient.getDefaultOptions().queries?.retry;
+
     if (typeof retry !== "function") throw new Error("Política de retry não configurada");
+
     return retry(failureCount, error);
 }
 

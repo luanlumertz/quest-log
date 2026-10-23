@@ -1,5 +1,5 @@
 import { assert, describe, expect, test } from "vitest";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Route, Routes } from "react-router";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -18,7 +18,10 @@ function renderLibrary(initialEntry = "/library") {
     return render(
         <QueryClientProvider client={queryClient}>
             <MemoryRouter initialEntries={[initialEntry]}>
-                <Library />
+                <Routes>
+                    <Route path="/library" element={<Library />} />
+                    <Route path="/games/search" element={<h1>Buscar jogos</h1>} />
+                </Routes>
             </MemoryRouter>
         </QueryClientProvider>,
     );
@@ -41,6 +44,26 @@ function createLibraryGames() {
 }
 
 describe("Library.tsx", () => {
+    test("deve mostrar a biblioteca vazia e permitir navegar para a busca de jogos", async () => {
+        const user = userEvent.setup();
+
+        server.use(http.get(`${API_URL}/library`, () => HttpResponse.json({ libraryEntries: [] })));
+
+        renderLibrary();
+
+        expect(
+            await screen.findByRole("heading", { name: "Sua biblioteca está vazia" }),
+        ).toBeVisible();
+        expect(
+            screen.getByText("Procure jogos e adicione os que você quer acompanhar."),
+        ).toBeVisible();
+        expect(screen.queryByText("Nenhum jogo encontrado")).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole("link", { name: "Procurar jogos" }));
+
+        expect(screen.getByRole("heading", { name: "Buscar jogos" })).toBeVisible();
+    });
+
     test("deve filtrar os jogos da biblioteca pelo status selecionado", async () => {
         const user = userEvent.setup();
 
@@ -88,6 +111,7 @@ describe("Library.tsx", () => {
 
     test("deve filtrar por título sem perder o status selecionado", async () => {
         const user = userEvent.setup();
+
         const { eldenRing, hades } = createLibraryGames();
         const searches: { search: string | null; status: string | null }[] = [];
 
@@ -109,9 +133,11 @@ describe("Library.tsx", () => {
         );
 
         renderLibrary();
+
         expect(await screen.findByRole("heading", { name: "Hades" })).toBeVisible();
 
         await user.click(screen.getByRole("button", { name: /^Jogando/i }));
+
         await waitFor(() => {
             expect(screen.getByRole("heading", { name: "Elden Ring" })).toBeVisible();
             expect(screen.queryByRole("heading", { name: "Hades" })).not.toBeInTheDocument();
@@ -139,11 +165,13 @@ describe("Library.tsx", () => {
 
     test("deve limpar os filtros e recuperar os jogos após uma busca sem resultados", async () => {
         const user = userEvent.setup();
+
         const { eldenRing, hades } = createLibraryGames();
 
         server.use(
             http.get(`${API_URL}/library`, ({ request }) => {
                 const params = new URL(request.url).searchParams;
+
                 return HttpResponse.json({
                     libraryEntries:
                         params.has("search") || params.has("status") ? [] : [eldenRing, hades],
@@ -172,6 +200,7 @@ describe("Library.tsx", () => {
 
     test("deve carregar os jogos ao tentar novamente após uma falha na biblioteca", async () => {
         const user = userEvent.setup();
+
         const { eldenRing, hades } = createLibraryGames();
 
         server.use(
@@ -202,11 +231,13 @@ describe("Library.tsx", () => {
 
     test("deve preservar os jogos filtrados e recuperar os contadores após falha da consulta geral", async () => {
         const user = userEvent.setup();
+
         const { eldenRing, hades } = createLibraryGames();
 
         server.use(
             http.get(`${API_URL}/library`, ({ request }) => {
                 const status = new URL(request.url).searchParams.get("status");
+
                 return status === "PLAYING"
                     ? HttpResponse.json({ libraryEntries: [eldenRing] })
                     : HttpResponse.json({ message: "Erro interno" }, { status: 500 });
@@ -216,6 +247,7 @@ describe("Library.tsx", () => {
         renderLibrary("/library?status=PLAYING");
 
         const aviso = "Não foi possível atualizar os contadores da biblioteca.";
+
         expect(await screen.findByText(aviso)).toBeVisible();
         expect(screen.getByRole("heading", { name: "Elden Ring" })).toBeVisible();
         expect(screen.queryByRole("heading", { name: "Hades" })).not.toBeInTheDocument();
@@ -223,6 +255,7 @@ describe("Library.tsx", () => {
         server.use(
             http.get(`${API_URL}/library`, ({ request }) => {
                 const status = new URL(request.url).searchParams.get("status");
+
                 return HttpResponse.json({
                     libraryEntries: status === "PLAYING" ? [eldenRing] : [eldenRing, hades],
                 });

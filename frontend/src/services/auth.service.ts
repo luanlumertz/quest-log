@@ -1,5 +1,5 @@
-import type { LoginData, RegisterData, UpdateData } from "../schema/auth.schema";
-import type { AuthResponse, User } from "../types/auth.types";
+import type { LoginData, RegisterData, UpdateData, VerificationData } from "../schema/auth.schema";
+import type { AuthResponse, RegistrationResponse, User } from "../types/auth.types";
 import { apiRequest } from "./api";
 
 export async function login(data: LoginData): Promise<User> {
@@ -16,15 +16,34 @@ export async function login(data: LoginData): Promise<User> {
     return result.user;
 }
 
-export async function register(data: RegisterData): Promise<User> {
+export async function register(data: RegisterData): Promise<RegistrationResponse> {
     const response = await apiRequest("/auth/register", {
         method: "POST",
         body: JSON.stringify(data),
     });
 
+    return response.json();
+}
+
+export async function verifyRegistration(
+    pendingRegistrationId: string,
+    data: VerificationData,
+): Promise<User> {
+    const response = await apiRequest("/auth/register/verify", {
+        method: "POST",
+        body: JSON.stringify({ pendingRegistrationId, code: data.code }),
+    });
+
     const result: AuthResponse = await response.json();
 
     return result.user;
+}
+
+export async function resendRegistrationCode(pendingRegistrationId: string): Promise<void> {
+    await apiRequest("/auth/register/resend", {
+        method: "POST",
+        body: JSON.stringify({ pendingRegistrationId }),
+    });
 }
 
 export async function logout() {

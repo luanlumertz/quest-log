@@ -7,6 +7,7 @@ import { LibraryRatingField } from "../../../../../src/components/library/detail
 
 function RatingDeTeste({ initialValue = "4", disabled = false }) {
     const [value, setValue] = useState(initialValue);
+
     return <LibraryRatingField value={value} disabled={disabled} onChange={setValue} />;
 }
 
@@ -17,20 +18,29 @@ afterEach(() => {
 describe("LibraryRatingField.tsx", () => {
     test("deve alterar a nota em passos de 0,1 com mouse e teclado sem duplicar o incremento", async () => {
         const user = userEvent.setup();
+
         render(<RatingDeTeste />);
+
         const nota = screen.getByRole("textbox", { name: "Nota" });
         const aumentar = screen.getByRole("button", { name: "Aumentar nota" });
         const diminuir = screen.getByRole("button", { name: "Diminuir nota" });
 
         await user.click(aumentar);
+
         expect(nota).toHaveValue("4,1");
+
         await user.click(diminuir);
+
         expect(nota).toHaveValue("4,0");
+
         aumentar.focus();
         await user.keyboard("{Enter}");
+
         expect(nota).toHaveValue("4,1");
+
         diminuir.focus();
         await user.keyboard(" ");
+
         expect(nota).toHaveValue("4,0");
     });
 
@@ -39,26 +49,38 @@ describe("LibraryRatingField.tsx", () => {
         { initialValue: "0,1", button: "Diminuir nota", expected: "0,0" },
     ])("deve respeitar o limite ao usar $button", async ({ initialValue, button, expected }) => {
         const user = userEvent.setup();
+
         render(<RatingDeTeste initialValue={initialValue} />);
+
         const controle = screen.getByRole("button", { name: button });
 
         await user.click(controle);
+
         expect(screen.getByRole("textbox", { name: "Nota" })).toHaveValue(expected);
         expect(controle).toBeDisabled();
+
         await user.click(controle);
+
         expect(screen.getByRole("textbox", { name: "Nota" })).toHaveValue(expected);
     });
 
     test("deve bloquear os controles quando a edição estiver desabilitada", async () => {
         const user = userEvent.setup();
+
         render(<RatingDeTeste disabled />);
+
         const nota = screen.getByRole("textbox", { name: "Nota" });
+
         expect(nota).toBeDisabled();
+
         for (const name of ["Aumentar nota", "Diminuir nota"]) {
             const button = screen.getByRole("button", { name });
+
             expect(button).toBeDisabled();
+
             await user.click(button);
         }
+
         expect(nota).toHaveValue("4");
     });
 
@@ -66,15 +88,20 @@ describe("LibraryRatingField.tsx", () => {
         "deve interromper a repetição ao %s",
         (action) => {
             vi.useFakeTimers();
+
             render(<RatingDeTeste initialValue="3" />);
+
             const aumentar = screen.getByRole("button", { name: "Aumentar nota" });
             const nota = screen.getByRole("textbox", { name: "Nota" });
 
             fireEvent.pointerDown(aumentar);
+
             expect(nota).toHaveValue("3,1");
+
             act(() => {
                 vi.advanceTimersByTime(350 + 80 * 2);
             });
+
             expect(nota).toHaveValue("3,3");
 
             if (action === "soltar") fireEvent.pointerUp(aumentar);
@@ -84,14 +111,18 @@ describe("LibraryRatingField.tsx", () => {
             act(() => {
                 vi.advanceTimersByTime(1000);
             });
+
             expect(nota).toHaveValue("3,3");
         },
     );
 
     test("deve parar automaticamente no limite durante uma pressão longa", () => {
         vi.useFakeTimers();
+
         render(<RatingDeTeste initialValue="4,7" />);
+
         const aumentar = screen.getByRole("button", { name: "Aumentar nota" });
+
         fireEvent.pointerDown(aumentar);
         act(() => {
             vi.advanceTimersByTime(1000);
@@ -99,9 +130,11 @@ describe("LibraryRatingField.tsx", () => {
 
         expect(screen.getByRole("textbox", { name: "Nota" })).toHaveValue("5,0");
         expect(aumentar).toBeDisabled();
+
         act(() => {
             vi.advanceTimersByTime(1000);
         });
+
         expect(screen.getByRole("textbox", { name: "Nota" })).toHaveValue("5,0");
     });
 
@@ -110,17 +143,21 @@ describe("LibraryRatingField.tsx", () => {
         (elapsed) => {
             vi.useFakeTimers();
             const onChange = vi.fn();
+
             const { unmount } = render(<LibraryRatingField value="3" onChange={onChange} />);
+
             fireEvent.pointerDown(screen.getByRole("button", { name: "Aumentar nota" }));
             act(() => {
                 vi.advanceTimersByTime(elapsed);
             });
+
             const callsBeforeUnmount = onChange.mock.calls.length;
 
             unmount();
             act(() => {
                 vi.advanceTimersByTime(1000);
             });
+
             expect(onChange).toHaveBeenCalledTimes(callsBeforeUnmount);
         },
     );

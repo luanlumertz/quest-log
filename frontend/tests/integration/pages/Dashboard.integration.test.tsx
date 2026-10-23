@@ -59,12 +59,14 @@ function renderDashboard() {
 describe("Dashboard.tsx", () => {
     test("deve exibir atividades recentes com e sem nota e abrir a entrada correta", async () => {
         const user = userEvent.setup();
+
         const recentEntry = createLibraryEntry({
             status: "COMPLETED",
             rating: 4.5,
             playtimeMinutes: 720,
             platforms: [{ id: 1, name: "PC" }],
         });
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library",
@@ -93,11 +95,16 @@ describe("Dashboard.tsx", () => {
         });
 
         renderDashboard();
+
         const titulo = await screen.findByRole("heading", { name: "Atividade recente" });
+
         const section = titulo.closest("section");
+
         expect(section).not.toBeNull();
+
         const recent = within(section!);
         const eldenRing = recent.getByRole("link", { name: /Elden Ring/i });
+
         expect(within(eldenRing).getByLabelText("Nota 4.5 de 5")).toBeInTheDocument();
         expect(within(eldenRing).getByText("PC")).toBeInTheDocument();
         expect(within(eldenRing).getByText("12h")).toBeVisible();
@@ -110,11 +117,13 @@ describe("Dashboard.tsx", () => {
         );
 
         await user.click(eldenRing);
+
         expect(await screen.findByText("Elden Ring na biblioteca de teste")).toBeVisible();
     });
 
     test("deve mostrar os três jogos iniciados mais recentemente e permitir ver a lista completa", async () => {
         const user = userEvent.setup();
+
         const base = createLibraryEntry({ status: "PLAYING" });
         const playingGames = [
             { id: 1, title: "Sem data", startedAt: null },
@@ -128,6 +137,7 @@ describe("Dashboard.tsx", () => {
             platforms: [{ id: 1, name: "PC" }],
             game: { ...base.game, id, externalId: 100 + id, title },
         }));
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library",
@@ -136,18 +146,26 @@ describe("Dashboard.tsx", () => {
         mockApiResponse({ method: "GET", endpoint: "/dashboard", responseBody: { dashboardData } });
 
         renderDashboard();
+
         const titulo = await screen.findByRole("heading", { name: "Jogando agora" });
+
         const section = titulo.closest("section");
+
         expect(section).not.toBeNull();
+
         const playing = within(section!);
+
         expect(
             playing.getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
         ).toEqual(["Mais recente", "Intermediário", "Mais antigo"]);
         expect(playing.queryByRole("heading", { name: "Sem data" })).not.toBeInTheDocument();
+
         const verTodos = playing.getByRole("link", { name: "Mostrando 3 de 4" });
+
         expect(verTodos).toHaveAttribute("href", "/library?status=PLAYING");
 
         await user.click(verTodos);
+
         expect(await screen.findByText("Biblioteca de teste")).toBeVisible();
     });
 
@@ -197,6 +215,7 @@ describe("Dashboard.tsx", () => {
 
     test("deve carregar o Dashboard ao tentar novamente após falha na consulta principal", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/dashboard",
@@ -221,12 +240,15 @@ describe("Dashboard.tsx", () => {
             endpoint: "/dashboard",
             responseBody: { dashboardData },
         });
+
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
 
         expect(
             await screen.findByRole("heading", { name: "Bem-vindo de volta, João" }),
         ).toBeVisible();
+
         const total = screen.getByRole("link", { name: /Total de jogos/i });
+
         expect(within(total).getByText("2")).toBeVisible();
         expect(screen.getByText("12h")).toBeVisible();
         expect(await screen.findByRole("heading", { name: "Elden Ring" })).toBeVisible();
@@ -236,6 +258,7 @@ describe("Dashboard.tsx", () => {
 
     test("deve preservar as estatísticas e recuperar apenas os jogos em andamento após uma falha", async () => {
         const user = userEvent.setup();
+
         const dashboard = mockApiResponse({
             method: "GET",
             endpoint: "/dashboard",
@@ -251,8 +274,11 @@ describe("Dashboard.tsx", () => {
         renderDashboard();
 
         const erro = "Não foi possível carregar os jogos em andamento";
+
         expect(await screen.findByText(erro)).toBeVisible();
+
         const total = screen.getByRole("link", { name: /Total de jogos/i });
+
         expect(within(total).getByText("2")).toBeVisible();
         expect(screen.getByText("12h")).toBeVisible();
         expect(screen.getByRole("heading", { name: "Atividade recente" })).toBeVisible();
@@ -265,10 +291,13 @@ describe("Dashboard.tsx", () => {
                 libraryEntries: [createLibraryEntry({ status: "PLAYING" })],
             },
         });
+
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
 
         const titulo = await screen.findByRole("heading", { name: "Jogando agora" });
+
         const section = titulo.closest("section");
+
         expect(section).not.toBeNull();
         expect(within(section!).getByRole("heading", { name: "Elden Ring" })).toBeVisible();
         expect(screen.queryByText(erro)).not.toBeInTheDocument();

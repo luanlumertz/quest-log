@@ -21,6 +21,7 @@ const game = createGameDetails({
 
 function renderAddGameModal() {
     const queryClient = createTestQueryClient();
+
     const onClose = vi.fn();
 
     render(

@@ -58,6 +58,7 @@ describe("PublicRoute.tsx", () => {
 
     test("deve apresentar erro e permitir nova verificação sem liberar a rota pública", async () => {
         const user = userEvent.setup();
+
         const { retryAuth } = renderPublicRoute({ status: "error" });
 
         expect(screen.getByText("Não foi possível verificar sua sessão")).toBeVisible();
@@ -65,6 +66,7 @@ describe("PublicRoute.tsx", () => {
         expect(screen.queryByText("Dashboard de teste")).not.toBeInTheDocument();
 
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
         expect(retryAuth).toHaveBeenCalledTimes(1);
     });
 });

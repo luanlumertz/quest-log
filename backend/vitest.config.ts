@@ -22,7 +22,11 @@ export default defineConfig({
                 test: {
                     name: "integration",
                     include: ["tests/integration/**/*.test.ts"],
-                    setupFiles: ["./tests/integration/setup.ts", "./tests/mocks/rawg.mock.ts"],
+                    setupFiles: [
+                        "./tests/integration/setup.ts",
+                        "./tests/mocks/rawg.mock.ts",
+                        "./tests/mocks/mail.mock.ts",
+                    ],
                     fileParallelism: false,
                     mockReset: true,
                 },

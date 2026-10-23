@@ -49,13 +49,17 @@ function mockGameDetails() {
 describe("LibraryGameDetails.tsx", () => {
     test("deve limpar horas e data de início pelos controles e confirmar a remoção antes de salvar", async () => {
         const user = userEvent.setup();
+
         const entry = { ...createEntry(), status: "ABANDONED", playtimeMinutes: 120 };
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: entry },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
@@ -65,18 +69,23 @@ describe("LibraryGameDetails.tsx", () => {
         });
 
         renderLibraryGameDetails();
+
         await user.click(await screen.findByRole("button", { name: "Limpar horas jogadas" }));
         await user.click(screen.getByRole("button", { name: "Limpar data de início" }));
+
         expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("");
         expect(screen.getByLabelText("Data de início")).toHaveValue("");
+
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
         const dialog = await screen.findByRole("dialog", {
             name: "Alguns dados serão removidos ao salvar",
         });
+
         expect(within(dialog).getByText("Horas jogadas")).toBeVisible();
         expect(within(dialog).getByText("Data de início")).toBeVisible();
         expect(requests).toHaveLength(0);
+
         await user.click(within(dialog).getByRole("button", { name: "Salvar mesmo assim" }));
 
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
@@ -86,13 +95,17 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve bloquear o salvamento sem plataformas e permitir corrigir a seleção", async () => {
         const user = userEvent.setup();
+
         const entry = createEntry();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: entry },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
@@ -102,14 +115,19 @@ describe("LibraryGameDetails.tsx", () => {
         });
 
         renderLibraryGameDetails();
+
         await user.click(await screen.findByRole("button", { name: "PC" }));
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
         expect(await screen.findByText("Informe pelo menos uma plataforma")).toBeVisible();
         expect(requests).toHaveLength(0);
 
         await user.click(screen.getByRole("button", { name: "PlayStation 5" }));
+
         expect(screen.queryByText("Informe pelo menos uma plataforma")).not.toBeInTheDocument();
+
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
         expect(requests).toHaveLength(1);
         expect(requests[0]?.body).toMatchObject({ platforms: [2] });
@@ -117,13 +135,17 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve associar o erro de datas à conclusão e impedir o PATCH até a correção", async () => {
         const user = userEvent.setup();
+
         const entry = { ...createEntry(), status: "COMPLETED", completedAt: "2026-01-10" };
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: entry },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
@@ -131,8 +153,11 @@ describe("LibraryGameDetails.tsx", () => {
         });
 
         renderLibraryGameDetails();
+
         const inicio = await screen.findByLabelText("Data de início");
+
         const conclusao = screen.getByLabelText("Data de conclusão");
+
         fireEvent.change(inicio, { target: { value: "2026-01-05" } });
         fireEvent.change(conclusao, { target: { value: "2026-01-02" } });
         // Submete diretamente para exercitar a validação da aplicação além do min nativo do input.
@@ -145,14 +170,18 @@ describe("LibraryGameDetails.tsx", () => {
         expect(requests).toHaveLength(0);
 
         fireEvent.change(conclusao, { target: { value: "2026-01-10" } });
+
         expect(conclusao).toHaveAttribute("aria-invalid", "false");
+
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
         expect(requests).toHaveLength(1);
     });
 
     test("deve enviar status, horas, datas e plataformas editados no formulário", async () => {
         const user = userEvent.setup();
+
         const entry = createEntry();
         const updatedEntry = {
             ...entry,
@@ -162,12 +191,15 @@ describe("LibraryGameDetails.tsx", () => {
             completedAt: "2026-01-10",
             platforms: [{ id: 2, name: "PlayStation 5" }],
         };
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: entry },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
@@ -175,8 +207,11 @@ describe("LibraryGameDetails.tsx", () => {
         });
 
         renderLibraryGameDetails();
+
         await user.click(await screen.findByRole("button", { name: "Zerado" }));
+
         const horas = screen.getByRole("textbox", { name: "Horas jogadas" });
+
         await user.clear(horas);
         await user.type(horas, "12,5");
 
@@ -204,16 +239,21 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve mostrar a validação de nota inválida e impedir o PATCH", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: createEntry() },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({ method: "PATCH", endpoint: "/library/1" });
 
         renderLibraryGameDetails();
+
         const nota = await screen.findByRole("textbox", { name: "Nota" });
+
         await user.clear(nota);
         await user.type(nota, "6");
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
@@ -266,13 +306,17 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve preservar a edição e permitir nova tentativa quando o salvamento falhar", async () => {
         const user = userEvent.setup();
+
         const entry = createEntry();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: entry },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
@@ -281,7 +325,9 @@ describe("LibraryGameDetails.tsx", () => {
         });
 
         renderLibraryGameDetails();
+
         const nota = await screen.findByRole("textbox", { name: "Nota" });
+
         await user.clear(nota);
         await user.type(nota, "5");
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
@@ -297,7 +343,9 @@ describe("LibraryGameDetails.tsx", () => {
             endpoint: "/library/1",
             responseBody: { updatedLibraryEntry: { ...entry, rating: 5 } },
         });
+
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
         expect(
             screen.queryByText("Não foi possível salvar as alterações."),
@@ -308,16 +356,21 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve restaurar os valores ao descartar alterações sem enviar PATCH", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: createEntry() },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({ method: "PATCH", endpoint: "/library/1" });
 
         renderLibraryGameDetails();
+
         const nota = await screen.findByRole("textbox", { name: "Nota" });
+
         await user.clear(nota);
         await user.type(nota, "5");
         await user.click(screen.getByRole("button", { name: "Descartar alterações" }));
@@ -332,13 +385,17 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve exigir confirmação antes de salvar uma alteração que remove a nota", async () => {
         const user = userEvent.setup();
+
         const entry = createEntry();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: entry },
         });
+
         mockGameDetails();
+
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
@@ -346,21 +403,26 @@ describe("LibraryGameDetails.tsx", () => {
         });
 
         renderLibraryGameDetails();
+
         await user.clear(await screen.findByRole("textbox", { name: "Nota" }));
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
         const dialog = await screen.findByRole("dialog", {
             name: "Alguns dados serão removidos ao salvar",
         });
+
         expect(within(dialog).getByText("Nota")).toBeVisible();
         expect(requests).toHaveLength(0);
 
         await user.click(within(dialog).getByRole("button", { name: "Voltar" }));
+
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(requests).toHaveLength(0);
 
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
         const confirmation = await screen.findByRole("dialog");
+
         await user.click(within(confirmation).getByRole("button", { name: "Salvar mesmo assim" }));
 
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
@@ -370,12 +432,15 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve remover somente após confirmação e voltar à página anterior", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: createEntry() },
         });
+
         mockGameDetails();
+
         const deleteRequest = vi.fn();
         server.use(
             http.delete(`${API_URL}/library/1`, () => {
@@ -385,12 +450,16 @@ describe("LibraryGameDetails.tsx", () => {
         );
 
         renderLibraryGameDetails();
+
         await user.click(await screen.findByRole("button", { name: "Remover" }));
+
         const dialog = await screen.findByRole("dialog", { name: "Remover da biblioteca?" });
+
         expect(within(dialog).getByText("Elden Ring")).toBeVisible();
         expect(deleteRequest).not.toHaveBeenCalled();
 
         await user.click(within(dialog).getByRole("button", { name: "Cancelar" }));
+
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(deleteRequest).not.toHaveBeenCalled();
 
@@ -405,12 +474,15 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve manter o modal aberto e permitir nova tentativa quando a remoção falhar", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: createEntry() },
         });
+
         mockGameDetails();
+
         const deleteRequest = vi.fn();
         server.use(
             http.delete(`${API_URL}/library/1`, () => {
@@ -420,8 +492,11 @@ describe("LibraryGameDetails.tsx", () => {
         );
 
         renderLibraryGameDetails();
+
         await user.click(await screen.findByRole("button", { name: "Remover" }));
+
         const dialog = await screen.findByRole("dialog");
+
         await user.click(within(dialog).getByRole("button", { name: "Remover" }));
 
         expect(
@@ -436,15 +511,20 @@ describe("LibraryGameDetails.tsx", () => {
                 return new HttpResponse(null, { status: 204 });
             }),
         );
+
         await user.click(within(dialog).getByRole("button", { name: "Remover" }));
+
         expect(await screen.findByText("Biblioteca de teste")).toBeVisible();
         expect(deleteRequest).toHaveBeenCalledTimes(2);
     });
 
     test("deve recuperar o formulário ao tentar novamente após falha no carregamento", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({ method: "GET", endpoint: "/library/1", status: 500 });
+
         mockGameDetails();
+
         renderLibraryGameDetails();
 
         expect(await screen.findByText("Não foi possível carregar o jogo")).toBeVisible();
@@ -455,6 +535,7 @@ describe("LibraryGameDetails.tsx", () => {
             endpoint: "/library/1",
             responseBody: { libraryEntry: createEntry() },
         });
+
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
 
         expect(await screen.findByRole("textbox", { name: "Nota" })).toHaveValue("4");
@@ -463,36 +544,49 @@ describe("LibraryGameDetails.tsx", () => {
 
     test("deve informar quando o jogo não existe e permitir voltar à biblioteca", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({ method: "GET", endpoint: "/library/1", status: 404 });
+
         renderLibraryGameDetails();
 
         expect(await screen.findByText("Jogo não encontrado na biblioteca")).toBeVisible();
         expect(screen.queryByRole("textbox", { name: "Nota" })).not.toBeInTheDocument();
+
         await user.click(screen.getByRole("link", { name: "Voltar para biblioteca" }));
+
         expect(await screen.findByText("Biblioteca de teste")).toBeVisible();
     });
 
     test("deve permitir edição quando os metadados falharem e recuperá-los sem perder a edição", async () => {
         const user = userEvent.setup();
+
         mockApiResponse({
             method: "GET",
             endpoint: "/library/1",
             responseBody: { libraryEntry: createEntry() },
         });
         mockApiResponse({ method: "GET", endpoint: "/games/123", status: 500 });
+
         renderLibraryGameDetails();
 
         const aviso = "Algumas informações do jogo não puderam ser carregadas.";
+
         expect(await screen.findByText(aviso)).toBeVisible();
+
         const nota = screen.getByRole("textbox", { name: "Nota" });
+
         await user.clear(nota);
         await user.type(nota, "5");
+
         expect(screen.getByRole("button", { name: "Salvar alterações" })).toBeEnabled();
 
         mockGameDetails();
         await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
         expect(await screen.findByText("FromSoftware")).toBeVisible();
+
         await waitFor(() => expect(screen.queryByText(aviso)).not.toBeInTheDocument());
+
         expect(nota).toHaveValue("5");
     });
 });

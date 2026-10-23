@@ -33,6 +33,35 @@ function renderLogin() {
 }
 
 describe("Login.tsx", () => {
+    test("deve mostrar e ocultar a senha sem alterar o valor nem enviar o formulário", async () => {
+        const user = userEvent.setup();
+
+        const { requests } = mockApiResponse({
+            method: "POST",
+            endpoint: "/auth/login",
+        });
+
+        const { setUser } = renderLogin();
+
+        const password = screen.getByLabelText("Senha");
+
+        await user.type(password, "minhaSenha123");
+
+        expect(password).toHaveAttribute("type", "password");
+
+        await user.click(screen.getByRole("button", { name: "Mostrar senha" }));
+
+        expect(password).toHaveAttribute("type", "text");
+        expect(password).toHaveValue("minhaSenha123");
+
+        await user.click(screen.getByRole("button", { name: "Ocultar senha" }));
+
+        expect(password).toHaveAttribute("type", "password");
+        expect(password).toHaveValue("minhaSenha123");
+        expect(setUser).not.toHaveBeenCalled();
+        assert.equal(requests.length, 0);
+    });
+
     test("deve autenticar o usuário e redirecionar para o dashboard", async () => {
         const user = userEvent.setup();
 

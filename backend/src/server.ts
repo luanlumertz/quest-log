@@ -2,22 +2,27 @@ import "dotenv/config";
 
 import app from "./app.js";
 import { prisma } from "./lib/prisma.js";
+import { startPendingRegistrationCleanup } from "./jobs/cleanupPendingRegistrations.js";
 
 const PORT = process.env.PORT || process.env.PORT_LOCAL;
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
+const stopPendingRegistrationCleanup = startPendingRegistrationCleanup();
+
 async function shutdown() {
-  console.log("Shutting down server...");
+    console.log("Shutting down server...");
 
-  server.close(async () => {
-    await prisma.$disconnect();
+    stopPendingRegistrationCleanup();
 
-    console.log("Server closed successfully.");
-    process.exit(0);
-  });
+    server.close(async () => {
+        await prisma.$disconnect();
+
+        console.log("Server closed successfully.");
+        process.exit(0);
+    });
 }
 
 process.on("SIGINT", shutdown);

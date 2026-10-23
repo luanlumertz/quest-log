@@ -5,6 +5,8 @@ import {
     getCurrentUser,
     updateUser,
     deleteUser,
+    verifyRegistration,
+    resendRegistrationCode,
 } from "../services/auth.service.js";
 import {
     clearAccessTokenCookie,
@@ -21,9 +23,9 @@ export async function registerUserController(
 ) {
     const data = req.body;
 
-    const user = await registerUser(data);
+    const result = await registerUser(data);
 
-    return res.status(201).json({ user });
+    return res.status(202).json(result);
 }
 
 export async function loginUserController(
@@ -91,4 +93,16 @@ export async function refreshTokenController(req: Request, res: Response) {
     setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(204).send();
+}
+
+export async function verifyRegistrationController(req: Request, res: Response) {
+    const user = await verifyRegistration(req.body);
+
+    return res.status(201).json({ user });
+}
+
+export async function resendRegistrationCodeController(req: Request, res: Response) {
+    const result = await resendRegistrationCode(req.body);
+
+    return res.status(200).json(result);
 }

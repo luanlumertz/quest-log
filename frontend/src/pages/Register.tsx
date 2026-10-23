@@ -12,23 +12,53 @@ import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthInput } from "../components/auth/AuthInput";
 import { Button } from "../components/ui/Button";
 import { Alert } from "../components/ui/Alert";
+import { useRegistration } from "../contexts/RegistrationContext";
+import { useCountdown } from "../hooks/useCountdown";
 
 export function Register() {
     useDocumentTitle("Criar conta");
 
     const navigate = useNavigate();
+    const {
+        pending,
+        draft,
+        submittedData,
+        setDraft,
+        saveRegistration,
+        discardPendingRegistration,
+    } = useRegistration();
+    const expiresIn = useCountdown(pending?.expiresAt ?? 0);
 
     const {
         register,
         handleSubmit,
         setError,
+        getValues,
         formState: { errors, isSubmitting },
-    } = useForm<RegisterFormData, unknown, RegisterData>({ resolver: zodResolver(registerSchema) });
+    } = useForm<RegisterFormData, unknown, RegisterData>({
+        resolver: zodResolver(registerSchema),
+        defaultValues: draft ?? { name: "", email: "", password: "", confirmPassword: "" },
+    });
 
     async function onSubmit(data: RegisterData) {
+        setDraft(getValues());
+        const unchanged =
+            submittedData &&
+            submittedData.name === data.name &&
+            submittedData.email === data.email &&
+            submittedData.password === data.password;
+
+        if (pending && expiresIn > 0 && unchanged) {
+            navigate("/register/verify");
+            return;
+        }
+
+        // Uma requisição nova pode substituir a tentativa anterior mesmo se a resposta se perder.
+        discardPendingRegistration();
         try {
-            await signUp(data);
-            navigate("/login");
+            const response = await signUp(data);
+            saveRegistration(response, data);
+            navigate("/register/verify");
         } catch (error) {
             setError("root", {
                 message: getErrorMessage(
@@ -45,7 +75,11 @@ export function Register() {
                 <h1 className="font-display text-3xl font-bold text-white">Crie uma conta!</h1>
                 <p className="mt-1 text-ink-dim">Comece a acompanhar seus jogos.</p>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    onChange={() => setDraft(getValues())}
+                    className="mt-10 space-y-6"
+                >
                     <AuthInput
                         label="Nome"
                         type="text"

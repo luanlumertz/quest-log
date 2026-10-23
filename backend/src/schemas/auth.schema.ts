@@ -56,6 +56,22 @@ export const updateUserSchema = z
     })
     .strict();
 
+export const verifyRegistrationSchema = z
+    .object({
+        pendingRegistrationId: z.uuid(),
+
+        code: z.string().regex(/^\d{6}$/, { error: "O código deve conter 6 dígitos" }),
+    })
+    .strict();
+
+export const resendRegistrationCodeSchema = z
+    .object({
+        pendingRegistrationId: z.uuid(),
+    })
+    .strict();
+
+export type ResendRegistrationCodeData = z.output<typeof resendRegistrationCodeSchema>;
+export type VerifyRegistrationData = z.output<typeof verifyRegistrationSchema>;
 export type RegisterUserPayload = z.input<typeof registerUserSchema>;
 export type RegisterUserData = z.output<typeof registerUserSchema>;
 export type LoginUserPayload = z.input<typeof loginUserSchema>;
