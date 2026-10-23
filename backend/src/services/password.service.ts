@@ -1,5 +1,7 @@
 import { AppError } from "../errors/AppError.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
+import { generateToken } from "../lib/jwt.js";
+import { generateRefreshToken, hashRefreshToken } from "../lib/refreshToken.js";
 import { generatePasswordResetToken, hashPasswordResetToken } from "../lib/passwordResetToken.js";
 import {
     generateVerificationCode,
@@ -9,11 +11,13 @@ import {
 import {
     MAX_VERIFICATION_ATTEMPTS,
     PASSWORD_RESET_TOKEN_EXPIRES_IN_MS,
+    REFRESH_TOKEN_EXPIRES_IN_MS,
 } from "../constants/auth.js";
 import {
     authorizePasswordReset,
-    changePasswordAndRevokeSessions,
+    changePasswordAndRenewSession,
     findPasswordRecoveryByEmail,
+    findPasswordRecoveryByResetTokenHash,
     incrementPasswordRecoveryAttempts,
     resetPasswordWithToken,
 } from "../repositories/passwordRecovery.repository.js";
@@ -28,6 +32,12 @@ import { sendPasswordChangedNotification, sendPasswordRecoveryCode } from "./pas
 
 const dummyCodeHash = hashVerificationCode(generateVerificationCode());
 const pendingRecoveryEmails = new Set<Promise<void>>();
+
+async function assertDifferentPassword(password: string, currentPasswordHash: string) {
+    if (await comparePassword(password, currentPasswordHash)) {
+        throw new AppError("A nova senha deve ser diferente da senha atual.", 422);
+    }
+}
 
 export function requestPasswordRecovery(data: RequestPasswordRecoveryData) {
     // O HTTP não espera consulta à conta nem SMTP, evitando revelar sua existência pelo tempo.
@@ -86,11 +96,17 @@ export async function verifyPasswordRecovery(data: VerifyPasswordRecoveryData) {
 }
 
 export async function resetPassword(data: ResetPasswordData) {
+    const resetTokenHash = hashPasswordResetToken(data.resetToken);
+    const recovery = await findPasswordRecoveryByResetTokenHash(resetTokenHash);
+
+    if (!recovery?.resetTokenExpiresAt || recovery.resetTokenExpiresAt <= new Date()) {
+        throw new AppError("Autorização inválida ou expirada. Solicite um novo código.", 400);
+    }
+
+    await assertDifferentPassword(data.password, recovery.user.passwordHash);
+
     const passwordHash = await hashPassword(data.password);
-    const user = await resetPasswordWithToken(
-        hashPasswordResetToken(data.resetToken),
-        passwordHash,
-    );
+    const user = await resetPasswordWithToken(resetTokenHash, passwordHash);
 
     if (!user) {
         throw new AppError("Autorização inválida ou expirada. Solicite um novo código.", 400);
@@ -112,12 +128,22 @@ export async function changePassword(userId: number, data: ChangePasswordData) {
         throw new AppError("Senha atual incorreta.", 400);
     }
 
+    await assertDifferentPassword(data.password, user.passwordHash);
+
     const passwordHash = await hashPassword(data.password);
-    const updated = await changePasswordAndRevokeSessions(
+    const refreshToken = generateRefreshToken();
+    const accessToken = generateToken(user.id, user.sessionVersion + 1);
+    const updated = await changePasswordAndRenewSession(
         user.id,
         user.sessionVersion,
         passwordHash,
+        {
+            tokenHash: hashRefreshToken(refreshToken),
+            expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_MS),
+        },
     );
 
-    await sendPasswordChangedNotification(updated.email);
+    await sendPasswordChangedNotification(updated.email, { currentSessionRenewed: true });
+
+    return { accessToken, refreshToken };
 }

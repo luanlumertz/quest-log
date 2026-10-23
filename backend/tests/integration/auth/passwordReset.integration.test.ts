@@ -81,14 +81,56 @@ describe("POST /auth/password/reset", () => {
         assert.exists(notification);
         assert.equal(notification.to, payload.email);
         assert.equal(notification.subject, "Sua senha foi alterada - QuestLog");
+        assert.include(notification.text, "Todas as sessões foram encerradas.");
         assert.notInclude(notification.text, password);
         assert.notInclude(notification.text, resetToken);
+    });
+
+    test("deve rejeitar a mesma senha e permitir outra senha usando a mesma autorização", async () => {
+        const { payload, user, resetToken } = await createAuthorizedPasswordReset();
+
+        await loginUser({ email: payload.email, password: payload.password });
+
+        const userBefore = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+        const sessionsBefore = await prisma.refreshSession.findMany({ where: { userId: user.id } });
+        const recoveryBefore = await prisma.passwordRecovery.findUniqueOrThrow({
+            where: { userId: user.id },
+        });
+        const emailsBefore = vi.mocked(sendEmail).mock.calls.length;
+
+        const response = await resetPassword({ resetToken, password: payload.password });
+
+        assert.equal(response.status, 422);
+        assert.equal(response.body.message, "A nova senha deve ser diferente da senha atual.");
+        assert.notExists(response.headers["set-cookie"]);
+        assert.equal(vi.mocked(sendEmail).mock.calls.length, emailsBefore);
+
+        const userAfter = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+        const sessionsAfter = await prisma.refreshSession.findMany({ where: { userId: user.id } });
+        const recoveryAfter = await prisma.passwordRecovery.findUniqueOrThrow({
+            where: { userId: user.id },
+        });
+
+        assert.equal(userAfter.passwordHash, userBefore.passwordHash);
+        assert.equal(userAfter.sessionVersion, userBefore.sessionVersion);
+        assert.deepEqual(sessionsAfter, sessionsBefore);
+        assert.deepEqual(recoveryAfter, recoveryBefore);
+
+        const retry = await resetPassword({ resetToken, password });
+        const persisted = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+
+        assert.equal(retry.status, 204);
+        assert.isTrue(await comparePassword(password, persisted.passwordHash));
+        assert.equal(persisted.sessionVersion, 1);
+        assert.equal(await prisma.passwordRecovery.count({ where: { userId: user.id } }), 0);
+        assert.equal(await prisma.refreshSession.count({ where: { userId: user.id } }), 0);
+        assert.equal(vi.mocked(sendEmail).mock.calls.length, emailsBefore + 1);
     });
 
     test.each(["inexistente", "expirada"] as const)(
         "não deve alterar senha nem consumir autorização com uma autorização %s",
         async (scenario) => {
-            const { user, recovery, resetToken } = await createAuthorizedPasswordReset();
+            const { payload, user, recovery, resetToken } = await createAuthorizedPasswordReset();
             const userBefore = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
             const emailsBefore = vi.mocked(sendEmail).mock.calls.length;
 
@@ -101,7 +143,7 @@ describe("POST /auth/password/reset", () => {
 
             const response = await resetPassword({
                 resetToken: scenario === "inexistente" ? "a".repeat(64) : resetToken,
-                password,
+                password: payload.password,
             });
 
             assert.equal(response.status, 400);

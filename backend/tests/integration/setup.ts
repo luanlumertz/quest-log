@@ -4,6 +4,7 @@ import { ipKeyGenerator } from "express-rate-limit";
 import { prisma } from "../../src/lib/prisma.js";
 import {
     loginRateLimiter,
+    refreshRateLimiter,
     registrationRateLimiter,
     verificationRateLimiter,
     resendRateLimiter,
@@ -12,6 +13,7 @@ import {
     passwordResetRateLimiter,
     passwordChangeIpRateLimiter,
     passwordChangeRateLimiter,
+    rawgRateLimiter,
 } from "../../src/middlewares/rateLimit.middleware.js";
 import { waitForPasswordRecoveryEmails } from "../../src/services/password.service.js";
 
@@ -38,6 +40,7 @@ beforeEach(async () => {
     // Cada teste começa com contadores vazios; o bloqueio continua ativo dentro dele.
     for (const limiter of [
         loginRateLimiter,
+        refreshRateLimiter,
         registrationRateLimiter,
         verificationRateLimiter,
         resendRateLimiter,
@@ -55,6 +58,7 @@ beforeEach(async () => {
 
     for (const user of users) {
         passwordChangeRateLimiter.resetKey(String(user.id));
+        rawgRateLimiter.resetKey(String(user.id));
     }
 
     await prisma.passwordRecovery.deleteMany();

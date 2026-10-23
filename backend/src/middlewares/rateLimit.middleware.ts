@@ -11,6 +11,17 @@ export const loginRateLimiter = rateLimit({
     },
 });
 
+export const refreshRateLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    limit: 100,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        message:
+            "Muitas solicitações de renovação de sessão. Aguarde alguns minutos e tente novamente.",
+    },
+});
+
 export const registrationRateLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     limit: 10,
@@ -81,4 +92,16 @@ export const passwordChangeIpRateLimiter = rateLimit({
     standardHeaders: "draft-8",
     legacyHeaders: false,
     message: { message: "Muitas tentativas de alteração de senha. Tente novamente mais tarde." },
+});
+
+// Busca, detalhes e adição à biblioteca compartilham 250 chamadas por usuário em cinco minutos.
+export const rawgRateLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    limit: 250,
+    keyGenerator: (req) => String(req.userId!),
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        message: "Muitas consultas em pouco tempo. Aguarde alguns minutos e tente novamente.",
+    },
 });

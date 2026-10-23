@@ -9,7 +9,7 @@ import {
 } from "../../../src/lib/passwordResetToken.js";
 import {
     authorizePasswordReset,
-    changePasswordAndRevokeSessions,
+    changePasswordAndRenewSession,
     incrementPasswordRecoveryAttempts,
     invalidatePasswordRecoveryCode,
 } from "../../../src/repositories/passwordRecovery.repository.js";
@@ -144,13 +144,60 @@ describe("Recuperação de senha: concorrência", () => {
         assert.equal(await prisma.refreshSession.count({ where: { userId: user.id } }), 0);
     });
 
+    test("deve manter somente a nova sessão quando refresh e troca pelo perfil ocorrerem juntos", async () => {
+        const { user, payload } = await createRegisteredUser();
+
+        await loginUser({ email: payload.email, password: payload.password });
+
+        const session = await prisma.refreshSession.findFirstOrThrow({
+            where: { userId: user.id },
+        });
+        const passwordHash = await hashPassword("senha atualizada");
+        const results = await Promise.allSettled([
+            changePasswordAndRenewSession(user.id, 0, passwordHash, {
+                tokenHash: "sessao-da-troca",
+                expiresAt: new Date(Date.now() + 600_000),
+            }),
+            rotateRefreshSession(
+                session.id,
+                user.id,
+                "sessao-do-refresh-antigo",
+                new Date(Date.now() + 600_000),
+                0,
+            ),
+        ]);
+
+        const change = results[0]!;
+        const rotation = results[1]!;
+
+        assert.equal(change.status, "fulfilled");
+
+        if (rotation.status === "rejected") {
+            assert.equal(rotation.reason.statusCode, 401);
+        }
+
+        const sessions = await prisma.refreshSession.findMany({ where: { userId: user.id } });
+        const persisted = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+
+        assert.equal(sessions.length, 1);
+        assert.equal(sessions[0]!.tokenHash, "sessao-da-troca");
+        assert.equal(persisted.sessionVersion, 1);
+        assert.equal(persisted.passwordHash, passwordHash);
+    });
+
     test("deve aceitar uma única troca pelo perfil para a mesma versão de sessão", async () => {
         const { user } = await createRegisteredUser();
         const passwordHash = await hashPassword("senha atualizada");
 
         const results = await Promise.allSettled([
-            changePasswordAndRevokeSessions(user.id, 0, passwordHash),
-            changePasswordAndRevokeSessions(user.id, 0, passwordHash),
+            changePasswordAndRenewSession(user.id, 0, passwordHash, {
+                tokenHash: "primeira-sessao",
+                expiresAt: new Date(Date.now() + 600_000),
+            }),
+            changePasswordAndRenewSession(user.id, 0, passwordHash, {
+                tokenHash: "segunda-sessao",
+                expiresAt: new Date(Date.now() + 600_000),
+            }),
         ]);
 
         assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
@@ -164,5 +211,6 @@ describe("Recuperação de senha: concorrência", () => {
 
         assert.equal(persisted.sessionVersion, 1);
         assert.equal(persisted.passwordHash, passwordHash);
+        assert.equal(await prisma.refreshSession.count({ where: { userId: user.id } }), 1);
     });
 });

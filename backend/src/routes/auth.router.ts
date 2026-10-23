@@ -3,6 +3,7 @@ import { authenticateToken } from "../middlewares/auth.middleware.js";
 import { validateBody } from "../middlewares/validate.middleware.js";
 import {
     loginRateLimiter,
+    refreshRateLimiter,
     registrationRateLimiter,
     resendRateLimiter,
     verificationRateLimiter,
@@ -54,7 +55,7 @@ userRoutes.post("/logout", logoutUserController);
 userRoutes.get("/me", authenticateToken, getCurrentUserController);
 userRoutes.patch("/me", authenticateToken, validateBody(updateUserSchema), updateUserController);
 userRoutes.delete("/me", authenticateToken, deleteUserController);
-userRoutes.post("/refresh", refreshTokenController);
+userRoutes.post("/refresh", refreshRateLimiter, refreshTokenController);
 userRoutes.post(
     "/register/verify",
     verificationRateLimiter,

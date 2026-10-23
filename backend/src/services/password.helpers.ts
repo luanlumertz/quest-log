@@ -25,12 +25,19 @@ export async function sendPasswordRecoveryCode(email: string) {
     }
 }
 
-export async function sendPasswordChangedNotification(email: string) {
+export async function sendPasswordChangedNotification(
+    email: string,
+    { currentSessionRenewed = false }: { currentSessionRenewed?: boolean } = {},
+) {
+    const sessionMessage = currentSessionRenewed
+        ? "As outras sessões foram encerradas. Você continua conectado no navegador em que alterou a senha."
+        : "Todas as sessões foram encerradas.";
+
     try {
         await sendEmail({
             to: email,
             subject: "Sua senha foi alterada - QuestLog",
-            text: "A senha da sua conta no QuestLog foi alterada. Todas as sessões foram encerradas. Se você não fez esta alteração, recupere sua senha e verifique a segurança do seu e-mail.",
+            text: `A senha da sua conta no QuestLog foi alterada. ${sessionMessage} Se você não fez esta alteração, recupere sua senha e verifique a segurança do seu e-mail.`,
         });
     } catch (error) {
         // A senha já foi alterada; uma falha no aviso não deve aparentar desfazer a operação.

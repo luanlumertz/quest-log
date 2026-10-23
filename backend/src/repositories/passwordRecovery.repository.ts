@@ -70,6 +70,16 @@ export function findPasswordRecoveryByEmail(email: string) {
     return prisma.passwordRecovery.findFirst({ where: { user: { email } } });
 }
 
+export function findPasswordRecoveryByResetTokenHash(resetTokenHash: string) {
+    return prisma.passwordRecovery.findUnique({
+        where: { resetTokenHash },
+        select: {
+            resetTokenExpiresAt: true,
+            user: { select: { passwordHash: true } },
+        },
+    });
+}
+
 export function incrementPasswordRecoveryAttempts(recovery: PasswordRecovery) {
     return prisma.passwordRecovery.updateMany({
         where: {
@@ -127,7 +137,7 @@ async function updatePasswordAndRevokeSessions(
     await tx.refreshSession.deleteMany({ where: { userId } });
     await tx.passwordRecovery.deleteMany({ where: { userId } });
 
-    return { email: user.email };
+    return { email: user.email, sessionVersion: user.sessionVersion };
 }
 
 export function resetPasswordWithToken(resetTokenHash: string, passwordHash: string) {
@@ -155,10 +165,11 @@ export function resetPasswordWithToken(resetTokenHash: string, passwordHash: str
     });
 }
 
-export function changePasswordAndRevokeSessions(
+export function changePasswordAndRenewSession(
     userId: number,
     expectedSessionVersion: number,
     passwordHash: string,
+    session: { tokenHash: string; expiresAt: Date },
 ) {
     return runSessionTransaction(async (tx) => {
         const user = await lockUserForSession(tx, userId);
@@ -167,6 +178,13 @@ export function changePasswordAndRevokeSessions(
             throw new AppError("Sessão inválida. Entre novamente para alterar a senha.", 401);
         }
 
-        return updatePasswordAndRevokeSessions(tx, user.id, passwordHash);
+        const updated = await updatePasswordAndRevokeSessions(tx, user.id, passwordHash);
+
+        // A senha e a sessão substituta são gravadas juntas: uma falha desfaz toda a troca.
+        await tx.refreshSession.create({
+            data: { userId: user.id, ...session },
+        });
+
+        return updated;
     });
 }

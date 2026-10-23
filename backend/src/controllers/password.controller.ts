@@ -1,5 +1,10 @@
 import type { Request, Response } from "express";
-import { clearAccessTokenCookie, clearRefreshTokenCookie } from "../lib/authCookies.js";
+import {
+    clearAccessTokenCookie,
+    clearRefreshTokenCookie,
+    setAccessTokenCookie,
+    setRefreshTokenCookie,
+} from "../lib/authCookies.js";
 import type {
     ChangePasswordData,
     RequestPasswordRecoveryData,
@@ -47,10 +52,10 @@ export async function changePasswordController(
     req: Request<Record<string, string>, unknown, ChangePasswordData>,
     res: Response,
 ) {
-    await changePassword(req.userId!, req.body);
+    const result = await changePassword(req.userId!, req.body);
 
-    clearAccessTokenCookie(res);
-    clearRefreshTokenCookie(res);
+    setAccessTokenCookie(res, result.accessToken);
+    setRefreshTokenCookie(res, result.refreshToken);
 
     return res.status(204).send();
 }
