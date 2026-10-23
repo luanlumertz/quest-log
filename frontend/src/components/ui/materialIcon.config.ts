@@ -10,6 +10,7 @@ export const MATERIAL_ICON_NAMES = [
     "library_add",
     "library_books",
     "logout",
+    "mail",
     "person",
     "schedule",
     "search",
@@ -17,7 +18,7 @@ export const MATERIAL_ICON_NAMES = [
     "stadia_controller",
     "undo",
     "visibility",
-    "visibility_off"
+    "visibility_off",
 ] as const;
 
 export type MaterialIconName = (typeof MATERIAL_ICON_NAMES)[number];

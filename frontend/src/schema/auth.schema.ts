@@ -63,6 +63,13 @@ export const updateSchema = z
     })
     .strict();
 
+export const verificationSchema = z
+    .object({
+        code: z.string().regex(/^\d{6}$/, { error: "Digite o código de seis dígitos" }),
+    })
+    .strict();
+
+export type VerificationData = z.infer<typeof verificationSchema>;
 export type RegisterFormData = z.input<typeof registerSchema>;
 export type RegisterData = z.output<typeof registerSchema>;
 export type LoginData = z.infer<typeof loginSchema>;

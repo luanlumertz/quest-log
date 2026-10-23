@@ -8,6 +8,7 @@ import type { User } from "../../types/auth.types";
 import { Button } from "../ui/Button";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import { Alert } from "../ui/Alert";
+import { SuccessAlert } from "../ui/SuccessAlert";
 
 type AccountInformationProps = {
     user: User;
@@ -18,19 +19,12 @@ type AccountInformationProps = {
 // Retira apenas os espaços excedentes; preserva maiúsculas e minúsculas.
 const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
 
-export function AccountInformation({
-    user,
-    disabled,
-    onUpdatingChange
-}: AccountInformationProps) {
+export function AccountInformation({ user, disabled, onUpdatingChange }: AccountInformationProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [updateError, setUpdateError] = useState("");
 
-    const {
-        mutateAsync: updateUser,
-        isPending: isUpdating
-    } = useUpdateCurrentUser();
+    const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateCurrentUser();
 
     const {
         register,
@@ -38,16 +32,16 @@ export function AccountInformation({
         reset,
         control,
         setValue,
-        formState: { errors, isValid }
+        formState: { errors, isValid },
     } = useForm<UpdateData>({
         resolver: zodResolver(updateSchema),
         mode: "onChange",
-        defaultValues: { name: user.name }
+        defaultValues: { name: user.name },
     });
 
     const watchedName = useWatch({
         control,
-        name: "name"
+        name: "name",
     });
     const hasChanges = normalizeName(watchedName ?? "") !== normalizeName(user.name);
 
@@ -57,14 +51,6 @@ export function AccountInformation({
             reset({ name: user.name });
         }
     }, [user.name, isEditing, reset]);
-
-    // Após 3 segundos, inicia um fade-out de 300 ms.
-    useEffect(() => {
-        if (!showSuccess) return;
-
-        const timeout = setTimeout(() => setShowSuccess(false), 3000);
-        return () => clearTimeout(timeout);
-    }, [showSuccess]);
 
     function handleEdit() {
         setShowSuccess(false);
@@ -91,12 +77,7 @@ export function AccountInformation({
             setIsEditing(false);
             setShowSuccess(true);
         } catch (error) {
-            setUpdateError(
-                getErrorMessage(
-                    error,
-                    "Não foi possível atualizar seu nome."
-                )
-            );
+            setUpdateError(getErrorMessage(error, "Não foi possível atualizar seu nome."));
         } finally {
             onUpdatingChange(false);
         }
@@ -121,12 +102,11 @@ export function AccountInformation({
                             <input
                                 {...register("name", {
                                     onBlur: (event) => {
-                                        setValue(
-                                            "name",
-                                            normalizeName(event.target.value),
-                                            { shouldValidate: true, shouldDirty: true }
-                                        );
-                                    }
+                                        setValue("name", normalizeName(event.target.value), {
+                                            shouldValidate: true,
+                                            shouldDirty: true,
+                                        });
+                                    },
                                 })}
                                 type="text"
                                 aria-label="Nome"
@@ -148,11 +128,7 @@ export function AccountInformation({
                                 </p>
                             )}
 
-                            {updateError && (
-                                <Alert className="mt-3">
-                                    {updateError}
-                                </Alert>
-                            )}
+                            {updateError && <Alert className="mt-3">{updateError}</Alert>}
 
                             <div className="mt-3 flex items-center gap-2">
                                 <Button
@@ -193,22 +169,13 @@ export function AccountInformation({
                         </div>
                     )}
 
-                    <div
-                        aria-hidden={!showSuccess}
-                        className={`
-                            overflow-hidden
-                            transition-[max-height,opacity,transform,margin]
-                            duration-300 ease-in-out motion-reduce:transition-none
-                            ${showSuccess
-                                ? "mt-5 max-h-20 translate-y-0 opacity-100"
-                                : "pointer-events-none mt-0 max-h-0 -translate-y-1 opacity-0"
-                            }
-                        `}
+                    <SuccessAlert
+                        visible={showSuccess}
+                        onVisibleChange={setShowSuccess}
+                        className="mt-5"
                     >
-                        <Alert variant="success">
-                            Nome atualizado com sucesso!
-                        </Alert>
-                    </div>
+                        Nome atualizado com sucesso!
+                    </SuccessAlert>
                 </div>
 
                 <div className="mt-5">

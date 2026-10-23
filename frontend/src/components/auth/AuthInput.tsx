@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { HTMLInputTypeAttribute } from "react";
+import type { HTMLInputTypeAttribute, HTMLAttributes } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { MaterialIcon } from "../ui/MaterialIcon";
 
@@ -10,6 +10,9 @@ type AuthInputProps = {
     autoComplete?: string;
     registration: UseFormRegisterReturn;
     error?: string;
+    inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
+    maxLength?: number;
+    inputClassName?: string;
 };
 
 export function AuthInput({
@@ -18,7 +21,10 @@ export function AuthInput({
     placeholder,
     autoComplete,
     registration,
-    error
+    error,
+    inputMode,
+    maxLength,
+    inputClassName = "",
 }: AuthInputProps) {
     const id = registration.name;
     const errorId = `${id}-error`;
@@ -48,6 +54,8 @@ export function AuthInput({
                     type={inputType}
                     placeholder={placeholder}
                     autoComplete={autoComplete}
+                    inputMode={inputMode}
+                    maxLength={maxLength}
                     aria-invalid={!!error}
                     aria-describedby={error ? errorId : undefined}
                     {...registration}
@@ -64,6 +72,7 @@ export function AuthInput({
                         focus:ring-2
                         focus:ring-brand-glow
                         ${isPassword ? "pr-12" : ""}
+                        ${inputClassName}
                     `}
                 />
 

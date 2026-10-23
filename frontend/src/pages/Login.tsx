@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+import { useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,11 +14,16 @@ import { AuthInput } from "../components/auth/AuthInput";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Alert } from "../components/ui/Alert";
+import { SuccessAlert } from "../components/ui/SuccessAlert";
 
 export function Login() {
     useDocumentTitle("Entrar");
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const [showSuccess, setShowSuccess] = useState(
+        () => location.state?.registrationSuccess === true,
+    );
 
     const { setUser } = useAuth();
 
@@ -25,10 +31,7 @@ export function Login() {
         register,
         handleSubmit,
         setError,
-        formState: {
-            errors,
-            isSubmitting
-        }
+        formState: { errors, isSubmitting },
     } = useForm<LoginData>({ resolver: zodResolver(loginSchema) });
 
     async function onSubmit(data: LoginData) {
@@ -40,10 +43,7 @@ export function Login() {
             navigate("/dashboard");
         } catch (error) {
             setError("root", {
-                message: getErrorMessage(
-                    error,
-                    "Não foi possível entrar. Tente novamente."
-                )
+                message: getErrorMessage(error, "Não foi possível entrar. Tente novamente."),
             });
         }
     }
@@ -54,10 +54,15 @@ export function Login() {
                 <h1 className="font-display text-3xl font-bold text-white">Bem-vindo!</h1>
                 <p className="mt-1 text-ink-dim">Acesse sua biblioteca de jogos.</p>
 
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="mt-10 space-y-6"
+                <SuccessAlert
+                    visible={showSuccess}
+                    onVisibleChange={setShowSuccess}
+                    className="mt-6"
                 >
+                    E-mail confirmado! Sua conta foi criada. Entre para começar.
+                </SuccessAlert>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6">
                     <AuthInput
                         label="Email"
                         type="email"
@@ -76,11 +81,7 @@ export function Login() {
                         error={errors.password?.message}
                     />
 
-                    {errors.root?.message && (
-                        <Alert>
-                            {errors.root.message}
-                        </Alert>
-                    )}
+                    {errors.root?.message && <Alert>{errors.root.message}</Alert>}
 
                     <Button
                         type="submit"
@@ -96,10 +97,9 @@ export function Login() {
                 <div className="mt-8 text-center">
                     <p className="text-sm text-ink-dim">
                         Não tem uma conta?{" "}
-                        <Link
-                            to="/register"
-                            className="font-semibold text-brand hover:underline"
-                        >Cadastre-se </Link>
+                        <Link to="/register" className="font-semibold text-brand hover:underline">
+                            Cadastre-se{" "}
+                        </Link>
                     </p>
                 </div>
             </div>

@@ -3,12 +3,12 @@ import { Logo } from "../ui/Logo";
 
 type AuthLayoutProps = {
     children: ReactNode;
+    mobileNavigation?: ReactNode;
 };
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout({ children, mobileNavigation }: AuthLayoutProps) {
     return (
         <div className="min-h-dvh bg-backdrop text-ink lg:grid lg:grid-cols-[3fr_2fr]">
-
             {/* Lado esquerdo - Desktop */}
             <aside
                 className="
@@ -31,7 +31,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     </h2>
 
                     <p className="mt-4 text-lg text-ink-dim">
-                        Acompanhe sua lista de jogos. Avalie o que você joga. Assuma o controle da sua jornada.
+                        Acompanhe sua lista de jogos. Avalie o que você joga. Assuma o controle da
+                        sua jornada.
                     </p>
                 </div>
             </aside>
@@ -61,9 +62,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="absolute inset-0 bg-backdrop/60 lg:bg-backdrop" />
 
                 <div className="relative z-10 w-full max-w-md">
+                    {mobileNavigation && <div className="mb-6 lg:hidden">{mobileNavigation}</div>}
 
                     {/* No desktop a marca já aparece do lado esquerdo */}
-                    <div className="mb-12 lg:hidden">
+                    <div className="mb-6 lg:hidden">
                         <Logo />
                     </div>
 

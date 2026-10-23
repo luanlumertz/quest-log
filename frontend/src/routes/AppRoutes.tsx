@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router";
 
 import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
+import { VerifyRegistration } from "../pages/VerifyRegistration";
+import { RegistrationProvider } from "../contexts/RegistrationProvider";
 import { Dashboard } from "../pages/Dashboard";
 import { SearchGames } from "../pages/SearchGames";
 import { GameDetails } from "../pages/GameDetails";
@@ -15,26 +17,29 @@ import { AppLayout } from "../components/layout/AppLayout";
 import { Profile } from "../pages/Profile";
 
 export function AppRoutes() {
-  return (
-    <Routes>
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Route>
+    return (
+        <Routes>
+            <Route element={<PublicRoute />}>
+                <Route path="/login" element={<Login />} />
+                <Route element={<RegistrationProvider />}>
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/register/verify" element={<VerifyRegistration />} />
+                </Route>
+            </Route>
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/games/search" element={<SearchGames />} />
-          <Route path="/games/:externalId" element={<GameDetails />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/library/:gameId" element={<LibraryGameDetails />} />
-          <Route path="/profile" element={<Profile />}></Route>
-        </Route>
-      </Route>
+            <Route element={<ProtectedRoute />}>
+                <Route element={<AppLayout />}>
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/games/search" element={<SearchGames />} />
+                    <Route path="/games/:externalId" element={<GameDetails />} />
+                    <Route path="/library" element={<Library />} />
+                    <Route path="/library/:gameId" element={<LibraryGameDetails />} />
+                    <Route path="/profile" element={<Profile />}></Route>
+                </Route>
+            </Route>
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
+            <Route path="*" element={<NotFound />} />
+        </Routes>
+    );
 }
