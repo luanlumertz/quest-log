@@ -1,4 +1,4 @@
-import { beforeEach } from "vitest";
+import { beforeEach, afterEach } from "vitest";
 import { ipKeyGenerator } from "express-rate-limit";
 
 import { prisma } from "../../src/lib/prisma.js";
@@ -7,7 +7,13 @@ import {
     registrationRateLimiter,
     verificationRateLimiter,
     resendRateLimiter,
+    passwordRecoveryRateLimiter,
+    passwordVerificationRateLimiter,
+    passwordResetRateLimiter,
+    passwordChangeIpRateLimiter,
+    passwordChangeRateLimiter,
 } from "../../src/middlewares/rateLimit.middleware.js";
+import { waitForPasswordRecoveryEmails } from "../../src/services/password.service.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -27,17 +33,31 @@ if (databaseName !== "quest_log_test" || !allowedHosts.includes(url.hostname)) {
 }
 
 beforeEach(async () => {
+    await waitForPasswordRecoveryEmails();
+
     // Cada teste começa com contadores vazios; o bloqueio continua ativo dentro dele.
     for (const limiter of [
         loginRateLimiter,
         registrationRateLimiter,
         verificationRateLimiter,
         resendRateLimiter,
+        passwordRecoveryRateLimiter,
+        passwordVerificationRateLimiter,
+        passwordResetRateLimiter,
+        passwordChangeIpRateLimiter,
     ]) {
         for (const ip of ["127.0.0.1", "::ffff:127.0.0.1", "::1"]) {
-            await limiter.resetKey(ipKeyGenerator(ip));
+            limiter.resetKey(ipKeyGenerator(ip));
         }
     }
+
+    const users = await prisma.user.findMany({ select: { id: true } });
+
+    for (const user of users) {
+        passwordChangeRateLimiter.resetKey(String(user.id));
+    }
+
+    await prisma.passwordRecovery.deleteMany();
     await prisma.pendingRegistration.deleteMany();
     await prisma.libraryEntryPlatform.deleteMany();
     await prisma.libraryEntry.deleteMany();
@@ -47,4 +67,8 @@ beforeEach(async () => {
     await prisma.game.deleteMany();
     await prisma.platform.deleteMany();
     await prisma.user.deleteMany();
+});
+
+afterEach(async () => {
+    await waitForPasswordRecoveryEmails();
 });
