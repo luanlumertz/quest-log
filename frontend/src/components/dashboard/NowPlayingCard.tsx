@@ -8,20 +8,13 @@ import { MaterialIcon } from "../ui/MaterialIcon";
 
 type NowPlayingCardProps = {
     entry: LibraryEntry;
+    tabIndex?: number;
 };
 
-export function NowPlayingCard({ entry }: NowPlayingCardProps) {
-    const {
-        game,
-        status,
-        rating,
-        playtimeMinutes,
-        platforms,
-    } = entry;
+export function NowPlayingCard({ entry, tabIndex }: NowPlayingCardProps) {
+    const { game, status, rating, playtimeMinutes, platforms } = entry;
 
-    const releaseYear = game.releaseDate
-        ? new Date(game.releaseDate).getFullYear()
-        : null;
+    const releaseYear = game.releaseDate ? new Date(game.releaseDate).getFullYear() : null;
 
     const visiblePlatforms = platforms.slice(0, 3);
     const remainingPlatforms = platforms.length - visiblePlatforms.length;
@@ -37,6 +30,7 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
     return (
         <Link
             to={`/library/${game.id}`}
+            tabIndex={tabIndex}
             className="
             group block overflow-hidden
             rounded-[20px]
@@ -66,11 +60,7 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
                 </div>
 
                 <div className="absolute right-4 top-4">
-                    <GameStatusBadge
-                        status={status}
-                        backgroundOpacity="99"
-                        textColor="white"
-                    />
+                    <GameStatusBadge status={status} backgroundOpacity="99" textColor="white" />
                 </div>
 
                 <div className="absolute inset-x-5 bottom-5">
@@ -78,32 +68,21 @@ export function NowPlayingCard({ entry }: NowPlayingCardProps) {
                         {game.title}
                     </h3>
 
-                    {metadata && (
-                        <p className="mt-1.5 truncate text-xs text-ink-dim">
-                            {metadata}
-                        </p>
-                    )}
+                    {metadata && <p className="mt-1.5 truncate text-xs text-ink-dim">{metadata}</p>}
                 </div>
             </div>
 
             <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <div className="flex shrink-0 items-center gap-1.5 text-sm text-ink-mute">
-                    <MaterialIcon
-                        name="schedule"
-                        className="text-[18px]!"
-                    />
+                    <MaterialIcon name="schedule" className="text-[18px]!" />
 
-                    <span className="whitespace-nowrap">
-                        {formatPlayTime(playtimeMinutes)}
-                    </span>
+                    <span className="whitespace-nowrap">{formatPlayTime(playtimeMinutes)}</span>
                 </div>
 
                 {rating !== null ? (
                     <RatingStars rating={rating} />
                 ) : (
-                    <span className="text-sm text-ink-mute">
-                        Sem nota
-                    </span>
+                    <span className="text-sm text-ink-mute">Sem nota</span>
                 )}
             </div>
         </Link>
