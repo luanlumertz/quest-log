@@ -16,6 +16,7 @@ import { LibraryFilters } from "../components/library/list/LibraryFilters";
 import { Alert } from "../components/ui/Alert";
 import { Button } from "../components/ui/Button";
 import { StateView } from "../components/ui/StateView";
+import { LoadingState } from "../components/ui/LoadingState";
 
 function isGameStatus(value: string | null): value is GameStatus {
     return value !== null && Object.prototype.hasOwnProperty.call(GAME_STATUS_CONFIG, value);
@@ -149,7 +150,7 @@ export function Library() {
             )}
 
             {isLoading || isResolvingEmptyState ? (
-                <LibraryLoading />
+                <LoadingState label="Carregando biblioteca..." />
             ) : isError ? (
                 <StateView
                     icon="error"
@@ -191,24 +192,6 @@ export function Library() {
             ) : (
                 <LibraryGrid entries={entries} />
             )}
-        </div>
-    );
-}
-
-function LibraryLoading() {
-    return (
-        <div
-            role="status"
-            aria-label="Carregando biblioteca"
-            className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 lg:gap-4"
-        >
-            {Array.from({ length: 10 }).map((_, index) => (
-                <div
-                    key={index}
-                    aria-hidden="true"
-                    className="aspect-[3/4.9] animate-pulse rounded-2xl bg-surface-raised"
-                />
-            ))}
         </div>
     );
 }
