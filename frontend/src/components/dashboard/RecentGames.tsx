@@ -30,15 +30,10 @@ export function RecentGames({ games, totalGames }: RecentGamesProps) {
                     px-5 py-4
                 "
             >
-                <h2 className="font-semibold text-ink">
-                    Atividade recente
-                </h2>
+                <h2 className="font-semibold text-ink">Atividade recente</h2>
 
                 {hasRecentGames && (
-                    <Link
-                        to="/library"
-                        className="text-sm font-medium text-brand hover:underline"
-                    >
+                    <Link to="/library" className="text-sm font-medium text-brand hover:underline">
                         Ver todos →
                     </Link>
                 )}

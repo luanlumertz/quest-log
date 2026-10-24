@@ -13,7 +13,7 @@ export function ConfirmDeleteLibraryEntryModal({
     isDeleting,
     error,
     onConfirm,
-    onCancel
+    onCancel,
 }: ConfirmDeleteLibraryEntryModalProps) {
     return (
         <ConfirmModal
@@ -21,11 +21,8 @@ export function ConfirmDeleteLibraryEntryModal({
             title="Remover da biblioteca?"
             description={
                 <>
-                    <strong className="font-semibold text-ink">
-                        {gameTitle}
-                    </strong>{" "}
-                    será removido da sua biblioteca. 
-                    Os dados registrados para este jogo também serão removidos.
+                    <strong className="font-semibold text-ink">{gameTitle}</strong> será removido da
+                    sua biblioteca. Os dados registrados para este jogo também serão removidos.
                 </>
             }
             confirmText="Remover"

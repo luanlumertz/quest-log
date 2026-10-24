@@ -8,12 +8,7 @@ export function ProtectedRoute() {
     const { user, status, retryAuth } = useAuth();
 
     if (status === "loading") {
-        return (
-            <LoadingState
-                label="Verificando sessão..."
-                className="min-h-dvh! bg-backdrop"
-            />
-        );
+        return <LoadingState label="Verificando sessão..." className="min-h-dvh! bg-backdrop" />;
     }
 
     if (status === "error") {
@@ -24,22 +19,13 @@ export function ProtectedRoute() {
                 title="Não foi possível verificar sua sessão"
                 description="Verifique sua conexão e tente novamente."
                 className="min-h-dvh! bg-backdrop"
-                action={
-                    <Button onClick={() => void retryAuth()} >
-                        Tentar novamente
-                    </Button>
-                }
+                action={<Button onClick={() => void retryAuth()}>Tentar novamente</Button>}
             />
         );
     }
 
     if (status === "unauthenticated" || !user) {
-        return (
-            <Navigate
-                to="/login"
-                replace
-            />
-        );
+        return <Navigate to="/login" replace />;
     }
 
     return <Outlet />;

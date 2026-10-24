@@ -8,7 +8,7 @@ type SearchGamesFormProps = {
     onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
 };
 
-export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: SearchGamesFormProps) {
+export function SearchGamesForm({ inputValue, onInputChange, onSubmit }: SearchGamesFormProps) {
     return (
         <form
             onSubmit={onSubmit}
@@ -63,9 +63,7 @@ export function SearchGamesForm({ inputValue, onInputChange, onSubmit, }: Search
                             hover:text-white
                         "
                     >
-                        <MaterialIcon
-                            name="close"
-                        />
+                        <MaterialIcon name="close" />
                     </button>
                 )}
             </div>

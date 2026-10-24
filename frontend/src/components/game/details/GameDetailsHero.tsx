@@ -3,7 +3,6 @@ import type { LibraryEntry } from "../../../types/library.types";
 import { BackButton } from "../../ui/BackButton";
 import { GameDetailsLibraryAction } from "./GameDetailsLibraryAction";
 
-
 type GameDetailsHeroProps = {
     game: GameDetailsResult;
     coverUrl: string;
@@ -27,7 +26,7 @@ export function GameDetailsHero({
     isLibraryError,
     isLibraryFetching,
     onRetryLibrary,
-    onBack
+    onBack,
 }: GameDetailsHeroProps) {
     return (
         <section className="relative">
@@ -53,7 +52,8 @@ export function GameDetailsHero({
                 <div
                     className="absolute inset-0"
                     style={{
-                        background: "linear-gradient(90deg, rgba(11,13,19,0.90) 0%, rgba(11,13,19,0.76) 55%, rgba(11,13,19,0.5) 100%)"
+                        background:
+                            "linear-gradient(90deg, rgba(11,13,19,0.90) 0%, rgba(11,13,19,0.76) 55%, rgba(11,13,19,0.5) 100%)",
                     }}
                 />
             </div>
@@ -67,9 +67,7 @@ export function GameDetailsHero({
                     lg:min-h-90 lg:py-8
                 "
             >
-                <BackButton onClick={onBack}>
-                    Voltar para busca
-                </BackButton>
+                <BackButton onClick={onBack}>Voltar para busca</BackButton>
 
                 <div
                     className="

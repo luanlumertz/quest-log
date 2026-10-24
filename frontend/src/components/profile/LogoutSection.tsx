@@ -12,16 +12,14 @@ export function LogoutSection({
     isLoggingOut,
     logoutError,
     disabled,
-    onLogout
+    onLogout,
 }: LogoutSectionProps) {
     return (
         <section className="mt-4 rounded-2xl border border-divider bg-surface p-5">
             <div className="flex flex-col items-stretch gap-3 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
                 <div className="min-w-0">
                     <h2 className="text-sm font-medium text-ink">Sair</h2>
-                    <p className="mt-1 text-xs text-ink-mute">
-                        Encerre sua sessão atual.
-                    </p>
+                    <p className="mt-1 text-xs text-ink-mute">Encerre sua sessão atual.</p>
                 </div>
 
                 <Button
@@ -38,11 +36,7 @@ export function LogoutSection({
                 </Button>
             </div>
 
-            {logoutError && (
-                <Alert className="mt-3">
-                    {logoutError}
-                </Alert>
-            )}
+            {logoutError && <Alert className="mt-3">{logoutError}</Alert>}
         </section>
     );
 }

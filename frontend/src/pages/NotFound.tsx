@@ -39,17 +39,8 @@ export function NotFound() {
                         O endereço que você tentou acessar não existe.
                     </p>
 
-                    <ButtonLink
-                        to="/"
-                        size="lg"
-                        fullWidth
-                        className="mt-9 sm:w-auto"
-                    >
-                        <MaterialIcon
-                            name="arrow_back"
-                            className="text-[22px]!"
-                        />
-
+                    <ButtonLink to="/" size="lg" fullWidth className="mt-9 sm:w-auto">
+                        <MaterialIcon name="arrow_back" className="text-[22px]!" />
                         Voltar ao início
                     </ButtonLink>
                 </section>

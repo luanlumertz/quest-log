@@ -12,7 +12,7 @@ export function AddGameModalHeader({
     title,
     coverUrl,
     isSubmitting,
-    onClose
+    onClose,
 }: AddGameModalHeaderProps) {
     const isDefaultCover = !coverUrl;
     const imageUrl = coverUrl ?? DEFAULT_GAME_COVER_URL;
@@ -23,9 +23,10 @@ export function AddGameModalHeader({
                 className={`
                     absolute inset-0
                     bg-no-repeat
-                    ${isDefaultCover
-                        ? "bg-surface bg-cover bg-center"
-                        : "bg-cover bg-position-[center_25%]"
+                    ${
+                        isDefaultCover
+                            ? "bg-surface bg-cover bg-center"
+                            : "bg-cover bg-position-[center_25%]"
                     }
                 `}
                 style={{ backgroundImage: `url("${imageUrl}")` }}
@@ -67,10 +68,7 @@ export function AddGameModalHeader({
                         disabled:cursor-not-allowed disabled:opacity-50
                     "
                 >
-                    <MaterialIcon
-                        name="close"
-                        className="text-xl!"
-                    />
+                    <MaterialIcon name="close" className="text-xl!" />
                 </button>
             </div>
         </div>

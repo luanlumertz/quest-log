@@ -21,7 +21,7 @@ export function LibraryGameSummary({
     publishers,
     hasGameDetailsError,
     isGameDetailsFetching,
-    onRetryGameDetails
+    onRetryGameDetails,
 }: LibraryGameSummaryProps) {
     const coverUrl = entry.game.coverUrl ?? DEFAULT_GAME_COVER_URL;
 
@@ -135,9 +135,7 @@ export function LibraryGameSummary({
                 {hasGameDetailsError && (
                     <Alert className="mt-5">
                         <div>
-                            <p>
-                                Algumas informações do jogo não puderam ser carregadas.
-                            </p>
+                            <p>Algumas informações do jogo não puderam ser carregadas.</p>
 
                             <Button
                                 variant="secondary"

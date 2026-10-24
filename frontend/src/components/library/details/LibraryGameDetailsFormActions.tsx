@@ -16,7 +16,7 @@ export function LibraryGameDetailsFormActions({
     isDirty,
     isSaved,
     onDiscardChanges,
-    onRemove
+    onRemove,
 }: LibraryGameDetailsFormActionsProps) {
     return (
         <div className="mt-7 border-t border-divider pt-5">
@@ -26,18 +26,13 @@ export function LibraryGameDetailsFormActions({
                     disabled={!isDirty}
                     isLoading={isSaving}
                     loadingText="Salvando..."
-                    className={isSaved
-                        ? "bg-green-500! hover:bg-green-500! disabled:opacity-100"
-                        : ""
+                    className={
+                        isSaved ? "bg-green-500! hover:bg-green-500! disabled:opacity-100" : ""
                     }
                 >
                     {isSaved ? (
                         <>
-                            <MaterialIcon
-                                name="check"
-                                className="text-lg!"
-                            />
-
+                            <MaterialIcon name="check" className="text-lg!" />
                             Salvo!
                         </>
                     ) : (
@@ -46,16 +41,8 @@ export function LibraryGameDetailsFormActions({
                 </Button>
 
                 {isDirty && (
-                    <Button
-                        variant="secondary"
-                        disabled={isSaving}
-                        onClick={onDiscardChanges}
-                    >
-                        <MaterialIcon
-                            name="undo"
-                            className="text-lg!"
-                        />
-
+                    <Button variant="secondary" disabled={isSaving} onClick={onDiscardChanges}>
+                        <MaterialIcon name="undo" className="text-lg!" />
                         Descartar alterações
                     </Button>
                 )}
@@ -67,11 +54,7 @@ export function LibraryGameDetailsFormActions({
                     loadingText="Removendo..."
                     onClick={onRemove}
                 >
-                    <MaterialIcon
-                        name="delete"
-                        className="text-lg!"
-                    />
-
+                    <MaterialIcon name="delete" className="text-lg!" />
                     Remover
                 </Button>
             </div>

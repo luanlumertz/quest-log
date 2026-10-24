@@ -1,12 +1,6 @@
-node_modules
-dist
-coverage
-
-frontend/node_modules
-frontend/dist
-frontend/coverage
-
-backend/node_modules
-backend/dist
-backend/coverage
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
 **/generated/prisma/
+**/package-lock.json

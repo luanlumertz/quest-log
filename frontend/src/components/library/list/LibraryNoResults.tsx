@@ -13,10 +13,7 @@ export function LibraryNoResults({ onClearFilters }: LibraryNoResultsProps) {
             description="Nenhum jogo corresponde aos filtros atuais."
             className="mt-8"
             action={
-                <Button
-                    variant="secondary"
-                    onClick={onClearFilters}
-                >
+                <Button variant="secondary" onClick={onClearFilters}>
                     Limpar filtros
                 </Button>
             }

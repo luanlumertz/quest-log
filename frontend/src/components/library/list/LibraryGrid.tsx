@@ -19,10 +19,7 @@ export function LibraryGrid({ entries }: LibraryGridProps) {
             "
         >
             {entries.map((entry) => (
-                <LibraryGameCard
-                    key={entry.game.id}
-                    entry={entry}
-                />
+                <LibraryGameCard key={entry.game.id} entry={entry} />
             ))}
         </div>
     );

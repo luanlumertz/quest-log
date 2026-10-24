@@ -67,20 +67,14 @@ export function RecentGameItem({
                         "
                     >
                         {platforms.map((platform) => (
-                            <span
-                                key={platform.id}
-                                className="whitespace-nowrap"
-                            >
+                            <span key={platform.id} className="whitespace-nowrap">
                                 {platform.name}
                             </span>
                         ))}
                     </div>
 
                     <div className="flex shrink-0 items-center gap-1 text-xs text-ink-mute">
-                        <MaterialIcon
-                            name="schedule"
-                            className="text-[17px]!"
-                        />
+                        <MaterialIcon name="schedule" className="text-[17px]!" />
 
                         {formatPlayTime(playtimeMinutes)}
                     </div>
@@ -91,14 +85,10 @@ export function RecentGameItem({
                 {rating !== null ? (
                     <RatingStars rating={rating} />
                 ) : (
-                    <span className="text-sm text-ink-mute">
-                        Sem nota
-                    </span>
+                    <span className="text-sm text-ink-mute">Sem nota</span>
                 )}
 
-                <p className="mt-1 text-sm text-ink-mute">
-                    {formatDate(updatedAt)}
-                </p>
+                <p className="mt-1 text-sm text-ink-mute">{formatDate(updatedAt)}</p>
             </div>
         </Link>
     );

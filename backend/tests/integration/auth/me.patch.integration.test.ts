@@ -53,7 +53,10 @@ describe("PATCH /auth/me", () => {
             name: 12345,
         };
 
-        const updateResponse = await updateCurrentUserWithInvalidPayload(agent, invalidUpdatePayload);
+        const updateResponse = await updateCurrentUserWithInvalidPayload(
+            agent,
+            invalidUpdatePayload,
+        );
 
         assert.equal(updateResponse.status, 422);
         assert.equal(updateResponse.body.error, "Erro de Validação");

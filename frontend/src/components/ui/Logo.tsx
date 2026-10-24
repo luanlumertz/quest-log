@@ -10,15 +10,10 @@ export function Logo() {
                   text-white
                 "
             >
-                <MaterialIcon
-                    name="stadia_controller"
-                    className="text-[32px]! text-white"
-                />
+                <MaterialIcon name="stadia_controller" className="text-[32px]! text-white" />
             </div>
 
-            <span className="font-display text-2xl font-bold text-white">
-                QuestLog
-            </span>
+            <span className="font-display text-2xl font-bold text-white">QuestLog</span>
         </div>
     );
 }

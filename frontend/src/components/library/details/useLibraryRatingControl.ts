@@ -29,7 +29,11 @@ type UseLibraryRatingControlParams = {
     onChange: (value: string) => void;
 };
 
-export function useLibraryRatingControl({ value, disabled, onChange }: UseLibraryRatingControlParams) {
+export function useLibraryRatingControl({
+    value,
+    disabled,
+    onChange,
+}: UseLibraryRatingControlParams) {
     const repeatTimeoutRef = useRef<number | null>(null);
 
     const repeatIntervalRef = useRef<number | null>(null);
@@ -67,9 +71,9 @@ export function useLibraryRatingControl({ value, disabled, onChange }: UseLibrar
     function changeRating(step: number) {
         const currentRating = currentRatingRef.current;
 
-        const nextRating = Number(Math.min(
-            MAX_RATING, Math.max(MIN_RATING, currentRating + step)
-        ).toFixed(1));
+        const nextRating = Number(
+            Math.min(MAX_RATING, Math.max(MIN_RATING, currentRating + step)).toFixed(1),
+        );
 
         if (nextRating === currentRating) {
             return false;
@@ -80,7 +84,7 @@ export function useLibraryRatingControl({ value, disabled, onChange }: UseLibrar
         onChange(formatRating(nextRating));
 
         if (step > 0) {
-            return nextRating < MAX_RATING
+            return nextRating < MAX_RATING;
         }
 
         return nextRating > MIN_RATING;
@@ -105,12 +109,8 @@ export function useLibraryRatingControl({ value, disabled, onChange }: UseLibrar
                 if (!shouldContinue) {
                     stopRepeat();
                 }
-            },
-                REPEAT_INTERVAL
-            );
-        },
-            HOLD_DELAY
-        );
+            }, REPEAT_INTERVAL);
+        }, HOLD_DELAY);
     }
 
     return {
@@ -122,6 +122,6 @@ export function useLibraryRatingControl({ value, disabled, onChange }: UseLibrar
         increaseRating: () => changeRating(RATING_STEP),
         decreaseRating: () => changeRating(-RATING_STEP),
         increaseStep: RATING_STEP,
-        decreaseStep: -RATING_STEP
+        decreaseStep: -RATING_STEP,
     };
 }

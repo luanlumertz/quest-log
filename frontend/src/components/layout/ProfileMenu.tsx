@@ -53,12 +53,7 @@ export function ProfileMenu() {
 
             setIsProfileOpen(false);
         } catch (error) {
-            setLogoutError(
-                getErrorMessage(
-                    error,
-                    "Não foi possível encerrar a sessão."
-                )
-            );
+            setLogoutError(getErrorMessage(error, "Não foi possível encerrar a sessão."));
         } finally {
             setIsLoggingOut(false);
         }
@@ -97,9 +92,7 @@ export function ProfileMenu() {
                     </span>
                 </span>
 
-                <span className="max-w-32 truncate text-left">
-                    {user?.name}
-                </span>
+                <span className="max-w-32 truncate text-left">{user?.name}</span>
 
                 <span
                     aria-hidden="true"
@@ -126,9 +119,10 @@ export function ProfileMenu() {
                   bg-surface-raised
                     origin-top-right
                     transition-all duration-200 ease-out
-                    ${isProfileOpen
-                        ? "visible translate-y-0 scale-100 opacity-100"
-                        : "invisible -translate-y-1 scale-95 opacity-0"
+                    ${
+                        isProfileOpen
+                            ? "visible translate-y-0 scale-100 opacity-100"
+                            : "invisible -translate-y-1 scale-95 opacity-0"
                     }
                 `}
             >
@@ -145,9 +139,7 @@ export function ProfileMenu() {
                       hover:text-ink
                     "
                 >
-                    <MaterialIcon
-                        name="person"
-                    />
+                    <MaterialIcon name="person" />
 
                     <span>Perfil</span>
                 </Link>
@@ -167,24 +159,17 @@ export function ProfileMenu() {
                         disabled:opacity-50
                     "
                 >
-                    <MaterialIcon
-                        name="logout"
-                    />
+                    <MaterialIcon name="logout" />
 
-                    <span>
-                        {isLoggingOut ? "Saindo..." : "Sair"}
-                    </span>
+                    <span>{isLoggingOut ? "Saindo..." : "Sair"}</span>
                 </button>
 
                 {logoutError && (
                     <div className="border-t border-divider p-2">
-                        <Alert>
-                            {logoutError}
-                        </Alert>
+                        <Alert>{logoutError}</Alert>
                     </div>
                 )}
             </div>
-
         </div>
     );
 }

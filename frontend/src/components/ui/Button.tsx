@@ -1,15 +1,9 @@
 import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from "react";
 import { Link } from "react-router";
 
-export type ButtonVariant =
-    | "primary"
-    | "secondary"
-    | "danger";
+export type ButtonVariant = "primary" | "secondary" | "danger";
 
-export type ButtonSize =
-    | "sm"
-    | "md"
-    | "lg";
+export type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonStyleProps = {
     variant?: ButtonVariant;
@@ -19,23 +13,14 @@ type ButtonStyleProps = {
     children: ReactNode;
 };
 
-type ButtonProps =
-    Omit<
-        ButtonHTMLAttributes<HTMLButtonElement>,
-        "className" | "children"
-    >
-    & ButtonStyleProps
-    & {
+type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children"> &
+    ButtonStyleProps & {
         isLoading?: boolean;
         loadingText?: string;
     };
 
-type ButtonLinkProps =
-    Omit<
-        ComponentProps<typeof Link>,
-        "className" | "children"
-    >
-    & ButtonStyleProps;
+type ButtonLinkProps = Omit<ComponentProps<typeof Link>, "className" | "children"> &
+    ButtonStyleProps;
 
 const variantClasses: Record<ButtonVariant, string> = {
     primary: `
@@ -59,7 +44,7 @@ const variantClasses: Record<ButtonVariant, string> = {
         text-danger
         hover:bg-danger/20
         focus-visible:outline-danger
-    `
+    `,
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -83,14 +68,14 @@ const sizeClasses: Record<ButtonSize, string> = {
         text-lg
         font-display
         font-bold
-    `
+    `,
 };
 
 function getButtonClassName({
     variant,
     size,
     fullWidth,
-    className
+    className,
 }: {
     variant: ButtonVariant;
     size: ButtonSize;
@@ -137,12 +122,10 @@ export function Button({
                 variant,
                 size,
                 fullWidth,
-                className
+                className,
             })}
         >
-            {isLoading && loadingText
-                ? loadingText
-                : children}
+            {isLoading && loadingText ? loadingText : children}
         </button>
     );
 }
@@ -162,7 +145,7 @@ export function ButtonLink({
                 variant,
                 size,
                 fullWidth,
-                className
+                className,
             })}
         >
             {children}

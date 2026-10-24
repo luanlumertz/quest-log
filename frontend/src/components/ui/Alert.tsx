@@ -22,7 +22,7 @@ const variantConfig: Record<
             border-danger/30
             bg-danger/10
             text-danger
-        `
+        `,
     },
 
     success: {
@@ -31,8 +31,8 @@ const variantConfig: Record<
             border-emerald-500/20
             bg-emerald-500/10
             text-emerald-400
-        `
-    }
+        `,
+    },
 };
 
 export function Alert({ children, variant = "error", className = "" }: AlertProps) {
@@ -52,15 +52,9 @@ export function Alert({ children, variant = "error", className = "" }: AlertProp
                 ${className}
             `}
         >
+            <MaterialIcon name={config.icon} className="mt-px shrink-0 text-[18px]! leading-none" />
 
-            <MaterialIcon
-                name={config.icon}
-                className="mt-px shrink-0 text-[18px]! leading-none"
-            />
-
-            <div className="min-w-0">
-                {children}
-            </div>
+            <div className="min-w-0">{children}</div>
         </div>
     );
 }

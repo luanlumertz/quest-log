@@ -14,15 +14,11 @@ const FOCUSABLE_SELECTOR = [
     "input:not([disabled])",
     "select:not([disabled])",
     "textarea:not([disabled])",
-    '[tabindex]:not([tabindex="-1"])'
+    '[tabindex]:not([tabindex="-1"])',
 ].join(",");
 
 function getFocusableElements(container: HTMLElement) {
-    return Array.from(
-        container.querySelectorAll<HTMLElement>(
-            FOCUSABLE_SELECTOR
-        )
-    );
+    return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 }
 
 export function Modal({
@@ -30,16 +26,15 @@ export function Modal({
     onClose,
     ariaLabelledBy,
     ariaDescribedBy,
-    preventClose = false
+    preventClose = false,
 }: ModalProps) {
     const dialogRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const previousOverflow = document.body.style.overflow;
 
-        const previouslyFocusedElement = document.activeElement instanceof HTMLElement
-            ? document.activeElement
-            : null;
+        const previouslyFocusedElement =
+            document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
         document.body.style.overflow = "hidden";
 

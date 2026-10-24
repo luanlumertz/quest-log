@@ -4,4 +4,4 @@ import { getDashboardDataController } from "../controllers/dashboard.controller.
 
 export const dashboardRoutes = Router();
 
-dashboardRoutes.get("/", authenticateToken, getDashboardDataController)
+dashboardRoutes.get("/", authenticateToken, getDashboardDataController);
