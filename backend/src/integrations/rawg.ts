@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { AppError } from "../errors/AppError.js";
-import type { GameDetailsResult, GameSearchResult } from "../types/rawgGame.types.js";
+import type {
+    GameDetailsResult,
+    GameSearchResult,
+    GameSearchResponse,
+} from "../types/rawgGame.types.js";
 import {
     rawgDetailsSchema,
     rawgSearchResponseSchema,
@@ -67,16 +71,21 @@ function mapRawgGameDetails(game: RawgGameDetails): GameDetailsResult {
     };
 }
 
-export async function searchRawgGames(query: string): Promise<GameSearchResult[]> {
+export async function searchRawgGames(query: string, page = 1): Promise<GameSearchResponse> {
     const encodedQuery = encodeURIComponent(query);
 
     const data = await fetchRawg(
-        `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodedQuery}&page_size=10`,
+        `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodedQuery}&page_size=20&page=${page}`,
         rawgSearchResponseSchema,
         "Erro ao buscar jogos na RAWG",
     );
 
-    return data.results.map(mapRawgGame);
+    return {
+        games: data.results.map(mapRawgGame),
+        page,
+        hasPrevious: data.previous !== null,
+        hasNext: data.next !== null,
+    };
 }
 
 export async function getRawgGameById(externalId: number): Promise<GameDetailsResult> {

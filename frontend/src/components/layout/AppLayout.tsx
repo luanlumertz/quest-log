@@ -9,7 +9,7 @@ export function AppLayout() {
         <div className="flex min-h-dvh flex-col bg-backdrop text-ink">
             <DesktopHeader />
 
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 lg:px-8">
+            <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 sm:px-6 lg:px-8">
                 <Outlet />
             </main>
 

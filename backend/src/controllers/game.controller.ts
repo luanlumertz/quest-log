@@ -6,9 +6,9 @@ export async function searchGameController(
     req: Request,
     res: Response<unknown, { query: SearchGameQuery }>,
 ) {
-    const { query } = res.locals.query;
+    const { query, page } = res.locals.query;
 
-    const data = await searchGame(query);
+    const data = await searchGame(query, page);
 
     return res.status(200).json(data);
 }

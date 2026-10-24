@@ -17,3 +17,10 @@ export type GameDetailsResult = {
     developers: string[];
     publishers: string[];
 };
+
+export type GameSearchResponse = {
+    games: GameSearchResult[];
+    page: number;
+    hasPrevious: boolean;
+    hasNext: boolean;
+};

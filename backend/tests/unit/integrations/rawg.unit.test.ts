@@ -27,9 +27,14 @@ describe("rawg.ts", () => {
             const calledUrl = fetchMock.mock.calls[0][0] as string;
 
             assert.include(calledUrl, "search=Elden%20Ring");
-            assert.include(calledUrl, "page_size=10");
+            assert.include(calledUrl, "page_size=20");
 
-            assert.deepEqual(result, [
+            assert.equal(result.page, 1);
+            assert.isFalse(result.hasPrevious);
+            assert.isFalse(result.hasNext);
+            assert.include(calledUrl, "page=1");
+
+            assert.deepEqual(result.games, [
                 {
                     externalId: 123,
                     title: "Elden Ring",
@@ -40,15 +45,64 @@ describe("rawg.ts", () => {
             ]);
         });
 
+        test.each([
+            {
+                page: 1,
+                previous: null,
+                next: "https://api.rawg.io/api/games?page=2",
+                hasPrevious: false,
+                hasNext: true,
+            },
+            {
+                page: 2,
+                previous: "https://api.rawg.io/api/games?page=1",
+                next: "https://api.rawg.io/api/games?page=3",
+                hasPrevious: true,
+                hasNext: true,
+            },
+            {
+                page: 3,
+                previous: "https://api.rawg.io/api/games?page=2",
+                next: null,
+                hasPrevious: true,
+                hasNext: false,
+            },
+        ])(
+            "deve mapear a navegação da página $page sem expor URLs externas",
+            async ({ page, previous, next, hasPrevious, hasNext }) => {
+                const fetchMock = mockFetchResponse({ ...rawgSearchApiResponse, previous, next });
+
+                const result = await searchRawgGames("a", page);
+
+                const url = new URL(fetchMock.mock.calls[0]![0] as string);
+                assert.equal(url.searchParams.get("page"), String(page));
+                assert.equal(url.searchParams.get("page_size"), "20");
+                assert.equal(url.searchParams.get("search"), "a");
+                assert.equal(result.page, page);
+                assert.equal(result.hasPrevious, hasPrevious);
+                assert.equal(result.hasNext, hasNext);
+                assert.notProperty(result, "next");
+                assert.notProperty(result, "previous");
+            },
+        );
+
+        test("deve rejeitar metadados de paginação inválidos da RAWG", async () => {
+            mockFetchResponse({ ...rawgSearchApiResponse, next: 123 });
+
+            await expect(searchRawgGames("gta")).rejects.toMatchObject({ statusCode: 502 });
+        });
+
         test("deve mapear corretamente jogos com campos opcionais ausentes", async () => {
             const fetchMock = mockFetchResponse({
+                next: null,
+                previous: null,
                 results: [{ id: 456, name: "Jogo Sem Detalhes" }],
             });
 
             const result = await searchRawgGames("Jogo Sem Detalhes");
 
-            assert.equal(result.length, 1);
-            assert.deepEqual(result[0], {
+            assert.equal(result.games.length, 1);
+            assert.deepEqual(result.games[0], {
                 externalId: 456,
                 title: "Jogo Sem Detalhes",
                 releaseDate: null,
@@ -58,12 +112,12 @@ describe("rawg.ts", () => {
             assert.equal(fetchMock.mock.calls.length, 1);
         });
 
-        test("deve retornar um array vazio quando a RAWG não encontrar jogos", async () => {
-            const fetchMock = mockFetchResponse({ results: [] });
+        test("deve retornar resultados vazios quando a RAWG não encontrar jogos", async () => {
+            const fetchMock = mockFetchResponse({ results: [], next: null, previous: null });
 
             const result = await searchRawgGames("Pesquisa sem jogos encontrados");
 
-            assert.deepEqual(result, []);
+            assert.deepEqual(result, { games: [], page: 1, hasPrevious: false, hasNext: false });
             assert.equal(fetchMock.mock.calls.length, 1);
         });
 

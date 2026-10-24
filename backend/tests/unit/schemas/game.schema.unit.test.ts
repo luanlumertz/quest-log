@@ -48,6 +48,30 @@ describe("game.schema.ts", () => {
         });
     });
 
+    describe("paginação da busca", () => {
+        test("deve usar a primeira página por padrão e aceitar busca de um caractere", () => {
+            const result = searchGameSchema.parse({ query: "a" });
+
+            assert.deepEqual(result, { query: "a", page: 1 });
+        });
+
+        test("deve converter a página recebida pela URL", () => {
+            const result = searchGameSchema.parse({ query: "gta", page: "2", page_size: "1000" });
+
+            assert.deepEqual(result, { query: "gta", page: 2 });
+        });
+
+        test.each(["0", "-1", "1.5", "abc", "", " ", "Infinity", ["2", "3"], { page: 2 }, true])(
+            "deve rejeitar página inválida %j",
+            (page) => {
+                const result = searchGameSchema.safeParse({ query: "gta", page });
+
+                assert.isFalse(result.success);
+                assert.isTrue(result.error.issues.some((issue) => issue.path[0] === "page"));
+            },
+        );
+    });
+
     describe("getRawgGameSchema", () => {
         test("deve converter externalId de string para number", () => {
             const result = getRawgGameSchema.parse({ externalId: "123" });

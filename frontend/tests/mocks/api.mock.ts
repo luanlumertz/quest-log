@@ -13,6 +13,7 @@ type MockApiOptions = {
 };
 
 type CapturedRequest = {
+    url: string;
     method: string;
     body: unknown;
     contentType: string | null;
@@ -40,6 +41,7 @@ export function mockApiResponse({
         }
 
         requests.push({
+            url: request.url,
             method: request.method,
             body,
             contentType,

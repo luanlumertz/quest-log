@@ -213,7 +213,7 @@ describe("Dashboard.tsx", () => {
         expect(await screen.findByText("Elden Ring na biblioteca de teste")).toBeVisible();
     });
 
-    test("deve mostrar os três jogos iniciados mais recentemente e permitir ver a lista completa", async () => {
+    test("deve mostrar todos os jogos em andamento ordenados por início e permitir abrir a biblioteca", async () => {
         const user = userEvent.setup();
 
         const base = createLibraryEntry({ status: "PLAYING" });
@@ -249,10 +249,10 @@ describe("Dashboard.tsx", () => {
 
         expect(
             playing.getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
-        ).toEqual(["Mais recente", "Intermediário", "Mais antigo"]);
-        expect(playing.queryByRole("heading", { name: "Sem data" })).not.toBeInTheDocument();
+        ).toEqual(["Mais recente", "Intermediário", "Mais antigo", "Sem data"]);
+        expect(playing.getByRole("heading", { name: "Sem data" })).toBeVisible();
 
-        const verTodos = playing.getByRole("link", { name: "Mostrando 3 de 4" });
+        const verTodos = playing.getByRole("link", { name: "Ver todos (4)" });
 
         expect(verTodos).toHaveAttribute("href", "/library?status=PLAYING");
 

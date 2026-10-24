@@ -1,10 +1,11 @@
-import type { GameDetailsResult, GameSearchResult } from "../types/game.types";
+import type { GameDetailsResult, GameSearchResponse } from "../types/game.types";
 import { apiRequest } from "./api";
 
-export async function searchGames(queryParam: string): Promise<GameSearchResult[]> {
+export async function searchGames(queryParam: string, page: number): Promise<GameSearchResponse> {
     const params = new URLSearchParams();
 
     params.set("query", queryParam.trim());
+    params.set("page", String(page));
 
     const query = params.toString();
 

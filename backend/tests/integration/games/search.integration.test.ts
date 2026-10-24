@@ -16,11 +16,50 @@ describe("GET /games/search", () => {
         const response = await searchGames(agent, "Test Game");
 
         assert.equal(response.status, 200);
-        assert.deepEqual(response.body, genericGameSearchResult);
+        assert.deepEqual(response.body, {
+            games: genericGameSearchResult,
+            page: 1,
+            hasPrevious: false,
+            hasNext: false,
+        });
+        assert.equal(mockedSearch.mock.calls[0]?.[1], 1);
 
         assert.equal(mockedSearch.mock.calls.length, 1);
         assert.equal(mockedSearch.mock.calls[0]?.[0], "Test Game");
     });
+
+    test("deve encaminhar a página e manter buscas de um caractere", async () => {
+        const { agent } = await createAuthenticatedAgent();
+        const mockedSearch = mockRawgSearch(genericGameSearchResult, {
+            page: 2,
+            hasPrevious: true,
+            hasNext: true,
+        });
+
+        const response = await searchGames(agent, "a", 2).query({ page_size: 1000 });
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(response.body, {
+            games: genericGameSearchResult,
+            page: 2,
+            hasPrevious: true,
+            hasNext: true,
+        });
+        assert.deepEqual(mockedSearch.mock.calls[0], ["a", 2]);
+    });
+
+    test.each(["0", "-1", "1.5", "abc"])(
+        "deve rejeitar página %s antes de consultar a RAWG",
+        async (page) => {
+            const { agent } = await createAuthenticatedAgent();
+            const mockedSearch = mockRawgSearch();
+
+            const response = await searchGames(agent, "gta", page);
+
+            assert.equal(response.status, 422);
+            assert.equal(mockedSearch.mock.calls.length, 0);
+        },
+    );
 
     test("não deve pesquisar jogos sem access token", async () => {
         const mockedSearch = mockRawgSearch();
@@ -54,7 +93,7 @@ describe("GET /games/search", () => {
         const response = await searchGames(agent, "JogoInexistente");
 
         assert.equal(response.status, 200);
-        assert.deepEqual(response.body, []);
+        assert.deepEqual(response.body, { games: [], page: 1, hasPrevious: false, hasNext: false });
 
         assert.equal(mockedSearch.mock.calls.length, 1);
         assert.equal(mockedSearch.mock.calls[0]?.[0], "JogoInexistente");
