@@ -39,7 +39,7 @@ export function ConfirmModal({
     isLoading = false,
 
     onConfirm,
-    onCancel
+    onCancel,
 }: ConfirmModalProps) {
     const titleId = useId();
     const descriptionId = useId();
@@ -62,13 +62,14 @@ export function ConfirmModal({
                             items-center justify-center
                             rounded-xl
                             border
-                            ${isDanger
-                                ? `
+                            ${
+                                isDanger
+                                    ? `
                                         border-danger/30
                                         bg-danger/10
                                         text-danger
                                     `
-                                : `
+                                    : `
                                         border-brand/30
                                         bg-brand/10
                                         text-brand
@@ -76,9 +77,7 @@ export function ConfirmModal({
                             }
                         `}
                     >
-                        <MaterialIcon
-                            name={icon}
-                        />
+                        <MaterialIcon name={icon} />
                     </div>
 
                     <div className="min-w-0">
@@ -110,25 +109,12 @@ export function ConfirmModal({
                     </div>
                 </div>
 
-                {children && (
-                    <div className="mt-4">
-                        {children}
-                    </div>
-                )}
+                {children && <div className="mt-4">{children}</div>}
 
-                {error && (
-                    <Alert className="mt-4">
-                        {error}
-                    </Alert>
-                )}
+                {error && <Alert className="mt-4">{error}</Alert>}
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                    <Button
-                        variant="secondary"
-                        disabled={isLoading}
-                        onClick={onCancel}
-                        fullWidth
-                    >
+                    <Button variant="secondary" disabled={isLoading} onClick={onCancel} fullWidth>
                         {cancelText}
                     </Button>
 

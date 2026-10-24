@@ -7,7 +7,11 @@ type GameStatusBadgeProps = {
     textColor?: string;
 };
 
-export function GameStatusBadge({ status, backgroundOpacity = "1A", textColor }: GameStatusBadgeProps) {
+export function GameStatusBadge({
+    status,
+    backgroundOpacity = "1A",
+    textColor,
+}: GameStatusBadgeProps) {
     const statusInfo = GAME_STATUS_CONFIG[status];
 
     return (

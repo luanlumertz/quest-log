@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { useDeleteLibraryEntry, useLibraryEntry, useUpdateLibraryEntry } from "../hooks/library.hook";
+import {
+    useDeleteLibraryEntry,
+    useLibraryEntry,
+    useUpdateLibraryEntry,
+} from "../hooks/library.hook";
 import { useGameDetails } from "../hooks/game.hook";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
@@ -25,25 +29,15 @@ export function LibraryGameDetails() {
     const numericGameId = Number(gameId);
     const isValidGameId = Number.isInteger(numericGameId) && numericGameId > 0;
 
-    const {
-        data: entry,
-        isLoading,
-        isError,
-        error,
-        isFetching,
-        refetch
-    } = useLibraryEntry(gameId);
+    const { data: entry, isLoading, isError, error, isFetching, refetch } = useLibraryEntry(gameId);
 
-    const {
-        mutateAsync: updateEntry,
-        isPending: isSaving
-    } = useUpdateLibraryEntry(gameId);
+    const { mutateAsync: updateEntry, isPending: isSaving } = useUpdateLibraryEntry(gameId);
 
     const {
         mutateAsync: deleteEntry,
         isPending: isDeleting,
         error: deleteError,
-        reset: resetDelete
+        reset: resetDelete,
     } = useDeleteLibraryEntry(gameId);
 
     const externalId = entry?.game.externalId;
@@ -53,7 +47,7 @@ export function LibraryGameDetails() {
         isLoading: isGameDetailsLoading,
         isError: isGameDetailsError,
         isFetching: isGameDetailsFetching,
-        refetch: refetchGameDetails
+        refetch: refetchGameDetails,
     } = useGameDetails(externalId?.toString());
 
     useDocumentTitle(entry ? `${entry.game.title} - Biblioteca` : "Biblioteca");
@@ -64,19 +58,13 @@ export function LibraryGameDetails() {
                 icon="search_off"
                 title="Jogo não encontrado na biblioteca"
                 description="O endereço acessado não corresponde a um jogo válido da sua biblioteca."
-                action={
-                    <ButtonLink to="/library">
-                        Voltar para biblioteca
-                    </ButtonLink>
-                }
+                action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
             />
         );
     }
 
     if (isLoading) {
-        return (
-            <LoadingState label="Carregando jogo..." />
-        );
+        return <LoadingState label="Carregando jogo..." />;
     }
 
     if (isError && error instanceof ApiError && error.status === 404) {
@@ -85,11 +73,7 @@ export function LibraryGameDetails() {
                 icon="search_off"
                 title="Jogo não encontrado na biblioteca"
                 description="Este jogo pode ter sido removido da sua biblioteca."
-                action={
-                    <ButtonLink to="/library">
-                        Voltar para biblioteca
-                    </ButtonLink>
-                }
+                action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
             />
         );
     }
@@ -120,11 +104,7 @@ export function LibraryGameDetails() {
                 icon="search_off"
                 title="Jogo não encontrado na biblioteca"
                 description="Este jogo não está disponível na sua biblioteca."
-                action={
-                    <ButtonLink to="/library">
-                        Voltar para biblioteca
-                    </ButtonLink>
-                }
+                action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
             />
         );
     }
@@ -172,9 +152,7 @@ export function LibraryGameDetails() {
     return (
         <>
             <div className="mx-auto max-w-4xl py-6 lg:py-8">
-                <BackButton onClick={() => navigate(-1)}>
-                    Voltar
-                </BackButton>
+                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
 
                 <div className="mt-7 grid gap-8 lg:grid-cols-[190px_minmax(0,1fr)] lg:gap-8">
                     <LibraryGameSummary
@@ -217,9 +195,9 @@ export function LibraryGameDetails() {
                     error={
                         deleteError
                             ? getErrorMessage(
-                                deleteError,
-                                "Não foi possível remover o jogo da biblioteca."
-                            )
+                                  deleteError,
+                                  "Não foi possível remover o jogo da biblioteca.",
+                              )
                             : undefined
                     }
                     onConfirm={handleConfirmRemove}

@@ -1,24 +1,30 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addGameToLibrary, deleteLibraryEntry, getLibrary, getLibraryEntry, updateLibraryEntry } from "../services/library.service";
+import {
+    addGameToLibrary,
+    deleteLibraryEntry,
+    getLibrary,
+    getLibraryEntry,
+    updateLibraryEntry,
+} from "../services/library.service";
 import type { LibraryFilters } from "../types/library.types";
 import type { UpdateLibraryEntryData } from "../schema/library.schema";
 
 async function invalidateLibraryRelatedQueries(queryClient: QueryClient) {
     await Promise.all([
         queryClient.invalidateQueries({
-            queryKey: ["library"]
+            queryKey: ["library"],
         }),
         queryClient.invalidateQueries({
-            queryKey: ["dashboard"]
-        })
+            queryKey: ["dashboard"],
+        }),
     ]);
 }
 
 export function useLibrary(filters?: LibraryFilters) {
     return useQuery({
         queryKey: ["library", filters],
-        queryFn: () => getLibrary(filters)
-    })
+        queryFn: () => getLibrary(filters),
+    });
 }
 
 export function useAddGameToLibrary() {
@@ -27,7 +33,7 @@ export function useAddGameToLibrary() {
     return useMutation({
         mutationFn: addGameToLibrary,
 
-        onSuccess: () => invalidateLibraryRelatedQueries(queryClient)
+        onSuccess: () => invalidateLibraryRelatedQueries(queryClient),
     });
 }
 
@@ -39,7 +45,7 @@ export function useLibraryEntry(gameIdParam?: string) {
     return useQuery({
         queryKey: ["library", "details", enabled ? gameId : null],
         queryFn: () => getLibraryEntry(gameId),
-        enabled
+        enabled,
     });
 }
 
@@ -59,7 +65,7 @@ export function useUpdateLibraryEntry(gameIdParam?: string) {
             return updateLibraryEntry(gameId, data);
         },
 
-        onSuccess: () => invalidateLibraryRelatedQueries(queryClient)
+        onSuccess: () => invalidateLibraryRelatedQueries(queryClient),
     });
 }
 
@@ -79,6 +85,6 @@ export function useDeleteLibraryEntry(gameIdParam?: string) {
             return deleteLibraryEntry(gameId);
         },
 
-        onSuccess: () => invalidateLibraryRelatedQueries(queryClient)
+        onSuccess: () => invalidateLibraryRelatedQueries(queryClient),
     });
 }

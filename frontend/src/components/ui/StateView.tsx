@@ -18,7 +18,7 @@ export function StateView({
     description,
     action,
     tone = "neutral",
-    className = ""
+    className = "",
 }: StateViewProps) {
     const iconColor = tone === "danger" ? "text-danger" : "text-ink-mute";
 
@@ -33,10 +33,7 @@ export function StateView({
                 ${className}
             `}
         >
-            <MaterialIcon
-                name={icon}
-                className={`text-5xl! ${iconColor}`}
-            />
+            <MaterialIcon name={icon} className={`text-5xl! ${iconColor}`} />
 
             <h2
                 className="
@@ -64,11 +61,7 @@ export function StateView({
                 </div>
             )}
 
-            {action && (
-                <div className="mt-5">
-                    {action}
-                </div>
-            )}
+            {action && <div className="mt-5">{action}</div>}
         </div>
     );
 }

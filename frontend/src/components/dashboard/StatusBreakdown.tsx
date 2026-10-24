@@ -10,20 +10,17 @@ type StatusBreakdownProps = {
 export function StatusBreakdown({ byStatus, totalGames = 0 }: StatusBreakdownProps) {
     let currentAngle = 0;
 
-    const donutSlices = [...GAME_STATUS_ENTRIES]
-        .reverse()
-        .map(([status, config]) => {
-            const startAngle = currentAngle;
-            const value = byStatus?.[status] ?? 0;
+    const donutSlices = [...GAME_STATUS_ENTRIES].reverse().map(([status, config]) => {
+        const startAngle = currentAngle;
+        const value = byStatus?.[status] ?? 0;
 
-            currentAngle += totalGames > 0 ? (value / totalGames) * 360 : 0;
+        currentAngle += totalGames > 0 ? (value / totalGames) * 360 : 0;
 
-            return `${config.color} ${startAngle}deg ${currentAngle}deg`;
-        });
+        return `${config.color} ${startAngle}deg ${currentAngle}deg`;
+    });
 
-    const donutBackground = totalGames > 0
-        ? `conic-gradient(${donutSlices.join(", ")})`
-        : "#1C2230";
+    const donutBackground =
+        totalGames > 0 ? `conic-gradient(${donutSlices.join(", ")})` : "#1C2230";
 
     const useLargeDonut = totalGames >= 5;
 
@@ -37,9 +34,7 @@ export function StatusBreakdown({ byStatus, totalGames = 0 }: StatusBreakdownPro
                 p-6
             "
         >
-            <h2 className="shrink-0 font-semibold text-ink">
-                Resumo por status
-            </h2>
+            <h2 className="shrink-0 font-semibold text-ink">Resumo por status</h2>
 
             <div className="flex min-h-0 flex-1 flex-col">
                 <div
@@ -140,9 +135,7 @@ export function StatusBreakdown({ byStatus, totalGames = 0 }: StatusBreakdownPro
                                 </span>
                             </div>
 
-                            <span className="text-sm text-ink">
-                                {byStatus?.[status] ?? 0}
-                            </span>
+                            <span className="text-sm text-ink">{byStatus?.[status] ?? 0}</span>
                         </Link>
                     ))}
                 </div>

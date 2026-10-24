@@ -30,13 +30,13 @@ const BUTTON_STEP_CLASS = `
     disabled:opacity-40
     sm:h-4.5
     sm:w-8
-`
+`;
 
 export function LibraryRatingField({
     value,
     error,
     disabled = false,
-    onChange
+    onChange,
 }: LibraryRatingFieldProps) {
     const errorId = "rating-error";
     const {
@@ -48,11 +48,11 @@ export function LibraryRatingField({
         increaseRating,
         decreaseRating,
         increaseStep,
-        decreaseStep
+        decreaseStep,
     } = useLibraryRatingControl({
         value,
         disabled,
-        onChange
+        onChange,
     });
 
     const stars = getStarFillPercentages(rating);
@@ -73,23 +73,13 @@ export function LibraryRatingField({
             </label>
 
             <div className="mt-1 flex min-h-10 items-center gap-3">
-                <div
-                    className="flex"
-                    aria-label={`Nota ${rating} de 5`}
-                >
-                    {stars.map(
-                        (fill, index) => (
-                            <span
-                                key={index}
-                                className="relative inline-block"
-                                aria-hidden="true"
-                            >
-                                <span className="text-xl text-ink-mute">
-                                    ★
-                                </span>
+                <div className="flex" aria-label={`Nota ${rating} de 5`}>
+                    {stars.map((fill, index) => (
+                        <span key={index} className="relative inline-block" aria-hidden="true">
+                            <span className="text-xl text-ink-mute">★</span>
 
-                                <span
-                                    className="
+                            <span
+                                className="
                                         absolute
                                         left-0
                                         top-0
@@ -98,13 +88,12 @@ export function LibraryRatingField({
                                         text-xl
                                         text-gold
                                     "
-                                    style={{ width: `${fill}%` }}
-                                >
-                                    ★
-                                </span>
+                                style={{ width: `${fill}%` }}
+                            >
+                                ★
                             </span>
-                        )
-                    )}
+                        </span>
+                    ))}
                 </div>
 
                 <div className="flex items-stretch gap-1.5">

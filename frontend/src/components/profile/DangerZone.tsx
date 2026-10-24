@@ -14,9 +14,7 @@ export function DangerZone({ disabled, onDelete }: DangerZoneProps) {
 
             <div className="mt-5 flex flex-col items-stretch gap-3 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
                 <div className="min-w-0">
-                    <h3 className="text-sm font-medium text-ink">
-                        Excluir conta
-                    </h3>
+                    <h3 className="text-sm font-medium text-ink">Excluir conta</h3>
                     <p className="mt-1 text-xs leading-relaxed text-ink-mute">
                         Exclua permanentemente sua conta e todos os dados.
                     </p>

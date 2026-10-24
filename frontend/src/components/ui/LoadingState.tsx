@@ -28,9 +28,7 @@ export function LoadingState({ label = "Carregando...", className = "" }: Loadin
                 "
             />
 
-            <span className="text-sm text-ink-mute">
-                {label}
-            </span>
+            <span className="text-sm text-ink-mute">{label}</span>
         </div>
     );
 }

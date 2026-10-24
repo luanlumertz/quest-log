@@ -43,22 +43,19 @@ export function DesktopHeader() {
                                     rounded-xl px-5 py-2.5
                                     font-medium
                                     transition-colors
-                                    ${isActive
-                                    ? "bg-brand/15 text-brand"
-                                    : "text-ink-dim hover:text-ink"
-                                }
+                                    ${
+                                        isActive
+                                            ? "bg-brand/15 text-brand"
+                                            : "text-ink-dim hover:text-ink"
+                                    }
                                 `
                             }
                         >
-                            <MaterialIcon
-                                name={item.icon}
-                                className="text-[22px]!"
-                            />
+                            <MaterialIcon name={item.icon} className="text-[22px]!" />
 
                             {item.desktopLabel}
                         </NavLink>
                     ))}
-
                 </nav>
 
                 <div className="ml-auto">

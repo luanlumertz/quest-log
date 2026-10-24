@@ -64,30 +64,24 @@ export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
                     {game.title}
                 </h2>
 
-                {releaseYear && (
-                    <p className="mt-1 text-xs text-ink-mute">
-                        {releaseYear}
-                    </p>
-                )}
+                {releaseYear && <p className="mt-1 text-xs text-ink-mute">{releaseYear}</p>}
 
                 {game.platforms.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                        {game.platforms
-                            .slice(0, 2)
-                            .map((platform) => (
-                                <span
-                                    key={platform}
-                                    className="
+                        {game.platforms.slice(0, 2).map((platform) => (
+                            <span
+                                key={platform}
+                                className="
                                         rounded-md
                                         bg-surface-raised
                                         px-2 py-1
                                         text-[10px]
                                         text-ink-mute
                                     "
-                                >
-                                    {platform}
-                                </span>
-                            ))}
+                            >
+                                {platform}
+                            </span>
+                        ))}
                     </div>
                 )}
             </div>

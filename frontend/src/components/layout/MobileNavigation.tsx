@@ -24,20 +24,12 @@ export function MobileNavigation() {
                             items-center justify-center
                             gap-1
                             text-[10px] font-medium
-                            ${isActive
-                            ? "text-brand"
-                            : "text-ink-mute"
-                        }`
+                            ${isActive ? "text-brand" : "text-ink-mute"}`
                     }
                 >
-                    <MaterialIcon
-                        name={item.icon}
-                        className="text-[21px]!"
-                    />
+                    <MaterialIcon name={item.icon} className="text-[21px]!" />
 
-                    <span className="text-center">
-                        {item.mobileLabel}
-                    </span>
+                    <span className="text-center">{item.mobileLabel}</span>
                 </NavLink>
             ))}
 
@@ -49,17 +41,11 @@ export function MobileNavigation() {
                         items-center justify-center
                         gap-1
                         text-[10px] font-medium
-                        ${isActive
-                        ? "text-brand"
-                        : "text-ink-mute"
-                    }
+                        ${isActive ? "text-brand" : "text-ink-mute"}
                     `
                 }
             >
-                <MaterialIcon
-                    name="person"
-                    className="text-[21px]!"
-                />
+                <MaterialIcon name="person" className="text-[21px]!" />
 
                 <span>Perfil</span>
             </NavLink>

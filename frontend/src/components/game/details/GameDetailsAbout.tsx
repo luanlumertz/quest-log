@@ -14,7 +14,7 @@ export function GameDetailsAbout({ description, releaseYear, developers }: GameD
     const descriptionRef = useRef<HTMLDivElement>(null);
 
     const normalizedDescription = normalizeGameDescription(
-        description || "Descrição não disponível."
+        description || "Descrição não disponível.",
     );
 
     useEffect(() => {
@@ -91,35 +91,21 @@ export function GameDetailsAbout({ description, releaseYear, developers }: GameD
                                 </h3>
                             ),
 
-                            p: ({ children }) => (
-                                <p className="mb-3">
-                                    {children}
-                                </p>
-                            ),
+                            p: ({ children }) => <p className="mb-3">{children}</p>,
 
                             strong: ({ children }) => (
-                                <strong className="font-semibold text-ink">
-                                    {children}
-                                </strong>
+                                <strong className="font-semibold text-ink">{children}</strong>
                             ),
 
                             ul: ({ children }) => (
-                                <ul className="mb-3 list-disc pl-5">
-                                    {children}
-                                </ul>
+                                <ul className="mb-3 list-disc pl-5">{children}</ul>
                             ),
 
                             ol: ({ children }) => (
-                                <ol className="mb-3 list-decimal pl-5">
-                                    {children}
-                                </ol>
+                                <ol className="mb-3 list-decimal pl-5">{children}</ol>
                             ),
 
-                            li: ({ children }) => (
-                                <li className="mb-1">
-                                    {children}
-                                </li>
-                            )
+                            li: ({ children }) => <li className="mb-1">{children}</li>,
                         }}
                     >
                         {normalizedDescription}
@@ -129,9 +115,7 @@ export function GameDetailsAbout({ description, releaseYear, developers }: GameD
                 {descriptionOverflows && (
                     <button
                         type="button"
-                        onClick={() =>
-                            setShowFullDescription((prev) => !prev)
-                        }
+                        onClick={() => setShowFullDescription((prev) => !prev)}
                         className="
                             mt-2
                             text-sm font-semibold
@@ -194,9 +178,7 @@ export function GameDetailsAbout({ description, releaseYear, developers }: GameD
                         Desenvolvedor
                     </p>
 
-                    <p className="mt-2 text-sm font-medium text-ink">
-                        {developers}
-                    </p>
+                    <p className="mt-2 text-sm font-medium text-ink">{developers}</p>
                 </div>
             </div>
         </section>

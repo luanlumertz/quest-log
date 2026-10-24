@@ -7,7 +7,8 @@ type PlatformBadgesProps = {
     platforms: Platform[];
 };
 
-const PLATFORM_BADGE_CLASS = "rounded-md bg-surface-raised px-1.5 py-1 text-[9px] text-ink-mute sm:text-[10px]";
+const PLATFORM_BADGE_CLASS =
+    "rounded-md bg-surface-raised px-1.5 py-1 text-[9px] text-ink-mute sm:text-[10px]";
 
 export function PlatformBadges({ platforms }: PlatformBadgesProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -31,8 +32,8 @@ export function PlatformBadges({ platforms }: PlatformBadgesProps) {
 
             const gap = parseFloat(window.getComputedStyle(measure).columnGap) || 0;
 
-            const platformWidths = platforms.map((_, index) =>
-                platformRefs.current[index]?.getBoundingClientRect().width ?? 0
+            const platformWidths = platforms.map(
+                (_, index) => platformRefs.current[index]?.getBoundingClientRect().width ?? 0,
             );
 
             for (let count = platforms.length; count >= 0; count--) {
@@ -42,7 +43,10 @@ export function PlatformBadges({ platforms }: PlatformBadgesProps) {
                     .slice(0, count)
                     .reduce((total, width) => total + width, 0);
 
-                const counterWidth = remaining > 0 ? counterRefs.current[remaining]?.getBoundingClientRect().width ?? 0 : 0;
+                const counterWidth =
+                    remaining > 0
+                        ? (counterRefs.current[remaining]?.getBoundingClientRect().width ?? 0)
+                        : 0;
 
                 const amountOfBadges = count + (remaining > 0 ? 1 : 0);
 
@@ -74,24 +78,15 @@ export function PlatformBadges({ platforms }: PlatformBadgesProps) {
     return (
         <div
             ref={containerRef}
-            title={platforms
-                .map((platform) => platform.name)
-                .join(", ")}
+            title={platforms.map((platform) => platform.name).join(", ")}
             className="relative flex min-w-0 flex-1 justify-end overflow-hidden"
         >
             <div className="flex items-center gap-1 whitespace-nowrap">
-                {platforms
-                    .slice(0, visibleCount)
-                    .map((platform) => (
-                        <PlatformBadge
-                            key={platform.id}
-                            name={platform.name}
-                        />
-                    ))}
+                {platforms.slice(0, visibleCount).map((platform) => (
+                    <PlatformBadge key={platform.id} name={platform.name} />
+                ))}
 
-                {remaining > 0 && (
-                    <PlatformBadge name={`+${remaining}`} />
-                )}
+                {remaining > 0 && <PlatformBadge name={`+${remaining}`} />}
             </div>
 
             {/* Usado apenas para medir o tamanho das badges */}
@@ -106,7 +101,8 @@ export function PlatformBadges({ platforms }: PlatformBadgesProps) {
                         ref={(element) => {
                             platformRefs.current[index] = element;
                         }}
-                        className={`${PLATFORM_BADGE_CLASS}`}>
+                        className={`${PLATFORM_BADGE_CLASS}`}
+                    >
                         {platform.name}
                     </span>
                 ))}
@@ -132,9 +128,5 @@ export function PlatformBadges({ platforms }: PlatformBadgesProps) {
 }
 
 function PlatformBadge({ name }: { name: string }) {
-    return (
-        <span className={`shrink-0 ${PLATFORM_BADGE_CLASS}`}>
-            {name}
-        </span>
-    );
+    return <span className={`shrink-0 ${PLATFORM_BADGE_CLASS}`}>{name}</span>;
 }

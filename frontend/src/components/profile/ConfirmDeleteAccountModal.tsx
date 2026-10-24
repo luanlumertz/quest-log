@@ -11,7 +11,7 @@ export function ConfirmDeleteAccountModal({
     isDeleting,
     error,
     onConfirm,
-    onCancel
+    onCancel,
 }: ConfirmDeleteAccountModalProps) {
     return (
         <ConfirmModal
@@ -20,8 +20,8 @@ export function ConfirmDeleteAccountModal({
             description={
                 <>
                     <p>
-                        Isso excluirá permanentemente sua conta do QuestLog, 
-                        incluindo toda a sua biblioteca de jogos, avaliações e horas registradas.
+                        Isso excluirá permanentemente sua conta do QuestLog, incluindo toda a sua
+                        biblioteca de jogos, avaliações e horas registradas.
                     </p>
 
                     <p className="mt-2 font-semibold text-danger">

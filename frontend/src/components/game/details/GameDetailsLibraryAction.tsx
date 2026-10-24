@@ -24,7 +24,7 @@ export function GameDetailsLibraryAction({
     isLibraryLoading,
     isLibraryError,
     isLibraryFetching,
-    onRetryLibrary
+    onRetryLibrary,
 }: GameDetailsLibraryActionProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,9 +47,7 @@ export function GameDetailsLibraryAction({
         return (
             <Alert>
                 <div>
-                    <p>
-                        Não foi possível verificar sua biblioteca.
-                    </p>
+                    <p>Não foi possível verificar sua biblioteca.</p>
 
                     <Button
                         variant="secondary"
@@ -69,34 +67,20 @@ export function GameDetailsLibraryAction({
     if (libraryEntry) {
         return (
             <>
-                <ButtonLink
-                    to={`/library/${libraryEntry.game.id}`}
-                >
-                    <MaterialIcon
-                        name="library_books"
-                        className="text-xl!"
-                    />
-
+                <ButtonLink to={`/library/${libraryEntry.game.id}`}>
+                    <MaterialIcon name="library_books" className="text-xl!" />
                     Ver na minha biblioteca
                 </ButtonLink>
 
-                <GameStatusBadge
-                    status={libraryEntry.status}
-                />
+                <GameStatusBadge status={libraryEntry.status} />
             </>
         );
     }
 
     return (
         <>
-            <Button
-                onClick={() => setIsModalOpen(true)}
-            >
-                <MaterialIcon
-                    name="library_add"
-                    className="text-xl!"
-                />
-
+            <Button onClick={() => setIsModalOpen(true)}>
+                <MaterialIcon name="library_add" className="text-xl!" />
                 Adicionar à biblioteca
             </Button>
 

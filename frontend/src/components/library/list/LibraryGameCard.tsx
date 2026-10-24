@@ -63,11 +63,7 @@ export function LibraryGameCard({ entry }: LibraryGameCardProps) {
                 </div>
 
                 <div className="absolute left-2 top-2">
-                    <GameStatusBadge
-                        status={status}
-                        backgroundOpacity="99"
-                        textColor="white"
-                    />
+                    <GameStatusBadge status={status} backgroundOpacity="99" textColor="white" />
                 </div>
 
                 {rating !== null && (
@@ -100,14 +96,9 @@ export function LibraryGameCard({ entry }: LibraryGameCardProps) {
 
                 <div className="mt-3 flex min-w-0 items-center gap-2">
                     <div className="flex shrink-0 items-center gap-1 text-xs text-ink-mute">
-                        <MaterialIcon
-                            name="schedule"
-                            className="text-base!"
-                        />
+                        <MaterialIcon name="schedule" className="text-base!" />
 
-                        <span>
-                            {formatPlayTime(playtimeMinutes)}
-                        </span>
+                        <span>{formatPlayTime(playtimeMinutes)}</span>
                     </div>
 
                     <PlatformBadges platforms={platforms} />

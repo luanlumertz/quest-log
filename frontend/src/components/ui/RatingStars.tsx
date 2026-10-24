@@ -15,14 +15,8 @@ export function RatingStars({ rating }: RatingStarsProps) {
         >
             <div className="flex">
                 {stars.map((fill, index) => (
-                    <span
-                        key={index}
-                        className="relative inline-block"
-                        aria-hidden="true"
-                    >
-                        <span className="text-lg text-ink-mute">
-                            ★
-                        </span>
+                    <span key={index} className="relative inline-block" aria-hidden="true">
+                        <span className="text-lg text-ink-mute">★</span>
 
                         <span
                             className="text-lg absolute left-0 top-0 overflow-hidden whitespace-nowrap text-amber-400"
@@ -34,9 +28,7 @@ export function RatingStars({ rating }: RatingStarsProps) {
                 ))}
             </div>
 
-            <span className="text-sm font-semibold text-amber-400">
-                {formatRating(rating)}
-            </span>
+            <span className="text-sm font-semibold text-amber-400">{formatRating(rating)}</span>
         </div>
     );
 }

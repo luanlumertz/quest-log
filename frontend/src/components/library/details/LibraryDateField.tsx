@@ -21,7 +21,7 @@ export function LibraryDateField({
     error,
     disabled = false,
     onChange,
-    onClear
+    onClear,
 }: LibraryDateFieldProps) {
     const errorId = `${id}-error`;
 
@@ -59,8 +59,7 @@ export function LibraryDateField({
                     disabled={disabled}
                     aria-invalid={!!error}
                     aria-describedby={error ? errorId : undefined}
-                    onChange={(event) => onChange(event.target.value)
-                    }
+                    onChange={(event) => onChange(event.target.value)}
                     onMouseDown={(event) => {
                         event.preventDefault();
 
@@ -107,10 +106,7 @@ export function LibraryDateField({
                             hover:text-danger
                         "
                     >
-                        <MaterialIcon
-                            name="close"
-                            className="text-lg!"
-                        />
+                        <MaterialIcon name="close" className="text-lg!" />
                     </button>
                 )}
             </div>
