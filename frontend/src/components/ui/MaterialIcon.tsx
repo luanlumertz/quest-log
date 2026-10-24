@@ -8,10 +8,7 @@ type MaterialIconProps = {
 
 export function MaterialIcon({ name, className = "" }: MaterialIconProps) {
     return (
-        <span
-            aria-hidden="true"
-            className={`material-symbols-rounded ${className}`}
-        >
+        <span aria-hidden="true" className={`material-symbols-rounded select-none ${className}`}>
             {name}
         </span>
     );

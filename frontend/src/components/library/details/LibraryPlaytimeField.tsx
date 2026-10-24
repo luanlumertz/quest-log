@@ -1,5 +1,4 @@
-import { formatPlayTime } from "../../../utils/formatPlayTime";
-import { hoursInputToMinutes, normalizeHoursInput } from "./libraryGameDetailsForm.utils";
+import { normalizeHoursInput } from "./libraryGameDetailsForm.utils";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
 type LibraryPlaytimeFieldProps = {
@@ -15,13 +14,9 @@ export function LibraryPlaytimeField({
     error,
     disabled = false,
     onChange,
-    onClear
+    onClear,
 }: LibraryPlaytimeFieldProps) {
     const errorId = "playtimeHours-error";
-    const playtimeMinutes = hoursInputToMinutes(value);
-
-    const formattedPlaytime = value.trim() !== "" &&
-        Number.isFinite(playtimeMinutes) ? formatPlayTime(playtimeMinutes) : null;
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         const normalizedValue = normalizeHoursInput(event.target.value);
@@ -65,9 +60,7 @@ export function LibraryPlaytimeField({
                     aria-invalid={!!error}
                     aria-describedby={error ? errorId : undefined}
                     value={value}
-                    onChange={
-                        handleChange
-                    }
+                    onChange={handleChange}
                     className="
                         h-11 w-full
                         rounded-xl
@@ -86,14 +79,13 @@ export function LibraryPlaytimeField({
                     "
                 />
 
-                {value.trim() !== "" &&
-                    !disabled && (
-                        <button
-                            type="button"
-                            aria-label="Limpar horas jogadas"
-                            title="Limpar horas jogadas"
-                            onClick={onClear}
-                            className="
+                {value.trim() !== "" && !disabled && (
+                    <button
+                        type="button"
+                        aria-label="Limpar horas jogadas"
+                        title="Limpar horas jogadas"
+                        onClick={onClear}
+                        className="
                                 absolute
                                 right-3
                                 top-1/2
@@ -106,21 +98,11 @@ export function LibraryPlaytimeField({
                                 transition-colors
                                 hover:text-danger
                             "
-                        >
-                            <MaterialIcon
-                                name="close"
-                                className="text-lg!"
-                            />
-                        </button>
-                    )}
+                    >
+                        <MaterialIcon name="close" className="text-lg!" />
+                    </button>
+                )}
             </div>
-
-            <p
-                className={`mt-2 min-h-4 text-xs text-ink-mute ${formattedPlaytime ? "visible" : "invisible"}`}
-            >
-                Equivale a{" "}
-                {formattedPlaytime ?? "0min"}
-            </p>
 
             {error && (
                 <p id={errorId} className="mt-2 text-xs text-danger">

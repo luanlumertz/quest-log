@@ -28,7 +28,7 @@ function renderLibrary(initialEntry = "/library") {
 }
 
 function createLibraryGames() {
-    const eldenRing = createLibraryEntry({ status: "PLAYING" });
+    const eldenRing = createLibraryEntry({ status: "PLAYING", playtimeMinutes: 13830 });
     const hades = createLibraryEntry({
         status: "COMPLETED",
         game: {
@@ -100,6 +100,7 @@ describe("Library.tsx", () => {
 
             expect(await screen.findByRole("heading", { name: "Elden Ring" })).toBeVisible();
             expect(await screen.findByRole("heading", { name: "Hades" })).toBeVisible();
+            expect(screen.getByText("230,5 h")).toBeVisible();
 
             await user.click(screen.getByRole("button", { name: new RegExp(`^${label}`, "i") }));
 

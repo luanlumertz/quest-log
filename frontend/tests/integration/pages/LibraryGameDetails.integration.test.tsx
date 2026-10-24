@@ -47,6 +47,94 @@ function mockGameDetails() {
 }
 
 describe("LibraryGameDetails.tsx", () => {
+    test("deve preservar os minutos originais ao descartar a edição das horas e salvar somente a nota", async () => {
+        const user = userEvent.setup();
+
+        const entry = { ...createEntry(), playtimeMinutes: 95 };
+
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/library/1",
+            responseBody: { libraryEntry: entry },
+        });
+        mockGameDetails();
+
+        const { requests } = mockApiResponse({
+            method: "PATCH",
+            endpoint: "/library/1",
+            responseBody: { updatedLibraryEntry: { ...entry, rating: 5 } },
+        });
+
+        renderLibraryGameDetails();
+
+        const hours = await screen.findByRole("textbox", { name: "Horas jogadas" });
+
+        expect(hours).toHaveValue("1,6");
+        expect(screen.queryByText(/Equivale a/)).not.toBeInTheDocument();
+
+        await user.clear(hours);
+        await user.type(hours, "2");
+        await user.click(screen.getByRole("button", { name: "Descartar alterações" }));
+
+        expect(hours).toHaveValue("1,6");
+        expect(screen.getByRole("button", { name: "Salvar alterações" })).toBeDisabled();
+
+        const rating = screen.getByRole("textbox", { name: "Nota" });
+
+        await user.clear(rating);
+        await user.type(rating, "5");
+        await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+        expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
+        expect(requests).toHaveLength(1);
+        expect(requests[0]?.body).toEqual({ rating: 5 });
+        expect(hours).toHaveValue("1,6");
+    });
+
+    test.each([
+        { input: "230,59", expectedValue: "230,5", expectedMinutes: 13830 },
+        { input: "12.3", expectedValue: "12,3", expectedMinutes: 738 },
+    ])(
+        "deve aceitar $input com até uma casa decimal e salvar minutos inteiros",
+        async ({ input, expectedValue, expectedMinutes }) => {
+            const user = userEvent.setup();
+
+            const entry = createEntry();
+
+            mockApiResponse({
+                method: "GET",
+                endpoint: "/library/1",
+                responseBody: { libraryEntry: entry },
+            });
+            mockGameDetails();
+
+            const { requests } = mockApiResponse({
+                method: "PATCH",
+                endpoint: "/library/1",
+                responseBody: {
+                    updatedLibraryEntry: { ...entry, playtimeMinutes: expectedMinutes },
+                },
+            });
+
+            renderLibraryGameDetails();
+
+            const hours = await screen.findByRole("textbox", { name: "Horas jogadas" });
+
+            await user.clear(hours);
+            await user.paste(input);
+
+            expect(hours).toHaveValue(expectedValue);
+            expect(screen.queryByText(/Equivale a/)).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+            expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
+            expect(requests).toHaveLength(1);
+            expect(requests[0]?.body).toEqual({ playtimeMinutes: expectedMinutes });
+            expect(hours).toHaveValue(expectedValue);
+        },
+    );
+
     test.each([
         ["WANT_TO_PLAY", "Quero jogar"],
         ["PLAYING", "Jogando"],
@@ -86,7 +174,7 @@ describe("LibraryGameDetails.tsx", () => {
 
             expect(screen.getByRole("textbox", { name: "Nota" })).toBeEnabled();
             expect(screen.getByRole("textbox", { name: "Nota" })).toHaveValue("4,5");
-            expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("1,58");
+            expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("1,6");
             expect(screen.getByLabelText("Data de início")).toBeEnabled();
             expect(screen.getByLabelText("Data de início")).toHaveValue("2026-01-01");
             expect(screen.getByLabelText("Data de conclusão")).toBeEnabled();
@@ -102,7 +190,7 @@ describe("LibraryGameDetails.tsx", () => {
             expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
             expect(requests).toHaveLength(1);
             expect(requests[0]?.body).toEqual({ status });
-            expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("1,58");
+            expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("1,6");
             expect(screen.getByLabelText("Data de conclusão")).toHaveValue("2026-01-10");
         },
     );
