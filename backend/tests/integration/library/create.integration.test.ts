@@ -28,7 +28,7 @@ import {
 } from "../../requests/library/create.request.js";
 
 describe("POST /library", () => {
-    test.each(["WANT_TO_PLAY", "PLAYING", "COMPLETED", "ABANDONED"] as const)(
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
         "deve adicionar um jogo como %s sem exigir plataformas nem preencher datas",
         async (status) => {
             const { agent, user } = await createAuthenticatedAgent();

@@ -55,6 +55,7 @@ model GamePlatform {
 enum GameStatus {
     WANT_TO_PLAY
     PLAYING
+    PAUSED
     COMPLETED
     ABANDONED
 }

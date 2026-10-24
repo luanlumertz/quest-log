@@ -15,7 +15,7 @@ import {
 } from "../../requests/library/update.request.js";
 
 describe("PATCH /library/:gameId", () => {
-    test.each(["WANT_TO_PLAY", "PLAYING", "COMPLETED", "ABANDONED"] as const)(
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
         "deve preservar os demais campos ao mudar o status para %s",
         async (status) => {
             const { agent, user } = await createAuthenticatedAgent();
@@ -26,7 +26,7 @@ describe("PATCH /library/:gameId", () => {
             const { game, selectedPlatforms } = await createLibraryDataForUser(user.id, {
                 selectedPlatforms: ["PC", "PlayStation 5"],
                 libraryEntry: {
-                    status: status === "COMPLETED" ? "PLAYING" : "COMPLETED",
+                    status: status === "PLAYING" || status === "COMPLETED" ? "PAUSED" : "COMPLETED",
                     rating: 4.5,
                     playtimeMinutes: 95,
                     startedAt,
@@ -68,7 +68,7 @@ describe("PATCH /library/:gameId", () => {
         },
     );
 
-    test.each(["WANT_TO_PLAY", "PLAYING", "COMPLETED", "ABANDONED"] as const)(
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
         "não deve preencher datas nem plataformas ao mudar o status para %s",
         async (status) => {
             const { agent, user } = await createAuthenticatedAgent();
@@ -100,7 +100,7 @@ describe("PATCH /library/:gameId", () => {
         },
     );
 
-    test.each(["WANT_TO_PLAY", "PLAYING", "COMPLETED", "ABANDONED"] as const)(
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
         "deve aceitar avaliação e ambas as datas no status %s",
         async (status) => {
             const { agent, user } = await createAuthenticatedAgent();

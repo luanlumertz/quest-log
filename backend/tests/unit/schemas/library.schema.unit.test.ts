@@ -28,17 +28,20 @@ describe("library.schema.ts", () => {
             });
         });
 
-        test("deve aceitar um status válido informado explicitamente", () => {
-            const result = addGameToLibrarySchema.parse({
-                ...validPayload,
-                status: "PLAYING",
-            });
+        test.each(["PLAYING", "PAUSED"])(
+            "deve aceitar o status %s informado explicitamente",
+            (status) => {
+                const result = addGameToLibrarySchema.parse({
+                    ...validPayload,
+                    status,
+                });
 
-            assert.deepEqual(result, {
-                ...validPayload,
-                status: "PLAYING",
-            });
-        });
+                assert.deepEqual(result, {
+                    ...validPayload,
+                    status,
+                });
+            },
+        );
 
         test("deve rejeitar propriedades não permitidas ao adicionar um jogo", () => {
             const result = addGameToLibrarySchema.safeParse({
@@ -76,7 +79,7 @@ describe("library.schema.ts", () => {
             },
             {
                 scenario: "status inválido",
-                override: { status: "PAUSED" },
+                override: { status: "INVALID_STATUS" },
                 field: "status",
                 message: "Status inválido",
             },
@@ -191,6 +194,12 @@ describe("library.schema.ts", () => {
     });
 
     describe("updateLibraryEntrySchema", () => {
+        test("deve aceitar a alteração do status para PAUSED", () => {
+            const result = updateLibraryEntrySchema.parse({ status: "PAUSED" });
+
+            assert.deepEqual(result, { status: "PAUSED" });
+        });
+
         test("deve converter startedAt e completedAt de string para Date", () => {
             const result = updateLibraryEntrySchema.parse({
                 startedAt: "2026-01-10T12:00:00.000Z",
@@ -233,7 +242,7 @@ describe("library.schema.ts", () => {
         });
 
         test("deve rejeitar status inválido", () => {
-            const result = updateLibraryEntrySchema.safeParse({ status: "PAUSED" });
+            const result = updateLibraryEntrySchema.safeParse({ status: "INVALID_STATUS" });
 
             assert.isFalse(result.success);
 
@@ -482,7 +491,7 @@ describe("library.schema.ts", () => {
             },
             {
                 scenario: "status inválido",
-                payload: { status: "PAUSED" },
+                payload: { status: "INVALID_STATUS" },
                 field: "status",
                 message: "Status inválido",
             },
@@ -505,7 +514,7 @@ describe("library.schema.ts", () => {
             },
             {
                 scenario: "busca e status combinados",
-                payload: { search: "Elden Ring", status: "COMPLETED" },
+                payload: { search: "Elden Ring", status: "PAUSED" },
             },
         ] as const)("deve aceitar $scenario", ({ payload }) => {
             const result = libraryQuerySchema.safeParse(payload);
