@@ -38,7 +38,7 @@ describe("Register.tsx", () => {
 
         renderRegister();
 
-        await user.type(screen.getByRole("textbox", { name: "Nome" }), "João Silva");
+        await user.type(screen.getByRole("textbox", { name: "Nome de exibição" }), "João Silva");
         await user.type(screen.getByRole("textbox", { name: "Email" }), "joao@email.com");
         await user.type(screen.getByLabelText("Senha"), "12345678");
         await user.type(screen.getByLabelText("Confirme sua senha"), "12345678");
@@ -65,7 +65,7 @@ describe("Register.tsx", () => {
 
         renderRegister();
 
-        await user.type(screen.getByRole("textbox", { name: "Nome" }), "João Silva");
+        await user.type(screen.getByRole("textbox", { name: "Nome de exibição" }), "João Silva");
         await user.type(screen.getByRole("textbox", { name: "Email" }), "joao@email.com");
         await user.type(screen.getByLabelText("Senha"), "12345678");
         await user.type(screen.getByLabelText("Confirme sua senha"), "12345678");
@@ -73,7 +73,7 @@ describe("Register.tsx", () => {
 
         expect(await screen.findByText("Email já cadastrado")).toBeVisible();
         expect(screen.getByRole("button", { name: "Cadastrar" })).toBeEnabled();
-        expect(screen.getByRole("textbox", { name: "Nome" })).toHaveValue("João Silva");
+        expect(screen.getByRole("textbox", { name: "Nome de exibição" })).toHaveValue("João Silva");
         expect(screen.getByRole("textbox", { name: "Email" })).toHaveValue("joao@email.com");
         expect(screen.getByLabelText("Senha")).toHaveValue("12345678");
         expect(screen.getByLabelText("Confirme sua senha")).toHaveValue("12345678");
@@ -91,7 +91,7 @@ describe("Register.tsx", () => {
 
         renderRegister();
 
-        await user.type(screen.getByRole("textbox", { name: "Nome" }), "João Silva");
+        await user.type(screen.getByRole("textbox", { name: "Nome de exibição" }), "João Silva");
         await user.type(screen.getByRole("textbox", { name: "Email" }), "joao@email.com");
         await user.type(screen.getByLabelText("Senha"), "12345678");
         await user.type(screen.getByLabelText("Confirme sua senha"), "87654321");

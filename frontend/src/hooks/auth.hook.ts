@@ -38,7 +38,7 @@ export function usePasswordChangeSuccess() {
 
     return (email?: string) => {
         storePasswordChangeNotice(email);
-        // O backend já revogou as sessões e limpou os cookies; não é necessário chamar logout.
+        // O backend já revogou as sessões e limpou os cookies, não é necessário chamar logout.
         queryClient.clear();
         setUser(null);
         navigate("/login", { replace: true, state: { passwordChanged: true, email } });

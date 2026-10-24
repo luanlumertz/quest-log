@@ -77,7 +77,9 @@ export function AccountInformation({ user, disabled, onUpdatingChange }: Account
             setIsEditing(false);
             setShowSuccess(true);
         } catch (error) {
-            setUpdateError(getErrorMessage(error, "Não foi possível atualizar seu nome."));
+            setUpdateError(
+                getErrorMessage(error, "Não foi possível atualizar seu nome de exibição."),
+            );
         } finally {
             onUpdatingChange(false);
         }
@@ -94,7 +96,7 @@ export function AccountInformation({ user, disabled, onUpdatingChange }: Account
             <div className="px-5 py-5">
                 <div>
                     <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-ink-mute">
-                        Nome
+                        Nome de exibição
                     </p>
 
                     {isEditing ? (
@@ -109,8 +111,8 @@ export function AccountInformation({ user, disabled, onUpdatingChange }: Account
                                     },
                                 })}
                                 type="text"
-                                aria-label="Nome"
-                                autoComplete="name"
+                                aria-label="Nome de exibição"
+                                autoComplete="nickname"
                                 autoFocus
                                 disabled={isUpdating || disabled}
                                 aria-invalid={!!errors.name}
@@ -174,7 +176,7 @@ export function AccountInformation({ user, disabled, onUpdatingChange }: Account
                         onVisibleChange={setShowSuccess}
                         className="mt-5"
                     >
-                        Nome atualizado com sucesso!
+                        Nome de exibição atualizado com sucesso!
                     </SuccessAlert>
                 </div>
 

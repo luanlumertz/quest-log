@@ -44,7 +44,7 @@ export function renderRegistrationFlow(initialPath = "/register") {
 }
 
 export async function fillRegistrationForm(user: ReturnType<typeof userEvent.setup>) {
-    await user.type(screen.getByRole("textbox", { name: "Nome" }), "João Silva");
+    await user.type(screen.getByRole("textbox", { name: "Nome de exibição" }), "João Silva");
     await user.type(screen.getByRole("textbox", { name: "Email" }), "joao@email.com");
     await user.type(screen.getByLabelText("Senha"), "12345678");
     await user.type(screen.getByLabelText("Confirme sua senha"), "12345678");
