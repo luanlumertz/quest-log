@@ -34,7 +34,7 @@ import {
     VERIFICATION_RESEND_COOLDOWN_MS,
 } from "../constants/auth.js";
 import { sendRegistrationVerificationEmail } from "./auth.helpers.js";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client.js";
 
 export async function registerUser(data: RegisterUserData) {
     const existingUser = await findUserByEmail(data.email);

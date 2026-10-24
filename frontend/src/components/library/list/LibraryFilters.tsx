@@ -1,4 +1,4 @@
-import { GAME_STATUS_CONFIG } from "../../../config/gameStatus.config";
+import { GAME_STATUS_CONFIG, GAME_STATUS_ENTRIES } from "../../../config/gameStatus.config";
 import type { GameStatus } from "../../../types/game.types";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
@@ -23,11 +23,7 @@ type StatusFilterButtonProps = {
 
 const STATUS_FILTERS: (GameStatus | undefined)[] = [
     undefined,
-    "PLAYING",
-    "PAUSED",
-    "COMPLETED",
-    "WANT_TO_PLAY",
-    "ABANDONED",
+    ...GAME_STATUS_ENTRIES.map(([status]) => status),
 ];
 
 export function LibraryFilters({

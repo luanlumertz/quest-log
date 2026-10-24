@@ -288,6 +288,23 @@ describe("Dashboard.tsx", () => {
             name: /Total de jogos/i,
         });
 
+        const statsGrid = totalDeJogos.parentElement;
+
+        expect(statsGrid).not.toBeNull();
+        expect(
+            within(statsGrid!)
+                .getAllByRole("heading", { level: 2 })
+                .map((heading) => heading.textContent),
+        ).toEqual([
+            "Total de jogos",
+            "Quero jogar",
+            "Jogando",
+            "Pausado",
+            "Abandonado",
+            "Zerado",
+            "Tempo jogado",
+        ]);
+
         expect(within(totalDeJogos).getByText("2")).toBeVisible();
         expect(screen.getByText("12 h")).toBeVisible();
 

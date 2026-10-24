@@ -1,5 +1,5 @@
 import { assert, describe, test } from "vitest";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../src/generated/prisma/client.js";
 
 import {
     formatLibraryEntry,

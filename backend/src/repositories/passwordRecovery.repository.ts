@@ -1,4 +1,4 @@
-import type { PasswordRecovery, Prisma } from "@prisma/client";
+import type { PasswordRecovery, Prisma } from "../generated/prisma/client.js";
 import {
     MAX_PASSWORD_RECOVERY_EMAILS_PER_WINDOW,
     MAX_VERIFICATION_ATTEMPTS,

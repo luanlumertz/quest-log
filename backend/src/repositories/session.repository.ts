@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 
 export function runSessionTransaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {

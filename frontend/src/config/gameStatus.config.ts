@@ -21,14 +21,14 @@ export const GAME_STATUS_CONFIG = {
         color: "#A1A1AA",
     },
 
-    COMPLETED: {
-        label: "Zerado",
-        color: "#C65CFF",
-    },
-
     ABANDONED: {
         label: "Abandonado",
         color: "#FF862E",
+    },
+
+    COMPLETED: {
+        label: "Zerado",
+        color: "#C65CFF",
     },
 } satisfies Record<GameStatus, GameStatusConfig>;
 

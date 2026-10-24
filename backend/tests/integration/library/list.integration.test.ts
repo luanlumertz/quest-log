@@ -1,6 +1,6 @@
 import { assert, describe, test } from "vitest";
 
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../../src/generated/prisma/client.js";
 
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
 import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";

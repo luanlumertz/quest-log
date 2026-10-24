@@ -5,17 +5,16 @@ type StatCardProps = {
     content: string | number;
     color?: string;
     to?: string;
-    fontSize?: string;
     className?: string;
 };
 
-export function StatCard({ label, content, color, to, fontSize, className = "" }: StatCardProps) {
+export function StatCard({ label, content, color, to, className = "" }: StatCardProps) {
     const cardClassName = `
-        block overflow-x-hidden
+        grid min-w-0 row-span-2 grid-rows-subgrid gap-y-4 overflow-x-hidden text-center
         rounded-[20px]
         border border-white/5
         bg-[#0D0F17]
-        px-5 py-5
+        px-3 py-5
         transition-transform
         ${to ? "hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-brand" : ""}
         ${className}
@@ -23,14 +22,12 @@ export function StatCard({ label, content, color, to, fontSize, className = "" }
 
     const cardContent = (
         <>
-            <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-mute">
+            <h2 className="self-center text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-mute">
                 {label}
             </h2>
 
             <p
-                className={`font-display font-bold leading-none text-brand wrap-break-word
-                    ${fontSize ?? "text-[30px]"}
-                `}
+                className="font-display text-[30px] font-bold leading-none text-brand wrap-break-word"
                 style={color ? { color } : undefined}
             >
                 {content}

@@ -4,7 +4,7 @@ import type {
     UpdateLibraryEntryData,
 } from "../types/library.types.js";
 import type { LibraryQueryData } from "../schemas/library.schema.js";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client.js";
 
 export const libraryEntrySelect = {
     status: true,

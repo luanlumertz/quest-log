@@ -1,5 +1,5 @@
 import { describe, test, assert, expect, vi, beforeEach } from "vitest";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../src/generated/prisma/client.js";
 
 import { prisma } from "../../../src/lib/prisma.js";
 import { savePendingRegistration } from "../../../src/repositories/pendingRegistration.repository.js";

@@ -1,4 +1,4 @@
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../src/generated/prisma/client.js";
 
 export type DashboardResponse = {
     dashboardData: {

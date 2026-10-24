@@ -1,6 +1,6 @@
 import { assert, describe, test } from "vitest";
 
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../../src/generated/prisma/client.js";
 import { findLibraryEntryByUserAndGameId } from "../../../src/repositories/library.repository.js";
 import { createPlatform } from "../../../src/repositories/platform.repository.js";
 

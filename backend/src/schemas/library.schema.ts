@@ -1,5 +1,5 @@
 import z from "zod";
-import { GameStatus } from "@prisma/client";
+import { GameStatus } from "../generated/prisma/client.js";
 
 const platformSchema = z
     .string({ error: "A plataforma deve ser um texto" })
