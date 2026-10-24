@@ -4,13 +4,17 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-    globalIgnores(["dist", "node_modules", "coverage", "build", "public"]),
+    globalIgnores([
+        "dist",
+        "node_modules",
+        "coverage",
+        "build",
+        "public",
+        "src/generated/prisma/**",
+    ]),
     {
         files: ["**/*.ts"],
-        extends: [
-            js.configs.recommended,
-            tseslint.configs.recommended,
-        ],
+        extends: [js.configs.recommended, tseslint.configs.recommended],
         languageOptions: {
             globals: globals.node,
         },

@@ -1,17 +1,18 @@
 export const GAME_STATUSES = [
     "WANT_TO_PLAY",
     "PLAYING",
+    "PAUSED",
     "COMPLETED",
-    "ABANDONED"
+    "ABANDONED",
 ] as const;
 
-export type GameStatus = typeof GAME_STATUSES[number];
+export type GameStatus = (typeof GAME_STATUSES)[number];
 
 export type GameSummary = {
     id: number;
     title: string;
     coverUrl: string | null;
-}
+};
 
 export type GameSearchResult = {
     externalId: number;
@@ -19,7 +20,7 @@ export type GameSearchResult = {
     releaseDate: string | null;
     coverUrl: string | null;
     platforms: string[];
-}
+};
 
 export type GameDetailsResult = {
     externalId: number;

@@ -1,3 +1,5 @@
+import { formatPlayTimeHours } from "../../../utils/formatPlayTime";
+
 export function getTodayInputValue() {
     const today = new Date();
 
@@ -27,9 +29,7 @@ export function minutesToHoursInput(minutes: number) {
         return "";
     }
 
-    const hours = minutes / 60;
-
-    return Number(hours.toFixed(2)).toString().replace(".", ",");
+    return formatPlayTimeHours(minutes);
 }
 
 export function hoursInputToMinutes(value: string) {
@@ -57,7 +57,7 @@ export function normalizeHoursInput(value: string) {
         return hours;
     }
 
-    return `${hours},${decimal.slice(0, 2)}`;
+    return `${hours},${decimal.slice(0, 1)}`;
 }
 
 export function ratingInputToNumber(value: string): number | null {

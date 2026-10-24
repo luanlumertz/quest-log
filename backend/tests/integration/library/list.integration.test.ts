@@ -1,6 +1,6 @@
 import { assert, describe, test } from "vitest";
 
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../../src/generated/prisma/client.js";
 
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
 import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";
@@ -58,41 +58,42 @@ describe("GET /library", () => {
         assert.deepEqual(body.libraryEntries, []);
     });
 
-    test("deve filtrar a biblioteca por status", async () => {
-        const { agent, user } = await createAuthenticatedAgent();
+    test.each(["PLAYING", "PAUSED"] as const)(
+        "deve filtrar a biblioteca pelo status %s",
+        async (filteredStatus) => {
+            const { agent, user } = await createAuthenticatedAgent();
 
-        const filteredStatus: GameStatus = "PLAYING";
+            const { game: firstTestGame, libraryEntry } = await createLibraryDataForUser(user.id, {
+                libraryEntry: {
+                    status: filteredStatus,
+                },
+            });
 
-        const { game: firstTestGame, libraryEntry } = await createLibraryDataForUser(user.id, {
-            libraryEntry: {
-                status: filteredStatus,
-            },
-        });
+            await createLibraryDataForUser(user.id, {
+                game: {
+                    externalId: 456,
+                    title: "Second Test Game",
+                },
+                selectedPlatforms: ["Second Test Platform"],
+                libraryEntry: {
+                    status: "COMPLETED",
+                },
+            });
 
-        await createLibraryDataForUser(user.id, {
-            game: {
-                externalId: 456,
-                title: "Second Test Game",
-            },
-            selectedPlatforms: ["Second Test Platform"],
-            libraryEntry: {
-                status: "COMPLETED",
-            },
-        });
+            const response = await listLibrary(agent, { status: filteredStatus });
 
-        const response = await listLibrary(agent, { status: filteredStatus });
+            const body = response.body as ListLibraryResponse;
 
-        const body = response.body as ListLibraryResponse;
+            assert.equal(response.status, 200);
+            assert.equal(body.libraryEntries.length, 1);
 
-        assert.equal(response.status, 200);
-        assert.equal(body.libraryEntries.length, 1);
+            const [libraryEntryResponse] = body.libraryEntries;
 
-        const [libraryEntryResponse] = body.libraryEntries;
-
-        assert.ok(libraryEntryResponse);
-        assert.equal(libraryEntryResponse.game.id, firstTestGame.id);
-        assert.equal(libraryEntryResponse.status, libraryEntry.status);
-    });
+            assert.ok(libraryEntryResponse);
+            assert.equal(libraryEntryResponse.game.id, firstTestGame.id);
+            assert.equal(libraryEntryResponse.status, libraryEntry.status);
+        },
+    );
 
     test("deve filtrar a biblioteca pelo título do jogo", async () => {
         const { agent, user } = await createAuthenticatedAgent();
@@ -131,7 +132,7 @@ describe("GET /library", () => {
     test("deve filtrar a biblioteca por status e título ao mesmo tempo", async () => {
         const { agent, user } = await createAuthenticatedAgent();
 
-        const filteredStatus: GameStatus = "PLAYING";
+        const filteredStatus: GameStatus = "PAUSED";
         const filteredSearch: string = "Elden Ring";
 
         const { game, libraryEntry } = await createLibraryDataForUser(user.id, {
@@ -186,7 +187,7 @@ describe("GET /library", () => {
     test("não deve listar biblioteca com status inválido", async () => {
         const { agent } = await createAuthenticatedAgent();
 
-        const response = await listLibrary(agent, { status: "PAUSED" as GameStatus });
+        const response = await listLibrary(agent, { status: "INVALID_STATUS" as GameStatus });
 
         assert.equal(response.status, 422);
         assert.equal(response.body.error, "Erro de Validação");

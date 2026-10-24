@@ -30,6 +30,7 @@ describe("sendRegistrationVerificationEmail", () => {
                 to: "teste@email.com",
                 subject: "Código",
                 text: "123456",
+                code: "123456",
                 logMessage: "Falha no envio:",
                 errorMessage: "Tente novamente.",
             }),

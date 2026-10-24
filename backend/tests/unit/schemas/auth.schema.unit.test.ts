@@ -50,25 +50,25 @@ describe("auth.schema.ts", () => {
                 scenario: "nome muito curto",
                 override: { name: "A" },
                 field: "name",
-                message: "Nome deve ter pelo menos 2 caracteres",
+                message: "Nome de exibição deve ter pelo menos 2 caracteres",
             },
             {
                 scenario: "nome muito longo",
                 override: { name: "A".repeat(65) },
                 field: "name",
-                message: "Nome muito grande. Máximo: 64 caracteres",
+                message: "Nome de exibição muito grande. Máximo: 64 caracteres",
             },
             {
                 scenario: "nome contendo apenas espaços",
                 override: { name: "     " },
                 field: "name",
-                message: "Nome deve ter pelo menos 2 caracteres",
+                message: "Nome de exibição deve ter pelo menos 2 caracteres",
             },
             {
                 scenario: "nome com caracteres inválidos",
-                override: { name: "123" },
+                override: { name: "Pedro!" },
                 field: "name",
-                message: "Nome contém caracteres inválidos",
+                message: "Use apenas letras, números, espaços, hífens, apóstrofos e sublinhados",
             },
             {
                 scenario: "e-mail com formato inválido",
@@ -375,5 +375,33 @@ describe("auth.schema.ts", () => {
                 ),
             );
         });
+    });
+});
+
+describe("nome de exibição", () => {
+    test.each(["Pedro_99", "xXPedroFodaXx", "_a_", "123", "João D’Ávila", "Ana-Maria"])(
+        "deve aceitar e preservar %s no cadastro e na edição",
+        (name) => {
+            const payload = { name, email: "teste@email.com", password: "12345678" };
+
+            assert.equal(registerUserSchema.parse(payload).name, name);
+            assert.equal(updateUserSchema.parse({ name }).name, name);
+        },
+    );
+
+    test.each(["___", "-- '", "*         a   _!#         ", "<script>", "Pedro🙂"])(
+        "deve rejeitar %s no cadastro e na edição",
+        (name) => {
+            const payload = { name, email: "teste@email.com", password: "12345678" };
+
+            assert.isFalse(registerUserSchema.safeParse(payload).success);
+            assert.isFalse(updateUserSchema.safeParse({ name }).success);
+        },
+    );
+
+    test("deve normalizar espaços sem alterar o apelido", () => {
+        const result = updateUserSchema.parse({ name: "   xXPedro_99   Silva  " });
+
+        assert.equal(result.name, "xXPedro_99 Silva");
     });
 });

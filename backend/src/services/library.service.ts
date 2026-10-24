@@ -16,9 +16,8 @@ import type {
 import type { LibraryQueryData, UpdateLibraryEntryServiceData } from "../schemas/library.schema.js";
 import { runInTransaction } from "../repositories/transaction.repository.js";
 import {
-    applyLibraryEntryStatusRules,
+    normalizeLibraryEntryDates,
     formatLibraryEntry,
-    getInitialDates,
     validateLibraryEntryDates,
 } from "./library.helpers.js";
 import { getOrCreateGame } from "./library-game.service.js";
@@ -49,14 +48,12 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
 
     const availablePlatforms = await validateSelectedPlatforms(game.id, data.platforms);
 
-    const { startedAt, completedAt } = getInitialDates(data.status);
-
     const createLibraryEntryData: AddGameToLibraryRepositoryData = {
         userId: data.userId,
         gameId: game.id,
         status: data.status,
-        startedAt,
-        completedAt,
+        startedAt: null,
+        completedAt: null,
     };
 
     const libraryEntry = await runInTransaction(async (tx) => {
@@ -103,7 +100,7 @@ export async function updateLibraryEntry(
 
     const libraryEntry = await findLibraryEntryOrThrow(userId, gameId);
 
-    const preparedLibraryEntryData = applyLibraryEntryStatusRules(libraryEntry, libraryEntryData);
+    const preparedLibraryEntryData = normalizeLibraryEntryDates(libraryEntryData);
 
     validateLibraryEntryDates(libraryEntry, preparedLibraryEntryData);
 

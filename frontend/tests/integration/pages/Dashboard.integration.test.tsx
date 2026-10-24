@@ -18,6 +18,7 @@ const dashboardData = {
         byStatus: {
             WANT_TO_PLAY: 0,
             PLAYING: 1,
+            PAUSED: 0,
             COMPLETED: 1,
             ABANDONED: 0,
         },
@@ -57,6 +58,97 @@ function renderDashboard() {
 }
 
 describe("Dashboard.tsx", () => {
+    test("deve formatar o total de minutos sem somar as horas arredondadas de cada jogo", async () => {
+        const firstEntry = createLibraryEntry({ status: "PAUSED", playtimeMinutes: 52 });
+        const secondEntry = createLibraryEntry({
+            status: "COMPLETED",
+            playtimeMinutes: 52,
+            game: { ...firstEntry.game, id: 2, title: "Hades" },
+        });
+
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/library",
+            responseBody: { libraryEntries: [] },
+        });
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/dashboard",
+            responseBody: {
+                dashboardData: {
+                    stats: {
+                        totalGames: 2,
+                        totalPlaytimeMinutes: 104,
+                        byStatus: {
+                            WANT_TO_PLAY: 0,
+                            PLAYING: 0,
+                            PAUSED: 1,
+                            COMPLETED: 1,
+                            ABANDONED: 0,
+                        },
+                    },
+                    recentGames: [firstEntry, secondEntry],
+                },
+            },
+        });
+
+        renderDashboard();
+
+        const totalHeading = await screen.findByRole("heading", { name: "Tempo jogado" });
+        const totalSection = totalHeading.closest("section");
+
+        expect(within(totalSection!).getByText("1,7 h")).toBeVisible();
+        expect(screen.queryByText("1,8 h")).not.toBeInTheDocument();
+
+        const recentSection = screen
+            .getByRole("heading", { name: "Atividade recente" })
+            .closest("section");
+
+        expect(within(recentSection!).getAllByText("0,9 h")).toHaveLength(2);
+    });
+
+    test("deve mostrar pausados nos cartões, no resumo e na atividade recente", async () => {
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/library",
+            responseBody: { libraryEntries: [] },
+        });
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/dashboard",
+            responseBody: {
+                dashboardData: {
+                    ...dashboardData,
+                    stats: {
+                        ...dashboardData.stats,
+                        totalGames: 4,
+                        byStatus: { ...dashboardData.stats.byStatus, PAUSED: 2 },
+                    },
+                    recentGames: [createLibraryEntry({ status: "PAUSED" })],
+                },
+            },
+        });
+
+        renderDashboard();
+
+        await screen.findByRole("heading", { name: "Bem-vindo de volta, João" });
+
+        const pausedLinks = screen.getAllByRole("link", { name: /^Pausado/ });
+
+        expect(pausedLinks).toHaveLength(2);
+
+        for (const link of pausedLinks) {
+            expect(link).toHaveAttribute("href", "/library?status=PAUSED");
+            expect(within(link).getByText("2")).toBeVisible();
+        }
+
+        const recentSection = screen
+            .getByRole("heading", { name: "Atividade recente" })
+            .closest("section");
+
+        expect(within(recentSection!).getByText("Pausado")).toBeVisible();
+    });
+
     test("deve exibir atividades recentes com e sem nota e abrir a entrada correta", async () => {
         const user = userEvent.setup();
 
@@ -107,7 +199,7 @@ describe("Dashboard.tsx", () => {
 
         expect(within(eldenRing).getByLabelText("Nota 4.5 de 5")).toBeInTheDocument();
         expect(within(eldenRing).getByText("PC")).toBeInTheDocument();
-        expect(within(eldenRing).getByText("12h")).toBeVisible();
+        expect(within(eldenRing).getByText("12 h")).toBeVisible();
         expect(
             within(recent.getByRole("link", { name: /Hades/i })).getByText("Sem nota"),
         ).toBeInTheDocument();
@@ -174,7 +266,7 @@ describe("Dashboard.tsx", () => {
             method: "GET",
             endpoint: "/library",
             responseBody: {
-                libraryEntries: [createLibraryEntry({ status: "PLAYING" })],
+                libraryEntries: [createLibraryEntry({ status: "PLAYING", playtimeMinutes: 95 })],
             },
         });
 
@@ -196,8 +288,25 @@ describe("Dashboard.tsx", () => {
             name: /Total de jogos/i,
         });
 
+        const statsGrid = totalDeJogos.parentElement;
+
+        expect(statsGrid).not.toBeNull();
+        expect(
+            within(statsGrid!)
+                .getAllByRole("heading", { level: 2 })
+                .map((heading) => heading.textContent),
+        ).toEqual([
+            "Total de jogos",
+            "Quero jogar",
+            "Jogando",
+            "Pausado",
+            "Abandonado",
+            "Zerado",
+            "Tempo jogado",
+        ]);
+
         expect(within(totalDeJogos).getByText("2")).toBeVisible();
-        expect(screen.getByText("12h")).toBeVisible();
+        expect(screen.getByText("12 h")).toBeVisible();
 
         const tituloJogando = await screen.findByRole("heading", {
             name: "Jogando agora",
@@ -206,6 +315,7 @@ describe("Dashboard.tsx", () => {
         const secaoJogando = tituloJogando.closest("section");
 
         expect(secaoJogando).not.toBeNull();
+        expect(within(secaoJogando!).getByText("1,6 h")).toBeVisible();
         expect(
             within(secaoJogando!).getByRole("heading", {
                 name: "Elden Ring",
@@ -250,7 +360,7 @@ describe("Dashboard.tsx", () => {
         const total = screen.getByRole("link", { name: /Total de jogos/i });
 
         expect(within(total).getByText("2")).toBeVisible();
-        expect(screen.getByText("12h")).toBeVisible();
+        expect(screen.getByText("12 h")).toBeVisible();
         expect(await screen.findByRole("heading", { name: "Elden Ring" })).toBeVisible();
         expect(screen.queryByText("Não foi possível carregar o Dashboard")).not.toBeInTheDocument();
         expect(requests).toHaveLength(1);
@@ -280,7 +390,7 @@ describe("Dashboard.tsx", () => {
         const total = screen.getByRole("link", { name: /Total de jogos/i });
 
         expect(within(total).getByText("2")).toBeVisible();
-        expect(screen.getByText("12h")).toBeVisible();
+        expect(screen.getByText("12 h")).toBeVisible();
         expect(screen.getByRole("heading", { name: "Atividade recente" })).toBeVisible();
         expect(screen.queryByText("Não foi possível carregar o Dashboard")).not.toBeInTheDocument();
 
@@ -302,7 +412,7 @@ describe("Dashboard.tsx", () => {
         expect(within(section!).getByRole("heading", { name: "Elden Ring" })).toBeVisible();
         expect(screen.queryByText(erro)).not.toBeInTheDocument();
         expect(within(total).getByText("2")).toBeVisible();
-        expect(screen.getByText("12h")).toBeVisible();
+        expect(screen.getByText("12 h")).toBeVisible();
         expect(playing.requests).toHaveLength(1);
         expect(dashboard.requests).toHaveLength(1);
     });

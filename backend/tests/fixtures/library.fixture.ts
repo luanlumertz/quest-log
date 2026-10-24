@@ -1,4 +1,4 @@
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../src/generated/prisma/client.js";
 import { prisma } from "../../src/lib/prisma.js";
 
 type CreateLibraryDataForUserOptions = {

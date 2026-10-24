@@ -81,10 +81,10 @@ export function Register() {
                     className="mt-10 space-y-6"
                 >
                     <AuthInput
-                        label="Nome"
+                        label="Nome de exibição"
                         type="text"
-                        placeholder="Digite seu nome"
-                        autoComplete="name"
+                        placeholder="Pedro ou PedroPlayer"
+                        autoComplete="nickname"
                         registration={register("name")}
                         error={errors.name?.message}
                     />

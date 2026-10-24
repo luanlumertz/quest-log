@@ -10,12 +10,7 @@ type GameStatusSelectorProps = {
     onChange: (status: GameStatus) => void;
 };
 
-export function GameStatusSelector({
-    value,
-    error,
-    disabled,
-    onChange
-}: GameStatusSelectorProps) {
+export function GameStatusSelector({ value, error, disabled, onChange }: GameStatusSelectorProps) {
     const errorId = `${useId()}-error`;
 
     return (
@@ -29,21 +24,17 @@ export function GameStatusSelector({
             </legend>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
-                {GAME_STATUS_ENTRIES.map(
-                    ([status, statusInfo]) => {
-                        const isSelected =
-                            value === status;
+                {GAME_STATUS_ENTRIES.map(([status, statusInfo]) => {
+                    const isSelected = value === status;
 
-                        return (
-                            <button
-                                key={status}
-                                type="button"
-                                aria-pressed={isSelected}
-                                onClick={() =>
-                                    onChange(status)
-                                }
-                                className={`
-                                    min-h-11 rounded-xl
+                    return (
+                        <button
+                            key={status}
+                            type="button"
+                            aria-pressed={isSelected}
+                            onClick={() => onChange(status)}
+                            className={`
+                                    min-h-11 rounded-xl last:col-span-2
                                     border px-3
                                     text-center text-sm font-medium
                                     transition-colors
@@ -51,9 +42,10 @@ export function GameStatusSelector({
                                     disabled:cursor-not-allowed
                                     disabled:opacity-60
                                     wrap-anywhere
-                                    ${isSelected
-                                        ? ""
-                                        : `
+                                    ${
+                                        isSelected
+                                            ? ""
+                                            : `
                                                 border-divider-bright
                                                 bg-surface
                                                 text-ink-mute
@@ -62,19 +54,20 @@ export function GameStatusSelector({
                                             `
                                     }
                                 `}
-                                style={isSelected
+                            style={
+                                isSelected
                                     ? {
-                                        color: statusInfo.color,
-                                        borderColor: `${statusInfo.color}66`,
-                                        backgroundColor: `${statusInfo.color}1A`
-                                    } : undefined
-                                }
-                            >
-                                {statusInfo.label}
-                            </button>
-                        );
-                    }
-                )}
+                                          color: statusInfo.color,
+                                          borderColor: `${statusInfo.color}66`,
+                                          backgroundColor: `${statusInfo.color}1A`,
+                                      }
+                                    : undefined
+                            }
+                        >
+                            {statusInfo.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {error && (

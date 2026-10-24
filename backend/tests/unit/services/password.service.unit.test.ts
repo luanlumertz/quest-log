@@ -1,5 +1,5 @@
 import { assert, describe, test, expect, vi, afterEach } from "vitest";
-import type { PasswordRecovery } from "@prisma/client";
+import type { PasswordRecovery } from "../../../src/generated/prisma/client.js";
 
 import { sendPasswordRecoveryCode } from "../../../src/services/password.helpers.js";
 import * as repository from "../../../src/repositories/passwordRecovery.repository.js";

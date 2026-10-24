@@ -16,20 +16,23 @@ export const GAME_STATUS_CONFIG = {
         color: "#26E6A6",
     },
 
-    COMPLETED: {
-        label: "Zerado",
-        color: "#C65CFF",
+    PAUSED: {
+        label: "Pausado",
+        color: "#A1A1AA",
     },
 
     ABANDONED: {
         label: "Abandonado",
         color: "#FF862E",
     },
+
+    COMPLETED: {
+        label: "Zerado",
+        color: "#C65CFF",
+    },
 } satisfies Record<GameStatus, GameStatusConfig>;
 
-export const GAME_STATUS_ENTRIES = Object.entries(
-    GAME_STATUS_CONFIG,
-) as [
+export const GAME_STATUS_ENTRIES = Object.entries(GAME_STATUS_CONFIG) as [
     GameStatus,
     (typeof GAME_STATUS_CONFIG)[GameStatus],
 ][];

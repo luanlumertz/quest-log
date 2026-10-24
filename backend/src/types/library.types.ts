@@ -1,4 +1,4 @@
-import type { GameStatus, Prisma } from "@prisma/client";
+import type { GameStatus, Prisma } from "../generated/prisma/client.js";
 import type { libraryEntrySelect } from "../repositories/library.repository.js";
 import type {
     AddGameToLibraryData,

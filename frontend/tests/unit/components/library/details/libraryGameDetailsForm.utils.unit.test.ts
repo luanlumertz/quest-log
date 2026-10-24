@@ -24,9 +24,14 @@ describe("libraryGameDetailsForm.utils.ts", () => {
                 expected: 120,
             },
             {
-                scenario: "arredondamento dos minutos",
-                input: "1,33",
-                expected: 80,
+                scenario: "horas decimais com ponto para minutos",
+                input: "1.5",
+                expected: 90,
+            },
+            {
+                scenario: "horas com uma casa decimal",
+                input: "1,3",
+                expected: 78,
             },
             {
                 scenario: "campo vazio",
@@ -71,7 +76,7 @@ describe("libraryGameDetailsForm.utils.ts", () => {
             {
                 scenario: "arredondamento decimal",
                 input: 125,
-                expected: "2,08",
+                expected: "2,1",
             },
         ])("deve converter $scenario", ({ input, expected }) => {
             const result = minutesToHoursInput(input);
@@ -95,7 +100,7 @@ describe("libraryGameDetailsForm.utils.ts", () => {
             {
                 scenario: "excesso de casas decimais",
                 input: "1,2345",
-                expected: "1,23",
+                expected: "1,2",
             },
             {
                 scenario: "caracteres inválidos",

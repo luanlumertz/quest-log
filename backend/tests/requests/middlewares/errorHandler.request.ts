@@ -1,5 +1,5 @@
 import express from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../src/generated/prisma/client.js";
 import request from "supertest";
 
 import app from "../../../src/app.js";

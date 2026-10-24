@@ -28,6 +28,7 @@ describe("GET /dashboard", () => {
         assert.deepEqual(stats.byStatus, {
             WANT_TO_PLAY: 0,
             PLAYING: 0,
+            PAUSED: 0,
             COMPLETED: 0,
             ABANDONED: 0,
         });
@@ -41,6 +42,7 @@ describe("GET /dashboard", () => {
             { status: "WANT_TO_PLAY", playtimeMinutes: 0 },
             { status: "PLAYING", playtimeMinutes: 120 },
             { status: "PLAYING", playtimeMinutes: 90 },
+            { status: "PAUSED", playtimeMinutes: 45 },
             { status: "COMPLETED", playtimeMinutes: 300 },
             { status: "ABANDONED", playtimeMinutes: 60 },
         ]);
@@ -53,57 +55,61 @@ describe("GET /dashboard", () => {
             dashboardData: { stats },
         } = response.body as DashboardResponse;
 
-        assert.equal(stats.totalGames, 5);
-        assert.equal(stats.totalPlaytimeMinutes, 570);
+        assert.equal(stats.totalGames, 6);
+        assert.equal(stats.totalPlaytimeMinutes, 615);
         assert.deepEqual(stats.byStatus, {
             WANT_TO_PLAY: 1,
             PLAYING: 2,
+            PAUSED: 1,
             COMPLETED: 1,
             ABANDONED: 1,
         });
     });
 
-    test("deve retornar corretamente os dados dos jogos recentes", async () => {
-        const { agent, user } = await createAuthenticatedAgent();
+    test.each(["PLAYING", "PAUSED"] as const)(
+        "deve retornar corretamente os dados dos jogos recentes com status %s",
+        async (status) => {
+            const { agent, user } = await createAuthenticatedAgent();
 
-        const { game, selectedPlatforms } = await createLibraryDataForUser(user.id, {
-            game: {
-                title: "Jogo Recente",
-            },
-            selectedPlatforms: ["PC"],
-            libraryEntry: {
-                status: "PLAYING",
-                rating: 4.5,
-                playtimeMinutes: 120,
-            },
-        });
+            const { game, selectedPlatforms } = await createLibraryDataForUser(user.id, {
+                game: {
+                    title: "Jogo Recente",
+                },
+                selectedPlatforms: ["PC"],
+                libraryEntry: {
+                    status,
+                    rating: 4.5,
+                    playtimeMinutes: 120,
+                },
+            });
 
-        const response = await getDashboardStats(agent);
+            const response = await getDashboardStats(agent);
 
-        assert.equal(response.status, 200);
+            assert.equal(response.status, 200);
 
-        const {
-            dashboardData: { recentGames },
-        } = response.body as DashboardResponse;
+            const {
+                dashboardData: { recentGames },
+            } = response.body as DashboardResponse;
 
-        assert.equal(recentGames.length, 1);
+            assert.equal(recentGames.length, 1);
 
-        const recentGame = recentGames[0];
+            const recentGame = recentGames[0];
 
-        assert.ok(recentGame);
-        assert.deepEqual(recentGame.game, {
-            id: game.id,
-            title: game.title,
-            coverUrl: game.coverUrl,
-        });
-        assert.equal(recentGame.status, "PLAYING");
-        assert.equal(recentGame.rating, 4.5);
-        assert.equal(recentGame.playtimeMinutes, 120);
-        assert.deepEqual(
-            recentGame.platforms,
-            selectedPlatforms.map(({ id, name }) => ({ id, name })),
-        );
-    });
+            assert.ok(recentGame);
+            assert.deepEqual(recentGame.game, {
+                id: game.id,
+                title: game.title,
+                coverUrl: game.coverUrl,
+            });
+            assert.equal(recentGame.status, status);
+            assert.equal(recentGame.rating, 4.5);
+            assert.equal(recentGame.playtimeMinutes, 120);
+            assert.deepEqual(
+                recentGame.platforms,
+                selectedPlatforms.map(({ id, name }) => ({ id, name })),
+            );
+        },
+    );
 
     test("deve retornar no máximo 5 jogos recentes, ordenados por updatedAt decrescente", async () => {
         const { agent, user } = await createAuthenticatedAgent();
@@ -145,6 +151,7 @@ describe("GET /dashboard", () => {
         await createMultipleLibraryDataForUser(userB.id, [
             { status: "WANT_TO_PLAY", playtimeMinutes: 0 },
             { status: "PLAYING", playtimeMinutes: 120 },
+            { status: "PAUSED", playtimeMinutes: 600 },
             { status: "ABANDONED", playtimeMinutes: 30 },
         ]);
 
@@ -161,6 +168,7 @@ describe("GET /dashboard", () => {
         assert.deepEqual(stats.byStatus, {
             WANT_TO_PLAY: 0,
             PLAYING: 1,
+            PAUSED: 0,
             COMPLETED: 1,
             ABANDONED: 0,
         });

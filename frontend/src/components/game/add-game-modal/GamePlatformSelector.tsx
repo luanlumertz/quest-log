@@ -11,7 +11,7 @@ export function GamePlatformSelector({
     platforms,
     selectedPlatforms,
     error,
-    onToggle
+    onToggle,
 }: GamePlatformSelectorProps) {
     const errorId = `${useId()}-error`;
 
@@ -22,7 +22,7 @@ export function GamePlatformSelector({
             aria-describedby={error ? errorId : undefined}
         >
             <legend className="text-[10px] font-semibold uppercase tracking-widest text-ink-mute">
-                Plataforma(s)
+                Plataforma(s) <span className="normal-case tracking-normal">(opcional)</span>
             </legend>
 
             {platforms.length > 0 ? (
@@ -40,9 +40,10 @@ export function GamePlatformSelector({
                                     rounded-lg border px-3 py-1.5
                                     text-xs font-medium
                                     transition-colors cursor-pointer
-                                    ${isSelected
-                                        ? "border-brand/60 bg-brand/15 text-brand"
-                                        : `
+                                    ${
+                                        isSelected
+                                            ? "border-brand/60 bg-brand/15 text-brand"
+                                            : `
                                                 border-divider-bright
                                                 bg-surface-raised
                                                 text-ink-mute
@@ -57,11 +58,8 @@ export function GamePlatformSelector({
                         );
                     })}
                 </div>
-                
             ) : (
-                <p className="mt-3 text-sm text-ink-mute">
-                    Nenhuma plataforma disponível.
-                </p>
+                <p className="mt-3 text-sm text-ink-mute">Nenhuma plataforma disponível.</p>
             )}
 
             {error && (

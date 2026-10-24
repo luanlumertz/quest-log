@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import type { PendingRegistration } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PendingRegistration } from "../../../src/generated/prisma/client.js";
+import { Prisma } from "../../../src/generated/prisma/client.js";
 
 import * as repository from "../../../src/repositories/pendingRegistration.repository.js";
 import * as verificationCode from "../../../src/lib/verificationCode.js";

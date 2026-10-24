@@ -62,7 +62,7 @@ describe("Profile.tsx", () => {
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
 
-        const campoNome = screen.getByRole("textbox", { name: "Nome" });
+        const campoNome = screen.getByRole("textbox", { name: "Nome de exibição" });
 
         await user.clear(campoNome);
         await user.type(campoNome, "João Almeida");
@@ -95,13 +95,15 @@ describe("Profile.tsx", () => {
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
 
-        const nome = screen.getByRole("textbox", { name: "Nome" });
+        const nome = screen.getByRole("textbox", { name: "Nome de exibição" });
 
         await user.clear(nome);
         await user.type(nome, "João Almeida");
         await user.click(screen.getByRole("button", { name: "Salvar" }));
 
-        expect(await screen.findByText("Não foi possível atualizar seu nome.")).toBeVisible();
+        expect(
+            await screen.findByText("Não foi possível atualizar seu nome de exibição."),
+        ).toBeVisible();
         expect(nome).toHaveValue("João Almeida");
         expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled();
         expect(screen.getByRole("button", { name: "Sair" })).toBeEnabled();
@@ -119,18 +121,18 @@ describe("Profile.tsx", () => {
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
 
-        const nome = screen.getByRole("textbox", { name: "Nome" });
+        const nome = screen.getByRole("textbox", { name: "Nome de exibição" });
 
         await user.clear(nome);
         await user.type(nome, "João Almeida");
         await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
-        expect(screen.queryByRole("textbox", { name: "Nome" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("textbox", { name: "Nome de exibição" })).not.toBeInTheDocument();
         expect(screen.getByText("João Silva")).toBeVisible();
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
 
-        expect(screen.getByRole("textbox", { name: "Nome" })).toHaveValue("João Silva");
+        expect(screen.getByRole("textbox", { name: "Nome de exibição" })).toHaveValue("João Silva");
         expect(requests).toHaveLength(0);
         expect(setUser).not.toHaveBeenCalled();
     });
@@ -157,7 +159,7 @@ describe("Profile.tsx", () => {
 
         await user.click(screen.getByRole("button", { name: "Editar" }));
 
-        const nome = screen.getByRole("textbox", { name: "Nome" });
+        const nome = screen.getByRole("textbox", { name: "Nome de exibição" });
 
         await user.clear(nome);
         await user.type(nome, "João Almeida");

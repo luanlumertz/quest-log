@@ -1,7 +1,10 @@
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { addGameToLibraryFormSchema, type AddGameToLibraryFormData } from "../../../schema/library.schema";
+import {
+    addGameToLibraryFormSchema,
+    type AddGameToLibraryFormData,
+} from "../../../schema/library.schema";
 import { useAddGameToLibrary } from "../../../hooks/library.hook";
 import type { GameDetailsResult } from "../../../types/game.types";
 import { AddGameModalHeader } from "./AddGameModalHeader";
@@ -20,7 +23,7 @@ type AddGameToLibraryModalProps = {
 
 const DEFAULT_VALUES: AddGameToLibraryFormData = {
     status: "WANT_TO_PLAY",
-    platforms: []
+    platforms: [],
 };
 
 export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibraryModalProps) {
@@ -30,10 +33,10 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
         setValue,
         setError,
         reset,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting },
     } = useForm<AddGameToLibraryFormData>({
         resolver: zodResolver(addGameToLibraryFormSchema),
-        defaultValues: DEFAULT_VALUES
+        defaultValues: DEFAULT_VALUES,
     });
 
     const { mutateAsync: addGameToLibrary } = useAddGameToLibrary();
@@ -55,11 +58,9 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
         resetAndClose();
     }
 
-    function handleStatusChange(
-        status: AddGameToLibraryFormData["status"]
-    ) {
+    function handleStatusChange(status: AddGameToLibraryFormData["status"]) {
         setValue("status", status, {
-            shouldValidate: true
+            shouldValidate: true,
         });
     }
 
@@ -72,7 +73,7 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
 
         setValue("platforms", nextPlatforms, {
             shouldValidate: true,
-            shouldDirty: true
+            shouldDirty: true,
         });
     }
 
@@ -81,16 +82,13 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
             await addGameToLibrary({
                 externalId: game.externalId,
                 status: data.status,
-                platforms: data.platforms
+                platforms: data.platforms,
             });
 
             resetAndClose();
         } catch (error) {
             setError("root", {
-                message: getErrorMessage(
-                    error,
-                    "Não foi possível adicionar o jogo."
-                )
+                message: getErrorMessage(error, "Não foi possível adicionar o jogo."),
             });
         }
     }
@@ -98,11 +96,7 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
     if (!isOpen) return null;
 
     return (
-        <Modal
-            onClose={handleClose}
-            preventClose={isSubmitting}
-            ariaLabelledBy="add-game-title"
-        >
+        <Modal onClose={handleClose} preventClose={isSubmitting} ariaLabelledBy="add-game-title">
             <AddGameModalHeader
                 title={game.title}
                 coverUrl={game.coverUrl}
@@ -110,14 +104,8 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
                 onClose={handleClose}
             />
 
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="p-5"
-            >
-                <GameStatusSelector
-                    value={selectedStatus}
-                    onChange={handleStatusChange}
-                />
+            <form onSubmit={handleSubmit(onSubmit)} className="p-5">
+                <GameStatusSelector value={selectedStatus} onChange={handleStatusChange} />
 
                 <GamePlatformSelector
                     platforms={availablePlatforms}
@@ -126,11 +114,7 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
                     onToggle={handlePlatformToggle}
                 />
 
-                {errors.root?.message && (
-                    <Alert className="mt-5">
-                        {errors.root.message}
-                    </Alert>
-                )}
+                {errors.root?.message && <Alert className="mt-5">{errors.root.message}</Alert>}
 
                 <div className="mt-6 grid grid-cols-2 gap-3">
                     <Button
@@ -144,7 +128,6 @@ export function AddGameToLibraryModal({ game, isOpen, onClose }: AddGameToLibrar
 
                     <Button
                         type="submit"
-                        disabled={availablePlatforms.length === 0}
                         isLoading={isSubmitting}
                         loadingText="Adicionando..."
                         fullWidth

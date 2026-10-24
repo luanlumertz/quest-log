@@ -1,12 +1,10 @@
 export function getUserInitials(name: string) {
-    const names = name.trim().split(/\s+/);
+    const initials = name.split(/\s+/).flatMap((part) => part.match(/[\p{L}\p{N}]/u) ?? []);
 
-    if (names.length === 1) {
-        return names[0].charAt(0).toUpperCase();
-    }
+    if (initials.length === 0) return "?";
 
-    const firstInitial = names[0].charAt(0);
-    const lastInitial = names[names.length - 1].charAt(0);
+    const first = initials[0]!;
+    const last = initials.length > 1 ? initials[initials.length - 1]! : "";
 
-    return `${firstInitial}${lastInitial}`.toUpperCase();
+    return (first + last).toUpperCase();
 }

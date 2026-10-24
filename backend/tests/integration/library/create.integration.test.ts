@@ -28,6 +28,71 @@ import {
 } from "../../requests/library/create.request.js";
 
 describe("POST /library", () => {
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
+        "deve adicionar um jogo como %s sem exigir plataformas nem preencher datas",
+        async (status) => {
+            const { agent, user } = await createAuthenticatedAgent();
+
+            mockRawgGameDetails({ platforms: [] });
+
+            const response = await addGameToLibrary(agent, { externalId: 123, status });
+
+            assert.equal(response.status, 201);
+
+            const { libraryEntry } = response.body;
+
+            assert.equal(libraryEntry.status, status);
+            assert.isEmpty(libraryEntry.platforms);
+            assert.isNull(libraryEntry.startedAt);
+            assert.isNull(libraryEntry.completedAt);
+            assert.isNull(libraryEntry.rating);
+            assert.equal(libraryEntry.playtimeMinutes, 0);
+
+            const game = await findGameByExternalId(123);
+
+            assert.ok(game);
+
+            const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
+            const selectedPlatformsCount = await countLibraryEntryPlatformsByUserIdAndGameId(
+                user.id,
+                game.id,
+            );
+            const availablePlatformsCount = await countGamePlatformsByGameId(game.id);
+
+            assert.ok(persistedEntry);
+            assert.equal(persistedEntry.status, status);
+            assert.isNull(persistedEntry.startedAt);
+            assert.isNull(persistedEntry.completedAt);
+            assert.equal(selectedPlatformsCount, 0);
+            assert.equal(availablePlatformsCount, 0);
+        },
+    );
+
+    test("deve aceitar plataformas vazias mesmo quando o jogo possui plataformas disponíveis", async () => {
+        const { agent, user } = await createAuthenticatedAgent();
+
+        mockRawgGameDetails({ platforms: ["PC"] });
+
+        const response = await addGameToLibrary(agent, { externalId: 123, platforms: [] });
+
+        assert.equal(response.status, 201);
+        assert.equal(response.body.libraryEntry.status, "WANT_TO_PLAY");
+        assert.isEmpty(response.body.libraryEntry.platforms);
+
+        const game = await findGameByExternalId(123);
+
+        assert.ok(game);
+
+        const selectedPlatformsCount = await countLibraryEntryPlatformsByUserIdAndGameId(
+            user.id,
+            game.id,
+        );
+        const availablePlatformsCount = await countGamePlatformsByGameId(game.id);
+
+        assert.equal(selectedPlatformsCount, 0);
+        assert.equal(availablePlatformsCount, 1);
+    });
+
     test("deve adicionar um jogo como WANT_TO_PLAY à biblioteca do usuário", async () => {
         const { agent, user } = await createAuthenticatedAgent();
 

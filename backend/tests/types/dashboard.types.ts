@@ -1,15 +1,10 @@
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../src/generated/prisma/client.js";
 
 export type DashboardResponse = {
     dashboardData: {
         stats: {
             totalGames: number;
-            byStatus: {
-                WANT_TO_PLAY: number;
-                PLAYING: number;
-                COMPLETED: number;
-                ABANDONED: number;
-            };
+            byStatus: Record<GameStatus, number>;
             totalPlaytimeMinutes: number;
         };
         recentGames: {

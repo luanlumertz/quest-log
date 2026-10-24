@@ -42,7 +42,13 @@ function mockDashboard() {
             dashboardData: {
                 stats: {
                     totalGames: 0,
-                    byStatus: { WANT_TO_PLAY: 0, PLAYING: 0, COMPLETED: 0, ABANDONED: 0 },
+                    byStatus: {
+                        WANT_TO_PLAY: 0,
+                        PLAYING: 0,
+                        PAUSED: 0,
+                        COMPLETED: 0,
+                        ABANDONED: 0,
+                    },
                     totalPlaytimeMinutes: 0,
                 },
                 recentGames: [],

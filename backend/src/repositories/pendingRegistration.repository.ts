@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client.js";
 import { AppError } from "../errors/AppError.js";
-import type { PendingRegistration } from "@prisma/client";
+import type { PendingRegistration } from "../generated/prisma/client.js";
 import { MAX_VERIFICATION_ATTEMPTS, VERIFICATION_RESEND_COOLDOWN_MS } from "../constants/auth.js";
 import { prisma } from "../lib/prisma.js";
 

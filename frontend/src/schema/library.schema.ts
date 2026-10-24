@@ -16,7 +16,6 @@ export const addGameToLibraryFormSchema = z
 
         platforms: z
             .array(platformSchema, { error: "As plataformas devem ser enviadas em uma lista" })
-            .min(1, { error: "Informe pelo menos uma plataforma" })
             .refine((platforms) => new Set(platforms).size === platforms.length, {
                 error: "As plataformas não podem se repetir",
             }),
@@ -49,7 +48,6 @@ export const updateLibraryEntrySchema = z
                     .positive({ error: "O id da plataforma deve ser maior que 0" }),
                 { error: "As plataformas devem ser enviadas em uma lista" },
             )
-            .min(1, { error: "Informe pelo menos uma plataforma" })
             .refine((platforms) => new Set(platforms).size === platforms.length, {
                 error: "As plataformas não podem se repetir",
             })

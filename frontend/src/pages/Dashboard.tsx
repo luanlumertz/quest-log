@@ -26,13 +26,11 @@ export function Dashboard() {
         isLoading: isPlayingLoading,
         isError: isPlayingError,
         isFetching: isPlayingFetching,
-        refetch: refetchPlaying
+        refetch: refetchPlaying,
     } = useLibrary({ status: "PLAYING" });
 
     if (isLoading) {
-        return (
-            <LoadingState label="Carregando Dashboard..." />
-        );
+        return <LoadingState label="Carregando Dashboard..." />;
     }
 
     if (isError) {
@@ -68,17 +66,13 @@ export function Dashboard() {
                     text-white
                 "
             >
-                Bem-vindo de volta,{" "}
-                {user?.name ? getUserFirstName(user.name) : "Jogador"}
+                Bem-vindo de volta, {user?.name ? getUserFirstName(user.name) : "Jogador"}
             </h1>
 
             <DashboardStats
                 totalGames={data?.stats.totalGames ?? 0}
                 byStatus={data?.stats.byStatus}
-                totalPlaytime={data?.stats.totalPlaytimeMinutes
-                    ? formatPlayTime(data.stats.totalPlaytimeMinutes)
-                    : "0h"
-                }
+                totalPlaytime={formatPlayTime(data?.stats.totalPlaytimeMinutes ?? 0)}
             />
 
             {isPlayingLoading ? (
@@ -106,9 +100,7 @@ export function Dashboard() {
                     }
                 />
             ) : (
-                <NowPlaying
-                    games={playingGames ?? []}
-                />
+                <NowPlaying games={playingGames ?? []} />
             )}
 
             <div className="my-8 grid grid-cols-1 gap-8 lg:grid-cols-[2.3fr_1fr]">

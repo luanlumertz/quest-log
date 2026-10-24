@@ -1,6 +1,6 @@
 import { assert, describe, test } from "vitest";
 
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../../src/generated/prisma/client.js";
 import { findLibraryEntryByUserAndGameId } from "../../../src/repositories/library.repository.js";
 import { createPlatform } from "../../../src/repositories/platform.repository.js";
 
@@ -15,182 +15,241 @@ import {
 } from "../../requests/library/update.request.js";
 
 describe("PATCH /library/:gameId", () => {
-    test("deve atualizar o status de um jogo da biblioteca do usuário", async () => {
-        const { agent, user } = await createAuthenticatedAgent();
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
+        "deve preservar os demais campos ao mudar o status para %s",
+        async (status) => {
+            const { agent, user } = await createAuthenticatedAgent();
 
-        const updatedStatus: GameStatus = "PLAYING";
+            const startedAt = new Date("2026-01-10T12:00:00.000Z");
+            const completedAt = new Date("2026-02-10T12:00:00.000Z");
 
-        const { game } = await createLibraryDataForUser(user.id);
+            const { game, selectedPlatforms } = await createLibraryDataForUser(user.id, {
+                selectedPlatforms: ["PC", "PlayStation 5"],
+                libraryEntry: {
+                    status: status === "PLAYING" || status === "COMPLETED" ? "PAUSED" : "COMPLETED",
+                    rating: 4.5,
+                    playtimeMinutes: 95,
+                    startedAt,
+                    completedAt,
+                },
+            });
 
-        const response = await updateLibraryEntry(agent, game.id, { status: updatedStatus });
+            const response = await updateLibraryEntry(agent, game.id, { status });
 
-        assert.equal(response.status, 200);
+            assert.equal(response.status, 200);
 
-        const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
+            const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
 
-        assert.ok(updatedLibraryEntry);
-        assert.equal(updatedLibraryEntry.status, updatedStatus);
-        assert.ok(updatedLibraryEntry.startedAt);
-        assert.isNull(updatedLibraryEntry.completedAt);
+            assert.equal(updatedLibraryEntry.status, status);
+            assert.equal(updatedLibraryEntry.rating, 4.5);
+            assert.equal(updatedLibraryEntry.playtimeMinutes, 95);
+            assert.equal(updatedLibraryEntry.startedAt, startedAt.toISOString());
+            assert.equal(updatedLibraryEntry.completedAt, completedAt.toISOString());
+            assert.sameDeepMembers(updatedLibraryEntry.platforms, selectedPlatforms);
 
-        const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
+            const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
 
-        assert.ok(persistedEntry);
-        assert.equal(persistedEntry.status, updatedStatus);
-        assert.ok(persistedEntry.startedAt);
-        assert.isNull(persistedEntry.completedAt);
-        assert.equal(persistedEntry.startedAt.toISOString(), updatedLibraryEntry.startedAt);
-    });
+            assert.ok(persistedEntry);
+            assert.equal(persistedEntry.status, status);
+            assert.equal(persistedEntry.rating?.toNumber(), 4.5);
+            assert.equal(persistedEntry.playtimeMinutes, 95);
+            assert.equal(persistedEntry.startedAt?.toISOString(), startedAt.toISOString());
+            assert.equal(persistedEntry.completedAt?.toISOString(), completedAt.toISOString());
 
-    test("deve preencher completedAt ao atualizar status para COMPLETED", async () => {
-        const { agent, user } = await createAuthenticatedAgent();
+            const persistedPlatforms = await findLibraryEntryPlatformsByUserIdAndGameId(
+                user.id,
+                game.id,
+            );
 
-        const updatedStatus: GameStatus = "COMPLETED";
-        const startedAt = new Date("2026-01-10T12:00:00.000Z");
+            assert.sameMembers(
+                persistedPlatforms.map((platform) => platform.platformId),
+                selectedPlatforms.map((platform) => platform.id),
+            );
+        },
+    );
 
-        const { game } = await createLibraryDataForUser(user.id, {
-            libraryEntry: {
-                status: "PLAYING",
-                startedAt,
-                completedAt: null,
-            },
-        });
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
+        "não deve preencher datas nem plataformas ao mudar o status para %s",
+        async (status) => {
+            const { agent, user } = await createAuthenticatedAgent();
 
-        const response = await updateLibraryEntry(agent, game.id, { status: updatedStatus });
+            const { game } = await createLibraryDataForUser(user.id, {
+                selectedPlatforms: [],
+                libraryEntry: {
+                    status: status === "COMPLETED" ? "PLAYING" : "COMPLETED",
+                },
+            });
 
-        assert.equal(response.status, 200);
+            const response = await updateLibraryEntry(agent, game.id, { status });
 
-        const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
+            assert.equal(response.status, 200);
 
-        assert.ok(updatedLibraryEntry);
-        assert.equal(updatedLibraryEntry.status, updatedStatus);
-        assert.equal(updatedLibraryEntry.startedAt, startedAt.toISOString());
-        assert.exists(updatedLibraryEntry.completedAt);
+            const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
 
-        const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
+            assert.equal(updatedLibraryEntry.status, status);
+            assert.isNull(updatedLibraryEntry.startedAt);
+            assert.isNull(updatedLibraryEntry.completedAt);
+            assert.isEmpty(updatedLibraryEntry.platforms);
 
-        assert.ok(persistedEntry);
-        assert.equal(persistedEntry.status, updatedStatus);
-        assert.ok(persistedEntry.startedAt);
-        assert.equal(persistedEntry.startedAt.toISOString(), startedAt.toISOString());
-        assert.ok(persistedEntry.completedAt);
-        assert.equal(persistedEntry.completedAt.toISOString(), updatedLibraryEntry.completedAt);
-    });
+            const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
 
-    test("deve limpar completedAt ao atualizar status de COMPLETED para PLAYING", async () => {
-        const { agent, user } = await createAuthenticatedAgent();
+            assert.ok(persistedEntry);
+            assert.equal(persistedEntry.status, status);
+            assert.isNull(persistedEntry.startedAt);
+            assert.isNull(persistedEntry.completedAt);
+        },
+    );
 
-        const updatedStatus: GameStatus = "PLAYING";
-        const startedAt = new Date("2026-01-10T12:00:00.000Z");
-        const completedAt = new Date("2026-02-10T12:00:00.000Z");
+    test.each(["WANT_TO_PLAY", "PLAYING", "PAUSED", "COMPLETED", "ABANDONED"] as const)(
+        "deve aceitar avaliação e ambas as datas no status %s",
+        async (status) => {
+            const { agent, user } = await createAuthenticatedAgent();
 
-        const { game } = await createLibraryDataForUser(user.id, {
-            libraryEntry: {
-                status: "COMPLETED",
-                startedAt,
-                completedAt,
-            },
-        });
+            const { game } = await createLibraryDataForUser(user.id, {
+                libraryEntry: { status },
+            });
 
-        const response = await updateLibraryEntry(agent, game.id, { status: updatedStatus });
-
-        assert.equal(response.status, 200);
-
-        const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
-
-        assert.ok(updatedLibraryEntry);
-        assert.equal(updatedLibraryEntry.status, updatedStatus);
-        assert.equal(updatedLibraryEntry.startedAt, startedAt.toISOString());
-        assert.isNull(updatedLibraryEntry.completedAt);
-
-        const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
-
-        assert.ok(persistedEntry);
-        assert.equal(persistedEntry.status, updatedStatus);
-        assert.ok(persistedEntry.startedAt);
-        assert.equal(persistedEntry.startedAt.toISOString(), startedAt.toISOString());
-        assert.isNull(persistedEntry.completedAt);
-    });
-
-    test("deve limpar rating e datas ao atualizar status para WANT_TO_PLAY sem apagar o tempo jogado", async () => {
-        const { agent, user } = await createAuthenticatedAgent();
-
-        const updatedStatus: GameStatus = "WANT_TO_PLAY";
-        const initialPlaytimeMinutes = 1200;
-        const startedAt = new Date("2026-01-10T12:00:00.000Z");
-        const completedAt = new Date("2026-02-10T12:00:00.000Z");
-
-        const { game } = await createLibraryDataForUser(user.id, {
-            libraryEntry: {
-                status: "COMPLETED",
+            const response = await updateLibraryEntry(agent, game.id, {
                 rating: 4.5,
-                playtimeMinutes: initialPlaytimeMinutes,
-                startedAt,
-                completedAt,
-            },
+                startedAt: "2026-01-10T12:00:00.000Z",
+                completedAt: "2026-02-10T18:30:00.000Z",
+            });
+
+            assert.equal(response.status, 200);
+
+            const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
+
+            assert.equal(updatedLibraryEntry.status, status);
+            assert.equal(updatedLibraryEntry.rating, 4.5);
+            assert.equal(updatedLibraryEntry.startedAt, "2026-01-10T00:00:00.000Z");
+            assert.equal(updatedLibraryEntry.completedAt, "2026-02-10T00:00:00.000Z");
+
+            const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
+
+            assert.ok(persistedEntry);
+            assert.equal(persistedEntry.status, status);
+            assert.equal(persistedEntry.rating?.toNumber(), 4.5);
+            assert.equal(persistedEntry.startedAt?.toISOString(), updatedLibraryEntry.startedAt);
+            assert.equal(
+                persistedEntry.completedAt?.toISOString(),
+                updatedLibraryEntry.completedAt,
+            );
+        },
+    );
+
+    test.each(["startedAt", "completedAt"] as const)(
+        "deve limpar somente %s quando informado como null",
+        async (field) => {
+            const { agent, user } = await createAuthenticatedAgent();
+
+            const startedAt = new Date("2026-01-10T12:00:00.000Z");
+            const completedAt = new Date("2026-02-10T12:00:00.000Z");
+
+            const { game, selectedPlatforms } = await createLibraryDataForUser(user.id, {
+                libraryEntry: {
+                    status: "COMPLETED",
+                    rating: 4.5,
+                    playtimeMinutes: 95,
+                    startedAt,
+                    completedAt,
+                },
+            });
+
+            const response = await updateLibraryEntry(agent, game.id, { [field]: null });
+
+            assert.equal(response.status, 200);
+
+            const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
+
+            assert.isNull(updatedLibraryEntry[field]);
+            assert.equal(updatedLibraryEntry.status, "COMPLETED");
+            assert.equal(updatedLibraryEntry.rating, 4.5);
+            assert.equal(updatedLibraryEntry.playtimeMinutes, 95);
+            assert.sameDeepMembers(updatedLibraryEntry.platforms, selectedPlatforms);
+
+            const otherField = field === "startedAt" ? "completedAt" : "startedAt";
+            const otherDate = field === "startedAt" ? completedAt : startedAt;
+
+            assert.equal(updatedLibraryEntry[otherField], otherDate.toISOString());
+
+            const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
+
+            assert.ok(persistedEntry);
+            assert.isNull(persistedEntry[field]);
+            assert.equal(persistedEntry[otherField]?.toISOString(), otherDate.toISOString());
+        },
+    );
+
+    test("deve aceitar conclusão sem uma data de início", async () => {
+        const { agent, user } = await createAuthenticatedAgent();
+
+        const { game } = await createLibraryDataForUser(user.id, {
+            libraryEntry: { status: "COMPLETED" },
         });
 
-        const response = await updateLibraryEntry(agent, game.id, { status: updatedStatus });
+        const response = await updateLibraryEntry(agent, game.id, {
+            completedAt: "2026-02-10T12:00:00.000Z",
+        });
 
         assert.equal(response.status, 200);
 
         const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
 
-        assert.ok(updatedLibraryEntry);
-        assert.equal(updatedLibraryEntry.status, updatedStatus);
-        assert.isNull(updatedLibraryEntry.rating);
         assert.isNull(updatedLibraryEntry.startedAt);
-        assert.isNull(updatedLibraryEntry.completedAt);
-        assert.equal(updatedLibraryEntry.playtimeMinutes, initialPlaytimeMinutes);
+        assert.equal(updatedLibraryEntry.completedAt, "2026-02-10T00:00:00.000Z");
 
         const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
 
         assert.ok(persistedEntry);
-        assert.equal(persistedEntry.status, updatedStatus);
-        assert.isNull(persistedEntry.rating);
         assert.isNull(persistedEntry.startedAt);
-        assert.isNull(persistedEntry.completedAt);
-        assert.equal(persistedEntry.playtimeMinutes, initialPlaytimeMinutes);
+        assert.equal(persistedEntry.completedAt?.toISOString(), updatedLibraryEntry.completedAt);
     });
 
-    test("deve limpar completedAt e preservar startedAt ao atualizar status para ABANDONED", async () => {
+    test("deve remover as plataformas selecionadas sem alterar os demais dados ou o catálogo", async () => {
         const { agent, user } = await createAuthenticatedAgent();
 
-        const updatedStatus: GameStatus = "ABANDONED";
-        const initialRating = 4.5;
         const startedAt = new Date("2026-01-10T12:00:00.000Z");
         const completedAt = new Date("2026-02-10T12:00:00.000Z");
 
-        const { game } = await createLibraryDataForUser(user.id, {
-            libraryEntry: {
-                status: "COMPLETED",
-                rating: initialRating,
-                startedAt,
-                completedAt,
+        const { game, selectedPlatforms, unselectedPlatforms } = await createLibraryDataForUser(
+            user.id,
+            {
+                selectedPlatforms: ["PC"],
+                unselectedPlatforms: ["PlayStation 5"],
+                libraryEntry: {
+                    status: "COMPLETED",
+                    rating: 4.5,
+                    playtimeMinutes: 95,
+                    startedAt,
+                    completedAt,
+                },
             },
-        });
+        );
 
-        const response = await updateLibraryEntry(agent, game.id, { status: updatedStatus });
+        const response = await updateLibraryEntry(agent, game.id, { platforms: [] });
 
         assert.equal(response.status, 200);
 
         const { updatedLibraryEntry } = response.body as UpdatedLibraryEntryResponse;
 
-        assert.ok(updatedLibraryEntry);
-        assert.equal(updatedLibraryEntry.status, updatedStatus);
-        assert.equal(updatedLibraryEntry.rating, initialRating);
+        assert.isEmpty(updatedLibraryEntry.platforms);
+        assert.equal(updatedLibraryEntry.status, "COMPLETED");
+        assert.equal(updatedLibraryEntry.rating, 4.5);
+        assert.equal(updatedLibraryEntry.playtimeMinutes, 95);
         assert.equal(updatedLibraryEntry.startedAt, startedAt.toISOString());
-        assert.isNull(updatedLibraryEntry.completedAt);
+        assert.equal(updatedLibraryEntry.completedAt, completedAt.toISOString());
 
-        const persistedEntry = await findLibraryEntryByUserAndGameId(user.id, game.id);
+        const persistedPlatforms = await findLibraryEntryPlatformsByUserIdAndGameId(
+            user.id,
+            game.id,
+        );
+        const gamePlatforms = await findGamePlatformsByGameId(game.id);
 
-        assert.ok(persistedEntry);
-        assert.equal(persistedEntry.status, updatedStatus);
-        assert.isNotNull(persistedEntry.rating);
-        assert.equal(persistedEntry.rating.toNumber(), initialRating);
-        assert.ok(persistedEntry.startedAt);
-        assert.equal(persistedEntry.startedAt.toISOString(), startedAt.toISOString());
-        assert.isNull(persistedEntry.completedAt);
+        assert.isEmpty(persistedPlatforms);
+        assert.sameMembers(
+            gamePlatforms.map((platform) => platform.platformId),
+            [...selectedPlatforms, ...unselectedPlatforms].map((platform) => platform.id),
+        );
     });
 
     test("deve atualizar a avaliação de um jogo com status PLAYING", async () => {

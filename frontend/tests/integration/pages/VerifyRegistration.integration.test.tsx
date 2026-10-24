@@ -65,7 +65,7 @@ describe("Fluxo de verificação do cadastro", () => {
         await screen.findByRole("heading", { name: "Confira seu e-mail" });
         await user.click(screen.getAllByRole("button", { name: "Voltar" })[0]!);
 
-        expect(screen.getByRole("textbox", { name: "Nome" })).toHaveValue("João Silva");
+        expect(screen.getByRole("textbox", { name: "Nome de exibição" })).toHaveValue("João Silva");
         expect(screen.getByLabelText("Senha")).toHaveValue("12345678");
 
         await user.click(screen.getByRole("button", { name: "Cadastrar" }));
@@ -81,7 +81,7 @@ describe("Fluxo de verificação do cadastro", () => {
     });
 
     test.each([
-        { field: "Nome", value: "João Almeida" },
+        { field: "Nome de exibição", value: "João Almeida" },
         { field: "Email", value: "outro@email.com" },
         { field: "Senha", value: "novaSenha123" },
     ])("deve iniciar outra tentativa ao alterar $field", async ({ field, value }) => {
@@ -172,7 +172,7 @@ describe("Fluxo de verificação do cadastro", () => {
 
         renderRegistrationFlow();
 
-        expect(screen.getByRole("textbox", { name: "Nome" })).toHaveValue("");
+        expect(screen.getByRole("textbox", { name: "Nome de exibição" })).toHaveValue("");
         expect(screen.getByLabelText("Senha")).toHaveValue("");
 
         await fillRegistrationForm(user);

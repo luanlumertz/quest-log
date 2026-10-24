@@ -34,7 +34,7 @@ import {
     VERIFICATION_RESEND_COOLDOWN_MS,
 } from "../constants/auth.js";
 import { sendRegistrationVerificationEmail } from "./auth.helpers.js";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client.js";
 
 export async function registerUser(data: RegisterUserData) {
     const existingUser = await findUserByEmail(data.email);
@@ -63,6 +63,7 @@ export async function registerUser(data: RegisterUserData) {
         pendingRegistrationId: pendingRegistration.id,
         codeHash,
         to: data.email,
+        code,
         subject: "Código de verificação - QuestLog",
         text: `Seu código de verificação é ${code}. Ele é válido por 10 minutos.`,
         logMessage: "Erro ao enviar e-mail de cadastro:",
@@ -207,6 +208,8 @@ export async function resendRegistrationCode(data: ResendRegistrationCodeData) {
         pendingRegistrationId: pending.id,
         codeHash,
         to: pending.email,
+        code,
+        validity: "Válido por até 10 minutos, respeitando o prazo do cadastro",
         subject: "Novo código de verificação - QuestLog",
         text: `Seu novo código de verificação é ${code}. Ele é válido por até 10 minutos, respeitando o prazo do cadastro.`,
         logMessage: "Erro ao reenviar código de verificação:",

@@ -1,4 +1,4 @@
-import type { GameStatus } from "@prisma/client";
+import type { GameStatus } from "../../src/generated/prisma/client.js";
 import type { UpdateLibraryEntryPayload as SchemaUpdateLibraryEntryPayload } from "../../src/schemas/library.schema.js";
 
 export type LibraryEntryResponse = {

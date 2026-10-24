@@ -28,17 +28,20 @@ describe("library.schema.ts", () => {
             });
         });
 
-        test("deve aceitar um status válido informado explicitamente", () => {
-            const result = addGameToLibrarySchema.parse({
-                ...validPayload,
-                status: "PLAYING",
-            });
+        test.each(["PLAYING", "PAUSED"])(
+            "deve aceitar o status %s informado explicitamente",
+            (status) => {
+                const result = addGameToLibrarySchema.parse({
+                    ...validPayload,
+                    status,
+                });
 
-            assert.deepEqual(result, {
-                ...validPayload,
-                status: "PLAYING",
-            });
-        });
+                assert.deepEqual(result, {
+                    ...validPayload,
+                    status,
+                });
+            },
+        );
 
         test("deve rejeitar propriedades não permitidas ao adicionar um jogo", () => {
             const result = addGameToLibrarySchema.safeParse({
@@ -76,15 +79,9 @@ describe("library.schema.ts", () => {
             },
             {
                 scenario: "status inválido",
-                override: { status: "PAUSED" },
+                override: { status: "INVALID_STATUS" },
                 field: "status",
                 message: "Status inválido",
-            },
-            {
-                scenario: "lista de plataformas vazia",
-                override: { platforms: [] },
-                field: "platforms",
-                message: "Informe pelo menos uma plataforma",
             },
             {
                 scenario: "plataforma contendo apenas espaços",
@@ -125,20 +122,28 @@ describe("library.schema.ts", () => {
             );
         });
 
-        test.each(["externalId", "platforms"] as const)(
-            "deve rejeitar adição de jogo sem o campo %s",
-            (field) => {
-                const payload: Partial<typeof validPayload> = { ...validPayload };
+        test("deve rejeitar adição de jogo sem o externalId", () => {
+            const payload = { status: "WANT_TO_PLAY", platforms: ["PC"] };
 
-                delete payload[field];
+            const result = addGameToLibrarySchema.safeParse(payload);
 
-                const result = addGameToLibrarySchema.safeParse(payload);
+            assert.isFalse(result.success);
 
-                assert.isFalse(result.success);
+            assert.isTrue(result.error.issues.some((issue) => issue.path[0] === "externalId"));
+        });
 
-                assert.isTrue(result.error.issues.some((issue) => issue.path[0] === field));
-            },
-        );
+        test.each([
+            { scenario: "plataformas omitidas", payload: { externalId: 123 } },
+            { scenario: "lista de plataformas vazia", payload: { externalId: 123, platforms: [] } },
+        ])("deve aceitar $scenario", ({ payload }) => {
+            const result = addGameToLibrarySchema.parse(payload);
+
+            assert.deepEqual(result, {
+                externalId: 123,
+                status: "WANT_TO_PLAY",
+                platforms: [],
+            });
+        });
     });
 
     describe("gameIdParamsSchema", () => {
@@ -189,6 +194,12 @@ describe("library.schema.ts", () => {
     });
 
     describe("updateLibraryEntrySchema", () => {
+        test("deve aceitar a alteração do status para PAUSED", () => {
+            const result = updateLibraryEntrySchema.parse({ status: "PAUSED" });
+
+            assert.deepEqual(result, { status: "PAUSED" });
+        });
+
         test("deve converter startedAt e completedAt de string para Date", () => {
             const result = updateLibraryEntrySchema.parse({
                 startedAt: "2026-01-10T12:00:00.000Z",
@@ -231,7 +242,7 @@ describe("library.schema.ts", () => {
         });
 
         test("deve rejeitar status inválido", () => {
-            const result = updateLibraryEntrySchema.safeParse({ status: "PAUSED" });
+            const result = updateLibraryEntrySchema.safeParse({ status: "INVALID_STATUS" });
 
             assert.isFalse(result.success);
 
@@ -347,11 +358,6 @@ describe("library.schema.ts", () => {
 
         test.each([
             {
-                scenario: "lista de plataformas vazia",
-                payload: { platforms: [] },
-                message: "Informe pelo menos uma plataforma",
-            },
-            {
                 scenario: "plataformas duplicadas",
                 payload: { platforms: [1, 1] },
                 message: "As plataformas não podem se repetir",
@@ -389,6 +395,10 @@ describe("library.schema.ts", () => {
         });
 
         test.each([
+            {
+                scenario: "lista de plataformas vazia",
+                payload: { platforms: [] },
+            },
             {
                 scenario: "múltiplas plataformas válidas",
                 payload: { platforms: [1, 2, 3] },
@@ -481,7 +491,7 @@ describe("library.schema.ts", () => {
             },
             {
                 scenario: "status inválido",
-                payload: { status: "PAUSED" },
+                payload: { status: "INVALID_STATUS" },
                 field: "status",
                 message: "Status inválido",
             },
@@ -504,7 +514,7 @@ describe("library.schema.ts", () => {
             },
             {
                 scenario: "busca e status combinados",
-                payload: { search: "Elden Ring", status: "COMPLETED" },
+                payload: { search: "Elden Ring", status: "PAUSED" },
             },
         ] as const)("deve aceitar $scenario", ({ payload }) => {
             const result = libraryQuerySchema.safeParse(payload);
