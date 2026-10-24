@@ -8,18 +8,10 @@ type DashboardStatsProps = {
     totalPlaytime: string;
 };
 
-export function DashboardStats({
-    totalGames,
-    byStatus,
-    totalPlaytime,
-}: DashboardStatsProps) {
+export function DashboardStats({ totalGames, byStatus, totalPlaytime }: DashboardStatsProps) {
     return (
-        <div className="mt-8 grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 lg:grid-cols-3 lg:gap-4 xl:grid-cols-6">
-            <StatCard
-                label="Total de jogos"
-                content={totalGames}
-                to="/library"
-            />
+        <div className="mt-8 grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 lg:grid-cols-3 lg:gap-4 xl:grid-cols-7">
+            <StatCard label="Total de jogos" content={totalGames} to="/library" />
 
             {GAME_STATUS_ENTRIES.map(([status, config]) => (
                 <StatCard
@@ -35,6 +27,7 @@ export function DashboardStats({
                 label="Tempo jogado"
                 content={totalPlaytime}
                 fontSize="text-[22px]"
+                className="min-[320px]:col-span-2 lg:col-span-3 xl:col-span-1"
             />
         </div>
     );

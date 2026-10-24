@@ -24,6 +24,12 @@ describe("library.schema.test.ts", () => {
             });
         });
 
+        test("deve aceitar PAUSED sem plataformas selecionadas", () => {
+            const result = addGameToLibraryFormSchema.parse({ status: "PAUSED", platforms: [] });
+
+            assert.deepEqual(result, { status: "PAUSED", platforms: [] });
+        });
+
         test("deve aceitar múltiplas plataformas diferentes", () => {
             const result = addGameToLibraryFormSchema.parse({
                 status: "PLAYING",
@@ -58,12 +64,6 @@ describe("library.schema.test.ts", () => {
                 override: { status: "INVALID" },
                 field: "status",
                 message: "Status inválido",
-            },
-            {
-                scenario: "lista de plataformas vazia",
-                override: { platforms: [] },
-                field: "platforms",
-                message: "Informe pelo menos uma plataforma",
             },
             {
                 scenario: "plataforma contendo apenas espaços",
@@ -163,7 +163,7 @@ describe("library.schema.test.ts", () => {
         });
 
         test("deve rejeitar status inválido", () => {
-            const result = updateLibraryEntrySchema.safeParse({ status: "PAUSED" });
+            const result = updateLibraryEntrySchema.safeParse({ status: "INVALID" });
 
             assert.isFalse(result.success);
 
@@ -175,6 +175,10 @@ describe("library.schema.test.ts", () => {
         });
 
         test.each([
+            {
+                scenario: "status PAUSED",
+                payload: { status: "PAUSED" },
+            },
             {
                 scenario: "status WANT_TO_PLAY",
                 payload: { status: "WANT_TO_PLAY" },
@@ -292,11 +296,6 @@ describe("library.schema.test.ts", () => {
 
         test.each([
             {
-                scenario: "lista de plataformas vazia",
-                payload: { platforms: [] },
-                message: "Informe pelo menos uma plataforma",
-            },
-            {
                 scenario: "plataformas duplicadas",
                 payload: { platforms: [1, 1] },
                 message: "As plataformas não podem se repetir",
@@ -334,6 +333,10 @@ describe("library.schema.test.ts", () => {
         });
 
         test.each([
+            {
+                scenario: "lista de plataformas vazia",
+                payload: { platforms: [] },
+            },
             {
                 scenario: "múltiplas plataformas válidas",
                 payload: { platforms: [1, 2, 3] },

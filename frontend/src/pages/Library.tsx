@@ -18,34 +18,22 @@ import { Button } from "../components/ui/Button";
 import { StateView } from "../components/ui/StateView";
 
 function isGameStatus(value: string | null): value is GameStatus {
-    return (
-        value !== null &&
-        Object.prototype.hasOwnProperty.call(
-            GAME_STATUS_CONFIG,
-            value
-        )
-    );
+    return value !== null && Object.prototype.hasOwnProperty.call(GAME_STATUS_CONFIG, value);
 }
 
 function getLibraryCounts(entries: LibraryEntry[]) {
     return {
         all: entries.length,
 
-        WANT_TO_PLAY: entries.filter(
-            (entry) => entry.status === "WANT_TO_PLAY"
-        ).length,
+        WANT_TO_PLAY: entries.filter((entry) => entry.status === "WANT_TO_PLAY").length,
 
-        PLAYING: entries.filter(
-            (entry) => entry.status === "PLAYING"
-        ).length,
+        PLAYING: entries.filter((entry) => entry.status === "PLAYING").length,
 
-        COMPLETED: entries.filter(
-            (entry) => entry.status === "COMPLETED"
-        ).length,
+        PAUSED: entries.filter((entry) => entry.status === "PAUSED").length,
 
-        ABANDONED: entries.filter(
-            (entry) => entry.status === "ABANDONED"
-        ).length
+        COMPLETED: entries.filter((entry) => entry.status === "COMPLETED").length,
+
+        ABANDONED: entries.filter((entry) => entry.status === "ABANDONED").length,
     };
 }
 
@@ -60,28 +48,23 @@ export function Library() {
 
     const searchInput = searchDraft.source === search ? searchDraft.value : search;
 
-    const filters = search || status
-        ? {
-            search: search || undefined,
-            status
-        }
-        : undefined;
+    const filters =
+        search || status
+            ? {
+                  search: search || undefined,
+                  status,
+              }
+            : undefined;
 
     // Resultado exibido no grid.
-    const {
-        data: entries = [],
-        isLoading,
-        isError,
-        isFetching,
-        refetch
-    } = useLibrary(filters);
+    const { data: entries = [], isLoading, isError, isFetching, refetch } = useLibrary(filters);
 
     const {
         data: allEntries,
         isLoading: isAllLibraryLoading,
         isError: isAllLibraryError,
         isFetching: isAllLibraryFetching,
-        refetch: refetchAllLibrary
+        refetch: refetchAllLibrary,
     } = useLibrary();
 
     function handleSearchChange(value: string) {
@@ -99,36 +82,22 @@ export function Library() {
             const nextParams = new URLSearchParams(searchParams);
 
             if (normalizedSearch) {
-                nextParams.set(
-                    "search",
-                    normalizedSearch
-                );
+                nextParams.set("search", normalizedSearch);
             } else {
                 nextParams.delete("search");
             }
 
-            setSearchParams(
-                nextParams,
-                { replace: true }
-            );
+            setSearchParams(nextParams, { replace: true });
         }, 500);
 
         return () => window.clearTimeout(timeout);
-    }, [
-        searchInput,
-        search,
-        searchParams,
-        setSearchParams
-    ]);
+    }, [searchInput, search, searchParams, setSearchParams]);
 
     function handleStatusChange(nextStatus?: GameStatus) {
         const nextParams = new URLSearchParams(searchParams);
 
         if (nextStatus) {
-            nextParams.set(
-                "status",
-                nextStatus
-            );
+            nextParams.set("status", nextStatus);
         } else {
             nextParams.delete("status");
         }
@@ -150,9 +119,7 @@ export function Library() {
 
     return (
         <div className="py-8">
-            <h1 className="font-display text-3xl! font-bold text-white">
-                Minha Biblioteca
-            </h1>
+            <h1 className="font-display text-3xl! font-bold text-white">Minha Biblioteca</h1>
 
             <LibraryFilters
                 search={searchInput}
@@ -165,9 +132,7 @@ export function Library() {
             {isAllLibraryError && !isError && entries.length > 0 && (
                 <Alert className="mt-5">
                     <div>
-                        <p>
-                            Não foi possível atualizar os contadores da biblioteca.
-                        </p>
+                        <p>Não foi possível atualizar os contadores da biblioteca.</p>
 
                         <Button
                             variant="secondary"
@@ -222,13 +187,9 @@ export function Library() {
             ) : isLibraryEmpty ? (
                 <LibraryEmptyState />
             ) : entries.length === 0 ? (
-                <LibraryNoResults
-                    onClearFilters={handleClearFilters}
-                />
+                <LibraryNoResults onClearFilters={handleClearFilters} />
             ) : (
-                <LibraryGrid
-                    entries={entries}
-                />
+                <LibraryGrid entries={entries} />
             )}
         </div>
     );
@@ -241,15 +202,13 @@ function LibraryLoading() {
             aria-label="Carregando biblioteca"
             className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 lg:gap-4"
         >
-            {Array.from({ length: 10 }).map(
-                (_, index) => (
-                    <div
-                        key={index}
-                        aria-hidden="true"
-                        className="aspect-[3/4.9] animate-pulse rounded-2xl bg-surface-raised"
-                    />
-                )
-            )}
+            {Array.from({ length: 10 }).map((_, index) => (
+                <div
+                    key={index}
+                    aria-hidden="true"
+                    className="aspect-[3/4.9] animate-pulse rounded-2xl bg-surface-raised"
+                />
+            ))}
         </div>
     );
 }

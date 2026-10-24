@@ -1,29 +1,23 @@
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { updateLibraryEntrySchema, type UpdateLibraryEntryData } from "../../../schema/library.schema";
+import {
+    updateLibraryEntrySchema,
+    type UpdateLibraryEntryData,
+} from "../../../schema/library.schema";
 import type { GameStatus } from "../../../types/game.types";
 import type { LibraryEntry, LibraryEntryDetails } from "../../../types/library.types";
 import { getTodayInputValue } from "./libraryGameDetailsForm.utils";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import {
-    applyStatusRules,
     createDefaultValues,
     createUpdateCandidate,
-    createValuesForStatus,
     getDateValidationError,
-    getFieldsClearedOnSave,
-    type DataLossField,
-    type LibraryGameDetailsFormValues
+    type LibraryGameDetailsFormValues,
 } from "./libraryGameDetailsForm.rules";
 
 type UseLibraryGameDetailsFormParams = {
     entry: LibraryEntryDetails;
     onSave: (data: UpdateLibraryEntryData) => Promise<LibraryEntry>;
-};
-
-type PendingSaveConfirmation = {
-    fields: DataLossField[];
-    data: UpdateLibraryEntryData;
 };
 
 export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetailsFormParams) {
@@ -33,8 +27,6 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    const [pendingSave, setPendingSave] = useState<PendingSaveConfirmation | null>(null);
-
     const {
         control,
         getValues,
@@ -43,13 +35,9 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
         clearErrors,
         handleSubmit,
         reset,
-        formState: {
-            errors,
-            isDirty
-        }
+        formState: { errors, isDirty, dirtyFields },
     } = useForm<LibraryGameDetailsFormValues>({
-        defaultValues:
-            createDefaultValues(entry, today)
+        defaultValues: createDefaultValues(entry),
     });
 
     const status = useWatch({ control, name: "status" });
@@ -64,10 +52,6 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
     const completedAt = useWatch({ control, name: "completedAt" });
 
-    const isWantToPlay = status === "WANT_TO_PLAY";
-
-    const isCompleted = status === "COMPLETED";
-
     useEffect(() => {
         if (!isSaved) {
             return;
@@ -78,9 +62,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
         }, 2000);
 
         return () => {
-            window.clearTimeout(
-                timeout
-            );
+            window.clearTimeout(timeout);
         };
     }, [isSaved]);
 
@@ -93,31 +75,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
         setSubmitError(null);
 
-        const nextValues = createValuesForStatus(getValues(), nextStatus, today);
-
-        setValue(
-            "status",
-            nextValues.status,
-            { shouldDirty: true }
-        );
-
-        setValue(
-            "rating",
-            nextValues.rating,
-            { shouldDirty: true }
-        );
-
-        setValue(
-            "startedAt",
-            nextValues.startedAt,
-            { shouldDirty: true }
-        );
-
-        setValue(
-            "completedAt",
-            nextValues.completedAt,
-            { shouldDirty: true }
-        );
+        setValue("status", nextStatus, { shouldDirty: true });
     }
 
     function handlePlaytimeChange(value: string) {
@@ -125,11 +83,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
         setSubmitError(null);
 
-        setValue(
-            "playtimeHours",
-            value,
-            { shouldDirty: true }
-        );
+        setValue("playtimeHours", value, { shouldDirty: true });
     }
 
     function handleRatingChange(value: string) {
@@ -137,11 +91,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
         setSubmitError(null);
 
-        setValue(
-            "rating",
-            value,
-            { shouldDirty: true }
-        );
+        setValue("rating", value, { shouldDirty: true });
     }
 
     function handleDateChange(field: "startedAt" | "completedAt", value: string) {
@@ -179,11 +129,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
             ? currentPlatforms.filter((id) => id !== platformId)
             : [...currentPlatforms, platformId];
 
-        setValue(
-            "platforms",
-            nextPlatforms,
-            { shouldDirty: true }
-        );
+        setValue("platforms", nextPlatforms, { shouldDirty: true });
     }
 
     function handleDiscardChanges() {
@@ -194,11 +140,9 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
         setSubmitError(null);
 
         setIsSaved(false);
-
-        setPendingSave(null);
     }
 
-    function applySchemaErrors(issues: { path: PropertyKey[]; message: string; }[]) {
+    function applySchemaErrors(issues: { path: PropertyKey[]; message: string }[]) {
         for (const issue of issues) {
             const field = issue.path[0];
 
@@ -209,25 +153,19 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
                 field === "startedAt" ||
                 field === "completedAt"
             ) {
-                setError(
-                    field,
-                    {
-                        type: "manual",
-                        message: issue.message
-                    }
-                );
+                setError(field, {
+                    type: "manual",
+                    message: issue.message,
+                });
 
                 continue;
             }
 
             if (field === "playtimeMinutes") {
-                setError(
-                    "playtimeHours",
-                    {
-                        type: "manual",
-                        message: issue.message
-                    }
-                );
+                setError("playtimeHours", {
+                    type: "manual",
+                    message: issue.message,
+                });
 
                 continue;
             }
@@ -241,24 +179,16 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
             const updatedEntry = await onSave(data);
 
             reset(
-                createDefaultValues(
-                    {
-                        ...entry,
-                        ...updatedEntry,
-                        availablePlatforms: entry.availablePlatforms
-                    },
-                    today
-                )
+                createDefaultValues({
+                    ...entry,
+                    ...updatedEntry,
+                    availablePlatforms: entry.availablePlatforms,
+                }),
             );
 
             setIsSaved(true);
         } catch (error) {
-            setSubmitError(
-                getErrorMessage(
-                    error,
-                    "Não foi possível salvar as alterações."
-                )
-            );
+            setSubmitError(getErrorMessage(error, "Não foi possível salvar as alterações."));
         }
     }
 
@@ -267,39 +197,22 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
 
         setSubmitError(null);
 
-        const normalizedValues = applyStatusRules(values, today);
-
-        if (normalizedValues.startedAt !== values.startedAt) {
-            setValue(
-                "startedAt",
-                normalizedValues.startedAt,
-                { shouldDirty: true }
-            );
-        }
-
-        if (normalizedValues.completedAt !== values.completedAt) {
-            setValue(
-                "completedAt",
-                normalizedValues.completedAt,
-                { shouldDirty: true }
-            );
-        }
-
-        const dateError = getDateValidationError(normalizedValues, today);
+        const dateError = getDateValidationError(values, today);
 
         if (dateError) {
-            setError(
-                dateError.field,
-                {
-                    type: "manual",
-                    message: dateError.message
-                }
-            );
+            setError(dateError.field, {
+                type: "manual",
+                message: dateError.message,
+            });
 
             return;
         }
 
-        const candidate = createUpdateCandidate(normalizedValues, today);
+        const changedFields = (
+            Object.keys(dirtyFields) as (keyof LibraryGameDetailsFormValues)[]
+        ).filter((field) => dirtyFields[field]);
+
+        const candidate = createUpdateCandidate(values, changedFields);
 
         const result = updateLibraryEntrySchema.safeParse(candidate);
 
@@ -309,34 +222,7 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
             return;
         }
 
-        const fieldsToClear = getFieldsClearedOnSave(entry, result.data);
-
-        if (fieldsToClear.length > 0) {
-            setPendingSave({
-                fields: fieldsToClear,
-                data: result.data
-            });
-
-            return;
-        }
-
         await saveChanges(result.data);
-    }
-
-    async function handleConfirmSave() {
-        if (!pendingSave) {
-            return;
-        }
-
-        const data = pendingSave.data;
-
-        setPendingSave(null);
-
-        await saveChanges(data);
-    }
-
-    function handleCancelSave() {
-        setPendingSave(null);
     }
 
     const handleFormSubmit = handleSubmit(onSubmit);
@@ -350,15 +236,11 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
         completedAt,
 
         today,
-        isWantToPlay,
-        isCompleted,
 
         errors,
         isDirty,
         isSaved: isSaved && !isDirty,
         submitError,
-
-        pendingDataLossFields: pendingSave?.fields ?? null,
 
         handleFormSubmit,
         handleStatusChange,
@@ -368,7 +250,5 @@ export function useLibraryGameDetailsForm({ entry, onSave }: UseLibraryGameDetai
         handleClearInput,
         handlePlatformToggle,
         handleDiscardChanges,
-        handleConfirmSave,
-        handleCancelSave
     };
 }

@@ -47,10 +47,119 @@ function mockGameDetails() {
 }
 
 describe("LibraryGameDetails.tsx", () => {
-    test("deve limpar horas e data de início pelos controles e confirmar a remoção antes de salvar", async () => {
+    test.each([
+        ["WANT_TO_PLAY", "Quero jogar"],
+        ["PLAYING", "Jogando"],
+        ["PAUSED", "Pausado"],
+        ["COMPLETED", "Zerado"],
+        ["ABANDONED", "Abandonado"],
+    ] as const)(
+        "deve preservar os dados e permitir editar os campos ao mudar para %s",
+        async (status, label) => {
+            const user = userEvent.setup();
+
+            const entry = createLibraryEntryDetails({
+                status: status === "PAUSED" ? "COMPLETED" : "PAUSED",
+                rating: 4.5,
+                playtimeMinutes: 95,
+                platforms: [{ id: 1, name: "PC" }],
+                startedAt: "2026-01-01T12:00:00.000Z",
+                completedAt: "2026-01-10T18:00:00.000Z",
+            });
+
+            mockApiResponse({
+                method: "GET",
+                endpoint: "/library/1",
+                responseBody: { libraryEntry: entry },
+            });
+            mockGameDetails();
+
+            const { requests } = mockApiResponse({
+                method: "PATCH",
+                endpoint: "/library/1",
+                responseBody: { updatedLibraryEntry: { ...entry, status } },
+            });
+
+            renderLibraryGameDetails();
+
+            await user.click(await screen.findByRole("button", { name: label }));
+
+            expect(screen.getByRole("textbox", { name: "Nota" })).toBeEnabled();
+            expect(screen.getByRole("textbox", { name: "Nota" })).toHaveValue("4,5");
+            expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("1,58");
+            expect(screen.getByLabelText("Data de início")).toBeEnabled();
+            expect(screen.getByLabelText("Data de início")).toHaveValue("2026-01-01");
+            expect(screen.getByLabelText("Data de conclusão")).toBeEnabled();
+            expect(screen.getByLabelText("Data de conclusão")).toHaveValue("2026-01-10");
+            expect(screen.getByRole("button", { name: "PC" })).toHaveAttribute(
+                "aria-pressed",
+                "true",
+            );
+
+            await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+            expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
+            expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+            expect(requests).toHaveLength(1);
+            expect(requests[0]?.body).toEqual({ status });
+            expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("1,58");
+            expect(screen.getByLabelText("Data de conclusão")).toHaveValue("2026-01-10");
+        },
+    );
+
+    test.each([
+        ["PLAYING", "Jogando"],
+        ["COMPLETED", "Zerado"],
+    ] as const)(
+        "não deve preencher datas ao carregar, selecionar ou salvar o status %s",
+        async (status, label) => {
+            const user = userEvent.setup();
+
+            const entry = createLibraryEntryDetails({ availablePlatforms: [] });
+
+            mockApiResponse({
+                method: "GET",
+                endpoint: "/library/1",
+                responseBody: { libraryEntry: entry },
+            });
+            mockGameDetails();
+
+            const { requests } = mockApiResponse({
+                method: "PATCH",
+                endpoint: "/library/1",
+                responseBody: { updatedLibraryEntry: { ...entry, status } },
+            });
+
+            renderLibraryGameDetails();
+
+            expect(await screen.findByLabelText("Data de início")).toHaveValue("");
+            expect(screen.getByLabelText("Data de conclusão")).toHaveValue("");
+            expect(screen.getByText("Nenhuma plataforma disponível.")).toBeVisible();
+            expect(screen.getByRole("button", { name: "Salvar alterações" })).toBeDisabled();
+
+            await user.click(screen.getByRole("button", { name: label }));
+
+            expect(screen.getByLabelText("Data de início")).toHaveValue("");
+            expect(screen.getByLabelText("Data de conclusão")).toHaveValue("");
+
+            await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+            expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
+            expect(requests[0]?.body).toEqual({ status });
+            expect(screen.getByLabelText("Data de início")).toHaveValue("");
+            expect(screen.getByLabelText("Data de conclusão")).toHaveValue("");
+        },
+    );
+
+    test("deve limpar horas e ambas as datas sem exigir confirmação adicional", async () => {
         const user = userEvent.setup();
 
-        const entry = { ...createEntry(), status: "ABANDONED", playtimeMinutes: 120 };
+        const entry = {
+            ...createEntry(),
+            status: "ABANDONED",
+            playtimeMinutes: 120,
+            completedAt: "2026-01-10",
+        };
 
         mockApiResponse({
             method: "GET",
@@ -64,7 +173,12 @@ describe("LibraryGameDetails.tsx", () => {
             method: "PATCH",
             endpoint: "/library/1",
             responseBody: {
-                updatedLibraryEntry: { ...entry, playtimeMinutes: 0, startedAt: null },
+                updatedLibraryEntry: {
+                    ...entry,
+                    playtimeMinutes: 0,
+                    startedAt: null,
+                    completedAt: null,
+                },
             },
         });
 
@@ -72,28 +186,25 @@ describe("LibraryGameDetails.tsx", () => {
 
         await user.click(await screen.findByRole("button", { name: "Limpar horas jogadas" }));
         await user.click(screen.getByRole("button", { name: "Limpar data de início" }));
+        await user.click(screen.getByRole("button", { name: "Limpar data de conclusão" }));
 
         expect(screen.getByRole("textbox", { name: "Horas jogadas" })).toHaveValue("");
         expect(screen.getByLabelText("Data de início")).toHaveValue("");
 
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
-        const dialog = await screen.findByRole("dialog", {
-            name: "Alguns dados serão removidos ao salvar",
-        });
-
-        expect(within(dialog).getByText("Horas jogadas")).toBeVisible();
-        expect(within(dialog).getByText("Data de início")).toBeVisible();
-        expect(requests).toHaveLength(0);
-
-        await user.click(within(dialog).getByRole("button", { name: "Salvar mesmo assim" }));
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
         expect(requests).toHaveLength(1);
-        expect(requests[0]?.body).toMatchObject({ playtimeMinutes: 0, startedAt: null });
+        expect(requests[0]?.body).toEqual({
+            playtimeMinutes: 0,
+            startedAt: null,
+            completedAt: null,
+        });
     });
 
-    test("deve bloquear o salvamento sem plataformas e permitir corrigir a seleção", async () => {
+    test("deve permitir remover todas as plataformas selecionadas", async () => {
         const user = userEvent.setup();
 
         const entry = createEntry();
@@ -109,9 +220,7 @@ describe("LibraryGameDetails.tsx", () => {
         const { requests } = mockApiResponse({
             method: "PATCH",
             endpoint: "/library/1",
-            responseBody: {
-                updatedLibraryEntry: { ...entry, platforms: [{ id: 2, name: "PlayStation 5" }] },
-            },
+            responseBody: { updatedLibraryEntry: { ...entry, platforms: [] } },
         });
 
         renderLibraryGameDetails();
@@ -119,18 +228,10 @@ describe("LibraryGameDetails.tsx", () => {
         await user.click(await screen.findByRole("button", { name: "PC" }));
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
-        expect(await screen.findByText("Informe pelo menos uma plataforma")).toBeVisible();
-        expect(requests).toHaveLength(0);
-
-        await user.click(screen.getByRole("button", { name: "PlayStation 5" }));
-
-        expect(screen.queryByText("Informe pelo menos uma plataforma")).not.toBeInTheDocument();
-
-        await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
-
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
+        expect(screen.getByRole("button", { name: "PC" })).toHaveAttribute("aria-pressed", "false");
         expect(requests).toHaveLength(1);
-        expect(requests[0]?.body).toMatchObject({ platforms: [2] });
+        expect(requests[0]?.body).toEqual({ platforms: [] });
     });
 
     test("deve associar o erro de datas à conclusão e impedir o PATCH até a correção", async () => {
@@ -383,7 +484,7 @@ describe("LibraryGameDetails.tsx", () => {
         expect(requests).toHaveLength(0);
     });
 
-    test("deve exigir confirmação antes de salvar uma alteração que remove a nota", async () => {
+    test("deve remover a nota explicitamente sem exigir confirmação adicional", async () => {
         const user = userEvent.setup();
 
         const entry = createEntry();
@@ -407,27 +508,11 @@ describe("LibraryGameDetails.tsx", () => {
         await user.clear(await screen.findByRole("textbox", { name: "Nota" }));
         await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
-        const dialog = await screen.findByRole("dialog", {
-            name: "Alguns dados serão removidos ao salvar",
-        });
-
-        expect(within(dialog).getByText("Nota")).toBeVisible();
-        expect(requests).toHaveLength(0);
-
-        await user.click(within(dialog).getByRole("button", { name: "Voltar" }));
-
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-        expect(requests).toHaveLength(0);
-
-        await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
-
-        const confirmation = await screen.findByRole("dialog");
-
-        await user.click(within(confirmation).getByRole("button", { name: "Salvar mesmo assim" }));
 
         expect(await screen.findByRole("button", { name: "Salvo!" })).toBeVisible();
         expect(requests).toHaveLength(1);
-        expect(requests[0]?.body).toMatchObject({ rating: null });
+        expect(requests[0]?.body).toEqual({ rating: null });
     });
 
     test("deve remover somente após confirmação e voltar à página anterior", async () => {

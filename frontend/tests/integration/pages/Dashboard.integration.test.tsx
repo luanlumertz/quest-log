@@ -18,6 +18,7 @@ const dashboardData = {
         byStatus: {
             WANT_TO_PLAY: 0,
             PLAYING: 1,
+            PAUSED: 0,
             COMPLETED: 1,
             ABANDONED: 0,
         },
@@ -57,6 +58,48 @@ function renderDashboard() {
 }
 
 describe("Dashboard.tsx", () => {
+    test("deve mostrar pausados nos cartões, no resumo e na atividade recente", async () => {
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/library",
+            responseBody: { libraryEntries: [] },
+        });
+        mockApiResponse({
+            method: "GET",
+            endpoint: "/dashboard",
+            responseBody: {
+                dashboardData: {
+                    ...dashboardData,
+                    stats: {
+                        ...dashboardData.stats,
+                        totalGames: 4,
+                        byStatus: { ...dashboardData.stats.byStatus, PAUSED: 2 },
+                    },
+                    recentGames: [createLibraryEntry({ status: "PAUSED" })],
+                },
+            },
+        });
+
+        renderDashboard();
+
+        await screen.findByRole("heading", { name: "Bem-vindo de volta, João" });
+
+        const pausedLinks = screen.getAllByRole("link", { name: /^Pausado/ });
+
+        expect(pausedLinks).toHaveLength(2);
+
+        for (const link of pausedLinks) {
+            expect(link).toHaveAttribute("href", "/library?status=PAUSED");
+            expect(within(link).getByText("2")).toBeVisible();
+        }
+
+        const recentSection = screen
+            .getByRole("heading", { name: "Atividade recente" })
+            .closest("section");
+
+        expect(within(recentSection!).getByText("Pausado")).toBeVisible();
+    });
+
     test("deve exibir atividades recentes com e sem nota e abrir a entrada correta", async () => {
         const user = userEvent.setup();
 

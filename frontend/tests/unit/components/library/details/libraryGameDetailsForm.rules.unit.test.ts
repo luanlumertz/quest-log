@@ -1,12 +1,9 @@
 import { assert, describe, test } from "vitest";
 
 import {
-    applyStatusRules,
     createDefaultValues,
     createUpdateCandidate,
-    createValuesForStatus,
     getDateValidationError,
-    getFieldsClearedOnSave,
     type LibraryGameDetailsFormValues,
 } from "../../../../../src/components/library/details/libraryGameDetailsForm.rules";
 
@@ -14,7 +11,7 @@ import { createLibraryEntryDetails } from "../../../../fixtures/library.fixture"
 
 describe("libraryGameDetailsForm.rules.ts", () => {
     const baseFormValues: LibraryGameDetailsFormValues = {
-        status: "COMPLETED",
+        status: "PAUSED",
         rating: "4,5",
         playtimeHours: "12",
         platforms: [1],
@@ -22,70 +19,98 @@ describe("libraryGameDetailsForm.rules.ts", () => {
         completedAt: "2026-01-02",
     };
 
-    const baseLibraryEntry = createLibraryEntryDetails({
-        status: "PLAYING",
-        rating: 4.5,
-        playtimeMinutes: 720,
-        platforms: [{ id: 1, name: "PC" }],
-        startedAt: "2026-01-01",
-    });
-
-    describe("applyStatusRules", () => {
-        test.each([
-            {
+    describe("createDefaultValues", () => {
+        test("deve exibir os dados salvos sem limpar campos conforme o status", () => {
+            const entry = createLibraryEntryDetails({
                 status: "WANT_TO_PLAY",
-                expected: {
-                    rating: "",
-                    startedAt: "",
-                    completedAt: "",
-                },
-            },
-            {
-                status: "PLAYING",
-                expected: {
-                    completedAt: "",
-                },
-            },
-            {
-                status: "COMPLETED",
-                expected: {},
-            },
-            {
-                status: "ABANDONED",
-                expected: {
-                    completedAt: "",
-                },
-            },
-        ] as const)("deve aplicar as regras do status $status", ({ status, expected }) => {
-            const values = { ...baseFormValues, status };
+                rating: 4.5,
+                playtimeMinutes: 720,
+                platforms: [{ id: 1, name: "PC" }],
+                startedAt: "2026-01-01T12:00:00.000Z",
+                completedAt: "2026-01-02T18:00:00.000Z",
+            });
 
-            const result = applyStatusRules(values, "2026-01-03");
+            const originalEntry = structuredClone(entry);
+
+            const result = createDefaultValues(entry);
+
+            assert.deepEqual(result, { ...baseFormValues, status: "WANT_TO_PLAY" });
+            assert.deepEqual(entry, originalEntry);
+        });
+
+        test("deve manter os campos opcionais vazios ao carregar um jogo em andamento", () => {
+            const entry = createLibraryEntryDetails({ status: "PLAYING" });
+
+            const result = createDefaultValues(entry);
 
             assert.deepEqual(result, {
-                ...values,
-                ...expected,
+                status: "PLAYING",
+                rating: "",
+                playtimeHours: "",
+                platforms: [],
+                startedAt: "",
+                completedAt: "",
+            });
+        });
+    });
+
+    describe("createUpdateCandidate", () => {
+        test("deve converter os campos alterados para o contrato da API", () => {
+            const result = createUpdateCandidate(baseFormValues, [
+                "status",
+                "rating",
+                "playtimeHours",
+                "platforms",
+                "startedAt",
+                "completedAt",
+            ]);
+
+            assert.deepEqual(result, {
+                status: "PAUSED",
+                rating: 4.5,
+                playtimeMinutes: 720,
+                platforms: [1],
+                startedAt: new Date("2026-01-01T00:00:00.000Z"),
+                completedAt: new Date("2026-01-02T00:00:00.000Z"),
             });
         });
 
-        test.each([
-            {
-                status: "PLAYING",
-                field: "startedAt",
-            },
-            {
-                status: "COMPLETED",
-                field: "completedAt",
-            },
-        ] as const)("deve preencher $field com a data atual para $status", ({ status, field }) => {
+        test("deve enviar somente o status quando os demais campos não foram alterados", () => {
+            const values = { ...baseFormValues, status: "WANT_TO_PLAY" as const };
+
+            const originalValues = structuredClone(values);
+
+            const result = createUpdateCandidate(values, ["status"]);
+
+            assert.deepEqual(result, { status: "WANT_TO_PLAY" });
+            assert.deepEqual(values, originalValues);
+        });
+
+        test("deve converter a limpeza explícita dos campos opcionais", () => {
             const values = {
                 ...baseFormValues,
-                status,
-                [field]: "",
+                rating: "",
+                playtimeHours: "",
+                platforms: [],
+                startedAt: "",
+                completedAt: "",
             };
 
-            const result = applyStatusRules(values, "2026-01-03");
+            const result = createUpdateCandidate(values, [
+                "rating",
+                "playtimeHours",
+                "platforms",
+                "startedAt",
+                "completedAt",
+            ]);
 
-            assert.equal(result[field], "2026-01-03");
+            assert.deepEqual(result, {
+                rating: null,
+                playtimeMinutes: 0,
+                platforms: [],
+                startedAt: null,
+                completedAt: null,
+            });
         });
     });
 
@@ -163,6 +188,16 @@ describe("libraryGameDetailsForm.rules.ts", () => {
                 },
                 today: "2026-01-03",
             },
+            {
+                scenario: "ambas as datas vazias",
+                override: { startedAt: "", completedAt: "" },
+                today: "2026-01-03",
+            },
+            {
+                scenario: "conclusão sem início informado",
+                override: { startedAt: "" },
+                today: "2026-01-03",
+            },
         ])("deve aceitar $scenario", ({ override, today }) => {
             const values = {
                 ...baseFormValues,
@@ -172,211 +207,6 @@ describe("libraryGameDetailsForm.rules.ts", () => {
             const result = getDateValidationError(values, today);
 
             assert.isNull(result);
-        });
-    });
-
-    describe("getFieldsClearedOnSave", () => {
-        test.each([
-            {
-                scenario: "remoção da avaliação",
-                override: {},
-                data: { rating: null },
-                expected: ["rating"],
-            },
-            {
-                scenario: "remoção do tempo jogado",
-                override: {},
-                data: { playtimeMinutes: 0 },
-                expected: ["playtimeMinutes"],
-            },
-            {
-                scenario: "remoção da data de início",
-                override: {},
-                data: { startedAt: null },
-                expected: ["startedAt"],
-            },
-            {
-                scenario: "remoção da data de conclusão",
-                override: { completedAt: "2026-01-02" },
-                data: { completedAt: null },
-                expected: ["completedAt"],
-            },
-            {
-                scenario: "remoção de múltiplos campos simultaneamente",
-                override: { completedAt: "2026-01-02" },
-                data: {
-                    rating: null,
-                    playtimeMinutes: 0,
-                    startedAt: null,
-                    completedAt: null,
-                },
-                expected: ["rating", "playtimeMinutes", "startedAt", "completedAt"],
-            },
-            {
-                scenario: "nenhum campo removido",
-                override: {},
-                data: {
-                    rating: 4.5,
-                    playtimeMinutes: 720,
-                },
-                expected: [],
-            },
-        ])("deve identificar $scenario", ({ override, data, expected }) => {
-            const entry = {
-                ...baseLibraryEntry,
-                ...override,
-            };
-
-            const result = getFieldsClearedOnSave(entry, data);
-
-            assert.deepEqual(result, expected);
-        });
-    });
-
-    describe("createDefaultValues", () => {
-        test.each([
-            {
-                scenario: "um jogo em andamento",
-                override: {},
-                today: "2026-01-02",
-                expected: {
-                    status: "PLAYING" as const,
-                    rating: "4,5",
-                    playtimeHours: "12",
-                    platforms: [1],
-                    startedAt: "2026-01-01",
-                    completedAt: "",
-                },
-            },
-            {
-                scenario: "um jogo sem dados preenchidos",
-                override: {
-                    status: "WANT_TO_PLAY" as const,
-                    rating: null,
-                    playtimeMinutes: 0,
-                    platforms: [],
-                    startedAt: null,
-                    completedAt: null,
-                },
-                today: "2026-01-02",
-                expected: {
-                    status: "WANT_TO_PLAY" as const,
-                    rating: "",
-                    playtimeHours: "",
-                    platforms: [],
-                    startedAt: "",
-                    completedAt: "",
-                },
-            },
-            {
-                scenario: "um jogo em andamento sem data de início",
-                override: {
-                    status: "PLAYING" as const,
-                    startedAt: null,
-                },
-                today: "2026-01-02",
-                expected: {
-                    status: "PLAYING" as const,
-                    rating: "4,5",
-                    playtimeHours: "12",
-                    platforms: [1],
-                    startedAt: "2026-01-02",
-                    completedAt: "",
-                },
-            },
-        ])(
-            "deve converter corretamente $scenario para os valores do formulário",
-            ({ today, override, expected }) => {
-                const entry = {
-                    ...baseLibraryEntry,
-                    ...override,
-                };
-
-                const result = createDefaultValues(entry, today);
-
-                assert.deepEqual(result, expected);
-            },
-        );
-    });
-
-    describe("createValuesForStatus", () => {
-        test("deve alterar o status e aplicar as regras sem modificar os valores originais", () => {
-            const values = {
-                status: "PLAYING" as const,
-                rating: "4,5",
-                playtimeHours: "12",
-                platforms: [1],
-                startedAt: "2026-01-01",
-                completedAt: "",
-            };
-
-            const originalValues = structuredClone(values);
-
-            const result = createValuesForStatus(values, "COMPLETED", "2026-01-02");
-
-            assert.deepEqual(result, {
-                ...originalValues,
-                status: "COMPLETED",
-                completedAt: "2026-01-02",
-            });
-
-            assert.deepEqual(values, originalValues);
-        });
-    });
-
-    describe("createUpdateCandidate", () => {
-        test.each([
-            {
-                scenario: "um jogo marcado como quero jogar com campos vazios",
-                override: {
-                    status: "WANT_TO_PLAY" as const,
-                    playtimeHours: "",
-                    platforms: [],
-                },
-                expected: {
-                    status: "WANT_TO_PLAY" as const,
-                    rating: null,
-                    playtimeMinutes: 0,
-                    platforms: [],
-                    startedAt: null,
-                    completedAt: null,
-                },
-            },
-            {
-                scenario: "um jogo em andamento",
-                override: {
-                    status: "PLAYING" as const,
-                },
-                expected: {
-                    status: "PLAYING" as const,
-                    rating: 4.5,
-                    playtimeMinutes: 720,
-                    platforms: [1],
-                    startedAt: new Date("2026-01-01T00:00:00.000Z"),
-                    completedAt: null,
-                },
-            },
-            {
-                scenario: "jogo concluído com datas preenchidas",
-                override: { status: "COMPLETED" as const },
-                expected: {
-                    status: "COMPLETED" as const,
-                    rating: 4.5,
-                    playtimeMinutes: 720,
-                    platforms: [1],
-                    startedAt: new Date("2026-01-01T00:00:00.000Z"),
-                    completedAt: new Date("2026-01-02T00:00:00.000Z"),
-                },
-            },
-        ])("deve converter $scenario", ({ override, expected }) => {
-            const values = {
-                ...baseFormValues,
-                ...override,
-            };
-
-            const result = createUpdateCandidate(values, "2026-01-02");
-
-            assert.deepEqual(result, expected);
         });
     });
 });

@@ -15,7 +15,7 @@ export function LibraryPlatformSelector({
     selectedPlatforms,
     error,
     disabled = false,
-    onToggle
+    onToggle,
 }: LibraryPlatformSelectorProps) {
     const errorId = `${useId()}-error`;
 
@@ -32,7 +32,8 @@ export function LibraryPlatformSelector({
                     text-ink-mute
                 "
             >
-                Plataforma(s) jogada(s)
+                Plataforma(s) jogada(s){" "}
+                <span className="normal-case tracking-normal">(opcional)</span>
             </legend>
 
             <div className="mt-3 flex flex-wrap gap-2">
@@ -54,13 +55,14 @@ export function LibraryPlatformSelector({
                                 cursor-pointer
                                 disabled:cursor-not-allowed
                                 disabled:opacity-60
-                                ${isSelected
-                                    ? `
+                                ${
+                                    isSelected
+                                        ? `
                                             border-brand/60
                                             bg-brand/15
                                             text-brand
                                         `
-                                    : `
+                                        : `
                                             border-divider-bright
                                             bg-surface
                                             text-ink-mute
@@ -70,18 +72,17 @@ export function LibraryPlatformSelector({
                                 }
                             `}
                         >
-                            {isSelected && (
-                                <MaterialIcon
-                                    name="check"
-                                    className="text-sm!"
-                                />
-                            )}
+                            {isSelected && <MaterialIcon name="check" className="text-sm!" />}
 
                             {platform.name}
                         </button>
                     );
                 })}
             </div>
+
+            {platforms.length === 0 && (
+                <p className="mt-3 text-sm text-ink-mute">Nenhuma plataforma disponível.</p>
+            )}
 
             {error && (
                 <p id={errorId} className="mt-2 text-xs text-danger">

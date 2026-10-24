@@ -64,50 +64,60 @@ describe("Library.tsx", () => {
         expect(screen.getByRole("heading", { name: "Buscar jogos" })).toBeVisible();
     });
 
-    test("deve filtrar os jogos da biblioteca pelo status selecionado", async () => {
-        const user = userEvent.setup();
+    test.each([
+        ["PLAYING", "Jogando"],
+        ["PAUSED", "Pausado"],
+    ] as const)(
+        "deve filtrar os jogos da biblioteca pelo status %s",
+        async (selectedStatus, label) => {
+            const user = userEvent.setup();
 
-        const { eldenRing, hades } = createLibraryGames();
+            const { eldenRing: originalEntry, hades } = createLibraryGames();
 
-        let statusRecebido: string | null = null;
+            const eldenRing = { ...originalEntry, status: selectedStatus };
 
-        server.use(
-            http.get(`${API_URL}/library`, ({ request }) => {
-                const status = new URL(request.url).searchParams.get("status");
+            let statusRecebido: string | null = null;
 
-                if (status === "PLAYING") {
-                    statusRecebido = status;
+            server.use(
+                http.get(`${API_URL}/library`, ({ request }) => {
+                    const status = new URL(request.url).searchParams.get("status");
+
+                    if (status === selectedStatus) {
+                        statusRecebido = status;
+
+                        return HttpResponse.json({
+                            libraryEntries: [eldenRing],
+                        });
+                    }
 
                     return HttpResponse.json({
-                        libraryEntries: [eldenRing],
+                        libraryEntries: [eldenRing, hades],
                     });
-                }
+                }),
+            );
 
-                return HttpResponse.json({
-                    libraryEntries: [eldenRing, hades],
-                });
-            }),
-        );
+            renderLibrary();
 
-        renderLibrary();
+            expect(await screen.findByRole("heading", { name: "Elden Ring" })).toBeVisible();
+            expect(await screen.findByRole("heading", { name: "Hades" })).toBeVisible();
 
-        expect(await screen.findByRole("heading", { name: "Elden Ring" })).toBeVisible();
-        expect(await screen.findByRole("heading", { name: "Hades" })).toBeVisible();
+            await user.click(screen.getByRole("button", { name: new RegExp(`^${label}`, "i") }));
 
-        await user.click(screen.getByRole("button", { name: /^Jogando/i }));
+            await waitFor(() => {
+                assert.equal(statusRecebido, selectedStatus);
+                expect(screen.getByRole("heading", { name: "Elden Ring" })).toBeVisible();
+                expect(screen.queryByRole("heading", { name: "Hades" })).not.toBeInTheDocument();
+            });
 
-        await waitFor(() => {
-            assert.equal(statusRecebido, "PLAYING");
-            expect(screen.getByRole("heading", { name: "Elden Ring" })).toBeVisible();
-            expect(screen.queryByRole("heading", { name: "Hades" })).not.toBeInTheDocument();
-        });
-
-        expect(screen.getByRole("button", { name: /^Jogando/i })).toHaveAttribute(
-            "aria-pressed",
-            "true",
-        );
-        expect(screen.getByRole("button", { name: /^Todos/i })).toHaveTextContent("2");
-    });
+            expect(
+                screen.getByRole("button", { name: new RegExp(`^${label}`, "i") }),
+            ).toHaveAttribute("aria-pressed", "true");
+            expect(
+                screen.getByRole("button", { name: new RegExp(`^${label}`, "i") }),
+            ).toHaveTextContent("1");
+            expect(screen.getByRole("button", { name: /^Todos/i })).toHaveTextContent("2");
+        },
+    );
 
     test("deve filtrar por título sem perder o status selecionado", async () => {
         const user = userEvent.setup();
@@ -179,7 +189,7 @@ describe("Library.tsx", () => {
             }),
         );
 
-        renderLibrary("/library?status=PLAYING&search=inexistente");
+        renderLibrary("/library?status=PAUSED&search=inexistente");
 
         expect(await screen.findByText("Nenhum jogo encontrado")).toBeVisible();
         expect(screen.queryByText("Sua biblioteca está vazia")).not.toBeInTheDocument();

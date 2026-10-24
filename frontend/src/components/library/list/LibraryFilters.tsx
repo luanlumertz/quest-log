@@ -2,7 +2,6 @@ import { GAME_STATUS_CONFIG } from "../../../config/gameStatus.config";
 import type { GameStatus } from "../../../types/game.types";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 
-
 type LibraryCounts = {
     all: number;
 } & Record<GameStatus, number>;
@@ -25,9 +24,10 @@ type StatusFilterButtonProps = {
 const STATUS_FILTERS: (GameStatus | undefined)[] = [
     undefined,
     "PLAYING",
+    "PAUSED",
     "COMPLETED",
     "WANT_TO_PLAY",
-    "ABANDONED"
+    "ABANDONED",
 ];
 
 export function LibraryFilters({
@@ -35,7 +35,7 @@ export function LibraryFilters({
     status,
     counts,
     onSearchChange,
-    onStatusChange
+    onStatusChange,
 }: LibraryFiltersProps) {
     function getCount(filterStatus?: GameStatus) {
         if (!counts) return null;
@@ -58,9 +58,7 @@ export function LibraryFilters({
                 <input
                     type="text"
                     value={search}
-                    onChange={(event) =>
-                        onSearchChange(event.target.value)
-                    }
+                    onChange={(event) => onSearchChange(event.target.value)}
                     placeholder="Filtrar por título..."
                     spellCheck={false}
                     aria-label="Filtrar biblioteca por título"
@@ -93,7 +91,12 @@ export function LibraryFilters({
     );
 }
 
-function StatusFilterButton({ filterStatus, selectedStatus, count, onClick }: StatusFilterButtonProps) {
+function StatusFilterButton({
+    filterStatus,
+    selectedStatus,
+    count,
+    onClick,
+}: StatusFilterButtonProps) {
     const isSelected = selectedStatus === filterStatus;
 
     const statusInfo = filterStatus ? GAME_STATUS_CONFIG[filterStatus] : null;
@@ -110,27 +113,34 @@ function StatusFilterButton({ filterStatus, selectedStatus, count, onClick }: St
                 rounded-xl border px-3
                 text-[12px] font-medium
                 transition-colors
-                ${!isSelected
-                    ? `
+                ${
+                    !isSelected
+                        ? `
                             border-divider
                             bg-surface
                             text-ink-mute
                             hover:border-divider-bright
                             hover:text-ink-dim
                         `
-                    : ""
+                        : ""
                 }
             `}
-            style={isSelected ? statusInfo
-                ? {
-                    color: statusInfo.color,
-                    borderColor: `${statusInfo.color}66`,
-                    backgroundColor: `${statusInfo.color}1A`
-                } : {
-                    color: "var(--color-brand)",
-                    borderColor: "color-mix(in srgb, var(--color-brand) 40%, transparent)",
-                    backgroundColor: "color-mix(in srgb, var(--color-brand) 12%, transparent)"
-                } : undefined
+            style={
+                isSelected
+                    ? statusInfo
+                        ? {
+                              color: statusInfo.color,
+                              borderColor: `${statusInfo.color}66`,
+                              backgroundColor: `${statusInfo.color}1A`,
+                          }
+                        : {
+                              color: "var(--color-brand)",
+                              borderColor:
+                                  "color-mix(in srgb, var(--color-brand) 40%, transparent)",
+                              backgroundColor:
+                                  "color-mix(in srgb, var(--color-brand) 12%, transparent)",
+                          }
+                    : undefined
             }
         >
             {label}
@@ -138,11 +148,13 @@ function StatusFilterButton({ filterStatus, selectedStatus, count, onClick }: St
             {count !== null && (
                 <span
                     className="rounded-md px-1.5 py-0.5 text-[12px]"
-                    style={isSelected && statusInfo ?
-                        {
-                            color: statusInfo.color,
-                            backgroundColor: `${statusInfo.color}22`
-                        } : undefined
+                    style={
+                        isSelected && statusInfo
+                            ? {
+                                  color: statusInfo.color,
+                                  backgroundColor: `${statusInfo.color}22`,
+                              }
+                            : undefined
                     }
                 >
                     {count}

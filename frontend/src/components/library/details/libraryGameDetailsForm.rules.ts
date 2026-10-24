@@ -18,105 +18,60 @@ export type LibraryGameDetailsFormValues = {
     completedAt: string;
 };
 
-export type DataLossField = "rating" | "playtimeMinutes" | "startedAt" | "completedAt";
-
 export type DateValidationError = {
     field: "startedAt" | "completedAt";
     message: string;
 };
 
-export function applyStatusRules(
-    values: LibraryGameDetailsFormValues,
-    today: string,
-): LibraryGameDetailsFormValues {
-    const nextValues = { ...values };
-
-    switch (nextValues.status) {
-        case "WANT_TO_PLAY":
-            nextValues.rating = "";
-            nextValues.startedAt = "";
-            nextValues.completedAt = "";
-            break;
-
-        case "PLAYING":
-            if (!nextValues.startedAt) {
-                nextValues.startedAt = today;
-            }
-
-            nextValues.completedAt = "";
-            break;
-
-        case "COMPLETED":
-            if (!nextValues.completedAt) {
-                nextValues.completedAt = today;
-            }
-
-            break;
-
-        case "ABANDONED":
-            nextValues.completedAt = "";
-            break;
-    }
-
-    return nextValues;
-}
-
-export function createDefaultValues(
-    entry: LibraryEntryDetails,
-    today: string,
-): LibraryGameDetailsFormValues {
-    const values: LibraryGameDetailsFormValues = {
+export function createDefaultValues(entry: LibraryEntryDetails): LibraryGameDetailsFormValues {
+    return {
         status: entry.status,
-
         rating: entry.rating !== null ? entry.rating.toString().replace(".", ",") : "",
-
         playtimeHours: minutesToHoursInput(entry.playtimeMinutes),
-
         platforms: entry.platforms.map((platform) => platform.id),
-
         startedAt: dateToInputValue(entry.startedAt),
-
         completedAt: dateToInputValue(entry.completedAt),
     };
-
-    return applyStatusRules(values, today);
-}
-
-export function createValuesForStatus(
-    values: LibraryGameDetailsFormValues,
-    status: GameStatus,
-    today: string,
-) {
-    return applyStatusRules({ ...values, status }, today);
 }
 
 export function createUpdateCandidate(
     values: LibraryGameDetailsFormValues,
-    today: string,
+    changedFields: (keyof LibraryGameDetailsFormValues)[],
 ): UpdateLibraryEntryData {
-    const normalizedValues = applyStatusRules(values, today);
+    const data: UpdateLibraryEntryData = {};
 
-    return {
-        status: normalizedValues.status,
+    if (changedFields.includes("status")) {
+        data.status = values.status;
+    }
 
-        rating: ratingInputToNumber(normalizedValues.rating),
+    if (changedFields.includes("rating")) {
+        data.rating = ratingInputToNumber(values.rating);
+    }
 
-        playtimeMinutes: hoursInputToMinutes(normalizedValues.playtimeHours),
+    if (changedFields.includes("playtimeHours")) {
+        data.playtimeMinutes = hoursInputToMinutes(values.playtimeHours);
+    }
 
-        platforms: normalizedValues.platforms,
+    if (changedFields.includes("platforms")) {
+        data.platforms = values.platforms;
+    }
 
-        startedAt: dateInputToDate(normalizedValues.startedAt),
+    if (changedFields.includes("startedAt")) {
+        data.startedAt = dateInputToDate(values.startedAt);
+    }
 
-        completedAt: dateInputToDate(normalizedValues.completedAt),
-    };
+    if (changedFields.includes("completedAt")) {
+        data.completedAt = dateInputToDate(values.completedAt);
+    }
+
+    return data;
 }
 
 export function getDateValidationError(
     values: LibraryGameDetailsFormValues,
     today: string,
 ): DateValidationError | null {
-    const normalizedValues = applyStatusRules(values, today);
-    const { startedAt, completedAt } = normalizedValues;
+    const { startedAt, completedAt } = values;
 
     if (startedAt && startedAt > today) {
         return {
@@ -140,29 +95,4 @@ export function getDateValidationError(
     }
 
     return null;
-}
-
-export function getFieldsClearedOnSave(
-    entry: LibraryEntryDetails,
-    data: UpdateLibraryEntryData,
-): DataLossField[] {
-    const fields: DataLossField[] = [];
-
-    if (entry.rating !== null && data.rating === null) {
-        fields.push("rating");
-    }
-
-    if (entry.playtimeMinutes > 0 && data.playtimeMinutes === 0) {
-        fields.push("playtimeMinutes");
-    }
-
-    if (entry.startedAt !== null && data.startedAt === null) {
-        fields.push("startedAt");
-    }
-
-    if (entry.completedAt !== null && data.completedAt === null) {
-        fields.push("completedAt");
-    }
-
-    return fields;
 }
