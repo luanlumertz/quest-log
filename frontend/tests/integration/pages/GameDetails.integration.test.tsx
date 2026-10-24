@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { MemoryRouter, Route, Routes } from "react-router";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -17,12 +17,23 @@ const game = createGameDetails({
     developers: ["FromSoftware"],
 });
 
-function renderGameDetails(initialEntry = "/games/123") {
+function CurrentLocation() {
+    const location = useLocation();
+
+    return (
+        <output data-testid="url-atual">
+            {location.pathname}
+            {location.search}
+        </output>
+    );
+}
+
+function renderGameDetails(initialEntry = "/games/123", previousEntry = "/games/search") {
     const queryClient = createTestQueryClient();
 
     return render(
         <QueryClientProvider client={queryClient}>
-            <MemoryRouter initialEntries={["/games/search", initialEntry]} initialIndex={1}>
+            <MemoryRouter initialEntries={[previousEntry, initialEntry]} initialIndex={1}>
                 <Routes>
                     <Route path="/games/search" element={<div>Busca de teste</div>} />
                     <Route path="/games/:externalId" element={<GameDetails />} />
@@ -31,12 +42,42 @@ function renderGameDetails(initialEntry = "/games/123") {
                         element={<div>Jogo na biblioteca de teste</div>}
                     />
                 </Routes>
+                <CurrentLocation />
             </MemoryRouter>
         </QueryClientProvider>,
     );
 }
 
 describe("GameDetails.tsx", () => {
+    test.each(["/games/123", "/games/invalido"])(
+        "deve preservar a pesquisa e a página ao voltar de %s não encontrado",
+        async (path) => {
+            const user = userEvent.setup();
+
+            mockApiResponse({ method: "GET", endpoint: "/games/123", status: 404 });
+            mockApiResponse({
+                method: "GET",
+                endpoint: "/library",
+                responseBody: { libraryEntries: [] },
+            });
+
+            renderGameDetails(path, "/games/search?query=gta&page=2");
+
+            expect(await screen.findByText("Jogo não encontrado")).toBeVisible();
+            expect(screen.getByRole("link", { name: "Procurar jogos" })).toHaveAttribute(
+                "href",
+                "/games/search",
+            );
+
+            await user.click(screen.getByRole("button", { name: "Voltar" }));
+
+            expect(await screen.findByText("Busca de teste")).toBeVisible();
+            expect(screen.getByTestId("url-atual")).toHaveTextContent(
+                "/games/search?query=gta&page=2",
+            );
+        },
+    );
+
     test("deve carregar o jogo e permitir abrir e cancelar a adição à biblioteca", async () => {
         const user = userEvent.setup();
 

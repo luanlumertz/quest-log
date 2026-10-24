@@ -8,6 +8,7 @@ import { GameDetailsHero } from "../components/game/details/GameDetailsHero";
 import { GameDetailsAbout } from "../components/game/details/GameDetailsAbout";
 
 import { Button, ButtonLink } from "../components/ui/Button";
+import { BackButton } from "../components/ui/BackButton";
 import { LoadingState } from "../components/ui/LoadingState";
 import { StateView } from "../components/ui/StateView";
 
@@ -28,44 +29,40 @@ export function GameDetails() {
         isLoading: isLibraryLoading,
         isError: isLibraryError,
         isFetching: isLibraryFetching,
-        refetch: refetchLibrary
+        refetch: refetchLibrary,
     } = useLibrary();
 
     useDocumentTitle(data?.title);
 
     if (!isValidExternalId) {
         return (
-            <StateView
-                icon="search_off"
-                title="Jogo não encontrado"
-                description="O endereço acessado não corresponde a um jogo válido."
-                action={
-                    <ButtonLink to="/games/search">
-                        Procurar jogos
-                    </ButtonLink>
-                }
-            />
+            <div className="pt-4">
+                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
+                <StateView
+                    icon="search_off"
+                    title="Jogo não encontrado"
+                    description="O endereço acessado não corresponde a um jogo válido."
+                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
+                />
+            </div>
         );
     }
 
     if (isLoading) {
-        return (
-            <LoadingState label="Carregando jogo..." />
-        );
+        return <LoadingState label="Carregando jogo..." />;
     }
 
     if (isError && error instanceof ApiError && error.status === 404) {
         return (
-            <StateView
-                icon="search_off"
-                title="Jogo não encontrado"
-                description="O jogo solicitado não existe ou não está mais disponível."
-                action={
-                    <ButtonLink to="/games/search">
-                        Procurar jogos
-                    </ButtonLink>
-                }
-            />
+            <div className="pt-4">
+                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
+                <StateView
+                    icon="search_off"
+                    title="Jogo não encontrado"
+                    description="O jogo solicitado não existe ou não está mais disponível."
+                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
+                />
+            </div>
         );
     }
 
@@ -91,28 +88,23 @@ export function GameDetails() {
 
     if (!data) {
         return (
-            <StateView
-                icon="search_off"
-                title="Jogo não encontrado"
-                description="O jogo solicitado não está disponível."
-                action={
-                    <ButtonLink to="/games/search">
-                        Procurar jogos
-                    </ButtonLink>
-                }
-            />
+            <div className="pt-4">
+                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
+                <StateView
+                    icon="search_off"
+                    title="Jogo não encontrado"
+                    description="O jogo solicitado não está disponível."
+                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
+                />
+            </div>
         );
     }
 
     const libraryEntry = library?.find((entry) => entry.game.externalId === data.externalId);
 
-    const releaseYear = data.releaseDate
-        ? data.releaseDate.slice(0, 4)
-        : null;
+    const releaseYear = data.releaseDate ? data.releaseDate.slice(0, 4) : null;
 
-    const developers = data.developers.length > 0
-        ? data.developers.join(", ")
-        : "Não informado";
+    const developers = data.developers.length > 0 ? data.developers.join(", ") : "Não informado";
 
     const coverUrl = data.coverUrl ?? DEFAULT_GAME_COVER_URL;
 

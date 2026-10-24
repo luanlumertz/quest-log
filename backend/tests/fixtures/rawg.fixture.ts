@@ -1,14 +1,27 @@
 import { vi } from "vitest";
 
 import { getRawgGameById, searchRawgGames } from "../../src/integrations/rawg.js";
-import type { GameDetailsResult, GameSearchResult } from "../../src/types/rawgGame.types.js";
+import type {
+    GameDetailsResult,
+    GameSearchResult,
+    GameSearchResponse,
+} from "../../src/types/rawgGame.types.js";
 
 import { createRawgGameDetails, genericGameSearchResult } from "../factories/rawg.factory.js";
 
-export function mockRawgSearch(games: GameSearchResult[] = genericGameSearchResult) {
+export function mockRawgSearch(
+    games: GameSearchResult[] = genericGameSearchResult,
+    pagination: Partial<Omit<GameSearchResponse, "games">> = {},
+) {
     const mockedSearch = vi.mocked(searchRawgGames);
 
-    mockedSearch.mockResolvedValue(games);
+    mockedSearch.mockResolvedValue({
+        games,
+        page: 1,
+        hasPrevious: false,
+        hasNext: false,
+        ...pagination,
+    });
 
     return mockedSearch;
 }

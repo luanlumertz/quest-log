@@ -1,6 +1,15 @@
 import z from "zod";
 
 export const searchGameSchema = z.object({
+    page: z
+        .union([z.string(), z.number()], { error: "Informe uma página válida" })
+        .pipe(
+            z.coerce
+                .number<string | number>({ error: "Informe uma página válida" })
+                .int({ error: "A página deve ser um número inteiro" })
+                .positive({ error: "A página deve ser maior que zero" }),
+        )
+        .default(1),
     query: z
         .string({ error: "O termo de busca deve ser um texto" })
         .trim()

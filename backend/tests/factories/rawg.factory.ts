@@ -23,6 +23,8 @@ export const genericGameDetailsResult: GameDetailsResult = {
 };
 
 export const rawgSearchApiResponse = {
+    next: null,
+    previous: null,
     results: [
         {
             id: 123,

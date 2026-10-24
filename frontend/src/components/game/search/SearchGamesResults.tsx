@@ -34,7 +34,7 @@ export function SearchGamesResults({
     libraryExternalIds,
     isLibraryError,
     isLibraryFetching,
-    onRetryLibrary
+    onRetryLibrary,
 }: SearchGamesResultsProps) {
     if (!searchedQuery) {
         return (
@@ -48,12 +48,7 @@ export function SearchGamesResults({
     }
 
     if (isLoading) {
-        return (
-            <LoadingState
-                label="Buscando jogos..."
-                className="mt-8"
-            />
-        );
+        return <LoadingState label="Buscando jogos..." className="mt-8" />;
     }
 
     if (isError) {
@@ -65,11 +60,7 @@ export function SearchGamesResults({
                 description="Tente novamente em alguns instantes."
                 className="mt-8"
                 action={
-                    <Button
-                        isLoading={isFetching}
-                        loadingText="Tentando..."
-                        onClick={onRetry}
-                    >
+                    <Button isLoading={isFetching} loadingText="Tentando..." onClick={onRetry}>
                         Tentar novamente
                     </Button>
                 }
@@ -85,10 +76,8 @@ export function SearchGamesResults({
                 description={
                     <>
                         Não encontramos resultados para{" "}
-                        <span className="font-medium text-ink">
-                            "{searchedQuery}"
-                        </span>
-                        . Tente pesquisar por outro nome.
+                        <span className="font-medium text-ink">"{searchedQuery}"</span>. Tente
+                        pesquisar por outro nome.
                     </>
                 }
                 className="mt-8"
@@ -98,20 +87,16 @@ export function SearchGamesResults({
 
     return (
         <section className="mt-8">
-            <p className="mb-2 text-sm text-ink-mute">
-                Resultados para "{searchedQuery}"
-            </p>
+            <p className="mb-2 text-sm text-ink-mute">Resultados para "{searchedQuery}"</p>
 
             <p className="mb-6 text-xs text-ink-mute">
-                Mostrando até 10 resultados. Tente uma busca mais específica caso não encontre o jogo desejado.
+                Até 20 jogos por página. Você também pode refinar sua pesquisa.
             </p>
 
             {isLibraryError && (
                 <Alert className="mb-6">
                     <div>
-                        <p>
-                            Não foi possível verificar quais jogos já estão na sua biblioteca.
-                        </p>
+                        <p>Não foi possível verificar quais jogos já estão na sua biblioteca.</p>
 
                         <p className="mt-1 text-xs opacity-80">
                             Os resultados da busca continuam disponíveis normalmente.

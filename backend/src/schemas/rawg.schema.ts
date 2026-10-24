@@ -17,6 +17,8 @@ export const rawgGameSchema = z.object({
 });
 
 export const rawgSearchResponseSchema = z.object({
+    next: z.url().nullable(),
+    previous: z.url().nullable(),
     results: z.array(rawgGameSchema),
 });
 

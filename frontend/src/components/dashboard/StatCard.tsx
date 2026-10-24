@@ -27,7 +27,7 @@ export function StatCard({ label, content, color, to, className = "" }: StatCard
             </h2>
 
             <p
-                className="font-display text-[30px] font-bold leading-none text-brand wrap-break-word"
+                className="min-w-0 break-all font-display text-[30px] font-bold leading-none text-brand"
                 style={color ? { color } : undefined}
             >
                 {content}
