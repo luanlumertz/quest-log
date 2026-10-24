@@ -1,3 +1,4 @@
+import { renderEmailTemplate } from "../templates/email.template.js";
 import { sendEmail } from "../integrations/mail.js";
 import { generateVerificationCode, hashVerificationCode } from "../lib/verificationCode.js";
 import {
@@ -16,6 +17,14 @@ export async function sendPasswordRecoveryCode(email: string) {
     try {
         await sendEmail({
             to: recovery.email,
+            html: renderEmailTemplate({
+                category: "RECUPERAÇÃO DE SENHA",
+                title: "Recupere sua senha.",
+                description:
+                    "Digite o código abaixo na tela de verificação. Depois, você poderá escolher uma nova senha para sua conta no QuestLog.",
+                footer: "Se você não fez esta solicitação, ignore este e-mail. Sua senha permanece a mesma.",
+                code,
+            }),
             subject: "Recuperação de senha - QuestLog",
             text: `Seu código para recuperar a senha é ${code}. Ele é válido por 10 minutos. Se você não fez esta solicitação, ignore este e-mail. Sua senha permanece a mesma.`,
         });
@@ -36,6 +45,12 @@ export async function sendPasswordChangedNotification(
     try {
         await sendEmail({
             to: email,
+            html: renderEmailTemplate({
+                category: "SEGURANÇA DA CONTA",
+                title: "Sua senha foi alterada.",
+                description: `A senha da sua conta no QuestLog foi alterada. ${sessionMessage}`,
+                footer: "Se você não fez esta alteração, recupere sua senha e verifique a segurança do seu e-mail.",
+            }),
             subject: "Sua senha foi alterada - QuestLog",
             text: `A senha da sua conta no QuestLog foi alterada. ${sessionMessage} Se você não fez esta alteração, recupere sua senha e verifique a segurança do seu e-mail.`,
         });

@@ -13,7 +13,7 @@
         "typecheck": "tsc --noEmit",
         "typecheck:tests": "tsc --project tests/tsconfig.json",
         "dev": "tsx watch src/server.ts",
-        "build": "tsc",
+        "build": "tsc && node --input-type=module -e \"import { cpSync } from 'node:fs'; cpSync('src/assets', 'dist/assets', { recursive: true });\"",
         "start": "node dist/server.js"
     },
     "keywords": [],

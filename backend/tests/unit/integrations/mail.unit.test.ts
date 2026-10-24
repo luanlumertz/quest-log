@@ -33,7 +33,33 @@ describe("sendEmail", () => {
             port: 1025,
             secure: false,
         });
-        expect(sendMail).toHaveBeenCalledWith({ ...message, from: process.env.SMTP_FROM });
+        expect(sendMail).toHaveBeenCalledWith({
+            ...message,
+            from: process.env.SMTP_FROM,
+            attachments: [],
+        });
+    });
+
+    test("deve enviar a logo como imagem inline referenciada pelo HTML", async () => {
+        await sendEmail({
+            to: "teste@email.com",
+            subject: "Teste",
+            text: "Código: 123456",
+            html: '<img src="cid:questlog-logo" />',
+        });
+
+        expect(sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                attachments: [
+                    expect.objectContaining({
+                        cid: "questlog-logo",
+                        contentDisposition: "inline",
+                        contentType: "image/png",
+                        path: expect.stringContaining("questlog-logo.png"),
+                    }),
+                ],
+            }),
+        );
     });
 
     test.each(["SMTP_HOST", "SMTP_PORT", "SMTP_FROM"])(

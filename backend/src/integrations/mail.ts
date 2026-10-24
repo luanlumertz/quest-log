@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import nodemailer from "nodemailer";
 
 type SendEmailOptions = {
@@ -28,5 +29,16 @@ export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
         subject,
         text,
         html,
+        attachments: html?.includes("cid:questlog-logo")
+            ? [
+                  {
+                      filename: "questlog-logo.png",
+                      path: fileURLToPath(new URL("../assets/questlog-logo.png", import.meta.url)),
+                      cid: "questlog-logo",
+                      contentDisposition: "inline",
+                      contentType: "image/png",
+                  },
+              ]
+            : [],
     });
 }
