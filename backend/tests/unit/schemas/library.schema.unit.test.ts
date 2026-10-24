@@ -81,12 +81,6 @@ describe("library.schema.ts", () => {
                 message: "Status inválido",
             },
             {
-                scenario: "lista de plataformas vazia",
-                override: { platforms: [] },
-                field: "platforms",
-                message: "Informe pelo menos uma plataforma",
-            },
-            {
                 scenario: "plataforma contendo apenas espaços",
                 override: { platforms: ["   "] },
                 field: "platforms",
@@ -125,20 +119,28 @@ describe("library.schema.ts", () => {
             );
         });
 
-        test.each(["externalId", "platforms"] as const)(
-            "deve rejeitar adição de jogo sem o campo %s",
-            (field) => {
-                const payload: Partial<typeof validPayload> = { ...validPayload };
+        test("deve rejeitar adição de jogo sem o externalId", () => {
+            const payload = { status: "WANT_TO_PLAY", platforms: ["PC"] };
 
-                delete payload[field];
+            const result = addGameToLibrarySchema.safeParse(payload);
 
-                const result = addGameToLibrarySchema.safeParse(payload);
+            assert.isFalse(result.success);
 
-                assert.isFalse(result.success);
+            assert.isTrue(result.error.issues.some((issue) => issue.path[0] === "externalId"));
+        });
 
-                assert.isTrue(result.error.issues.some((issue) => issue.path[0] === field));
-            },
-        );
+        test.each([
+            { scenario: "plataformas omitidas", payload: { externalId: 123 } },
+            { scenario: "lista de plataformas vazia", payload: { externalId: 123, platforms: [] } },
+        ])("deve aceitar $scenario", ({ payload }) => {
+            const result = addGameToLibrarySchema.parse(payload);
+
+            assert.deepEqual(result, {
+                externalId: 123,
+                status: "WANT_TO_PLAY",
+                platforms: [],
+            });
+        });
     });
 
     describe("gameIdParamsSchema", () => {
@@ -347,11 +349,6 @@ describe("library.schema.ts", () => {
 
         test.each([
             {
-                scenario: "lista de plataformas vazia",
-                payload: { platforms: [] },
-                message: "Informe pelo menos uma plataforma",
-            },
-            {
                 scenario: "plataformas duplicadas",
                 payload: { platforms: [1, 1] },
                 message: "As plataformas não podem se repetir",
@@ -389,6 +386,10 @@ describe("library.schema.ts", () => {
         });
 
         test.each([
+            {
+                scenario: "lista de plataformas vazia",
+                payload: { platforms: [] },
+            },
             {
                 scenario: "múltiplas plataformas válidas",
                 payload: { platforms: [1, 2, 3] },

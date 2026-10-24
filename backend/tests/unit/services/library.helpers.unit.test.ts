@@ -1,10 +1,9 @@
-import { afterEach, assert, describe, test, vi } from "vitest";
+import { assert, describe, test } from "vitest";
 import { Prisma } from "@prisma/client";
 
 import {
-    applyLibraryEntryStatusRules,
     formatLibraryEntry,
-    getInitialDates,
+    normalizeLibraryEntryDates,
     normalizeDate,
     validateLibraryEntryDates,
 } from "../../../src/services/library.helpers.js";
@@ -17,200 +16,33 @@ import {
 } from "../../factories/libraryEntry.factory.js";
 
 describe("library.helpers.ts", () => {
-    describe("applyLibraryEntryStatusRules", () => {
-        test("não deve permitir status PLAYING com startedAt explicitamente null", () => {
-            const currentEntry = createCurrentLibraryEntry();
-
-            const data = {
-                status: "PLAYING" as const,
-                startedAt: null,
-            };
-
-            const error = captureError(
-                () => applyLibraryEntryStatusRules(currentEntry, data),
-                AppError,
-            );
-
-            assert.equal(error.statusCode, 400);
-            assert.equal(
-                error.message,
-                "Um jogo com status PLAYING deve possuir uma data de início",
-            );
-        });
-
-        test("não deve permitir status PLAYING com completedAt informado", () => {
-            const currentEntry = createCurrentLibraryEntry();
-
-            const data = {
-                status: "PLAYING" as const,
-                completedAt: new Date("2026-01-10T12:00:00.000Z"),
-            };
-
-            const error = captureError(
-                () => applyLibraryEntryStatusRules(currentEntry, data),
-                AppError,
-            );
-
-            assert.equal(error.statusCode, 400);
-            assert.equal(
-                error.message,
-                "Um jogo com status PLAYING não pode possuir data de conclusão",
-            );
-        });
-
-        test("não deve permitir status COMPLETED com completedAt explicitamente null", () => {
-            const currentEntry = createCurrentLibraryEntry();
-
-            const data = {
-                status: "COMPLETED" as const,
-                completedAt: null,
-            };
-
-            const error = captureError(
-                () => applyLibraryEntryStatusRules(currentEntry, data),
-                AppError,
-            );
-
-            assert.equal(error.statusCode, 400);
-            assert.equal(
-                error.message,
-                "Um jogo com status COMPLETED deve possuir uma data de conclusão",
-            );
-        });
-
-        test("não deve permitir status WANT_TO_PLAY com startedAt informado", () => {
-            const currentEntry = createCurrentLibraryEntry();
-
-            const data = {
-                status: "WANT_TO_PLAY" as const,
-                startedAt: new Date("2026-01-10T12:00:00.000Z"),
-            };
-
-            const error = captureError(
-                () => applyLibraryEntryStatusRules(currentEntry, data),
-                AppError,
-            );
-
-            assert.equal(error.statusCode, 400);
-            assert.equal(
-                error.message,
-                "Um jogo com status WANT_TO_PLAY não pode possuir data de início",
-            );
-        });
-
-        test("não deve permitir status WANT_TO_PLAY com completedAt informado", () => {
-            const currentEntry = createCurrentLibraryEntry();
-
-            const data = {
-                status: "WANT_TO_PLAY" as const,
-                completedAt: new Date("2026-02-10T12:00:00.000Z"),
-            };
-
-            const error = captureError(
-                () => applyLibraryEntryStatusRules(currentEntry, data),
-                AppError,
-            );
-
-            assert.equal(error.statusCode, 400);
-            assert.equal(
-                error.message,
-                "Um jogo com status WANT_TO_PLAY não pode possuir data de conclusão",
-            );
-        });
-
-        test("não deve permitir status ABANDONED com completedAt informado", () => {
-            const currentEntry = createCurrentLibraryEntry();
-
-            const data = {
-                status: "ABANDONED" as const,
-                completedAt: new Date("2026-02-10T12:00:00.000Z"),
-            };
-
-            const error = captureError(
-                () => applyLibraryEntryStatusRules(currentEntry, data),
-                AppError,
-            );
-
-            assert.equal(error.statusCode, 400);
-            assert.equal(
-                error.message,
-                "Um jogo com status ABANDONED não pode possuir data de conclusão",
-            );
-        });
-
-        test("deve normalizar startedAt sem modificar os dados originais", () => {
-            const currentEntry = createCurrentLibraryEntry({
-                status: "PLAYING",
-                startedAt: new Date("2026-01-01T12:00:00.000Z"),
-            });
-
+    describe("normalizeLibraryEntryDates", () => {
+        test("deve normalizar as datas sem modificar os dados originais", () => {
             const data = {
                 startedAt: new Date("2026-01-10T12:00:00.000Z"),
-            };
-
-            const result = applyLibraryEntryStatusRules(currentEntry, data);
-
-            assert.equal(result.startedAt?.toISOString(), "2026-01-10T00:00:00.000Z");
-            assert.equal(data.startedAt.toISOString(), "2026-01-10T12:00:00.000Z");
-            assert.notStrictEqual(result, data);
-        });
-
-        test("deve normalizar completedAt sem modificar os dados originais", () => {
-            const currentEntry = createCurrentLibraryEntry({
-                status: "COMPLETED",
-                startedAt: new Date("2026-01-01T12:00:00.000Z"),
-                completedAt: new Date("2026-01-10T12:00:00.000Z"),
-            });
-
-            const data = {
                 completedAt: new Date("2026-02-10T18:30:00.000Z"),
             };
 
-            const result = applyLibraryEntryStatusRules(currentEntry, data);
+            const result = normalizeLibraryEntryDates(data);
 
+            assert.equal(result.startedAt?.toISOString(), "2026-01-10T00:00:00.000Z");
             assert.equal(result.completedAt?.toISOString(), "2026-02-10T00:00:00.000Z");
+
+            assert.equal(data.startedAt.toISOString(), "2026-01-10T12:00:00.000Z");
             assert.equal(data.completedAt.toISOString(), "2026-02-10T18:30:00.000Z");
             assert.notStrictEqual(result, data);
         });
-    });
 
-    describe("getInitialDates", () => {
-        afterEach(() => {
-            vi.useRealTimers();
-        });
+        test("deve preservar datas nulas e não preencher campos omitidos", () => {
+            const data = {
+                status: "COMPLETED" as const,
+                startedAt: null,
+            };
 
-        test("deve retornar datas nulas para status WANT_TO_PLAY", () => {
-            const result = getInitialDates("WANT_TO_PLAY");
+            const result = normalizeLibraryEntryDates(data);
 
-            assert.isNull(result.startedAt);
-            assert.isNull(result.completedAt);
-        });
-
-        test("deve definir startedAt para a data atual ao iniciar um jogo como PLAYING", () => {
-            vi.useFakeTimers();
-            vi.setSystemTime(new Date("2026-01-10T15:30:00.000Z"));
-
-            const result = getInitialDates("PLAYING");
-
-            assert.equal(result.startedAt?.toISOString(), "2026-01-10T00:00:00.000Z");
-            assert.isNull(result.completedAt);
-        });
-
-        test("deve definir completedAt para a data atual ao adicionar um jogo como COMPLETED", () => {
-            vi.useFakeTimers();
-            vi.setSystemTime(new Date("2026-01-10T15:30:00.000Z"));
-
-            const result = getInitialDates("COMPLETED");
-
-            assert.equal(result.completedAt?.toISOString(), "2026-01-10T00:00:00.000Z");
-            assert.isNull(result.startedAt);
-        });
-
-        test("deve retornar datas nulas para status ABANDONED", () => {
-            const result = getInitialDates("ABANDONED");
-
-            assert.isNull(result.startedAt);
-            assert.isNull(result.completedAt);
+            assert.deepEqual(result, data);
+            assert.notProperty(result, "completedAt");
         });
     });
 

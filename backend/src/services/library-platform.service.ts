@@ -22,7 +22,7 @@ export async function validateSelectedPlatforms(gameId: number, selectedPlatform
 
 export async function validateLibraryEntryPlatformIds(gameId: number, platformIds: number[]) {
     if (platformIds.length === 0) {
-        throw new AppError("Informe pelo menos uma plataforma", 400);
+        return;
     }
 
     const uniquePlatforms = new Set(platformIds);

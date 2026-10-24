@@ -1,8 +1,7 @@
-import type { GameStatus } from "@prisma/client";
 import type { LibraryEntryData, UpdateLibraryEntryData } from "../types/library.types.js";
 import { AppError } from "../errors/AppError.js";
 
-type CurrentLibraryEntry = Pick<LibraryEntryData, "status" | "startedAt" | "completedAt">;
+type CurrentLibraryEntry = Pick<LibraryEntryData, "startedAt" | "completedAt">;
 
 export function normalizeDate(date: Date) {
     const normalizedDate = new Date(date);
@@ -10,28 +9,6 @@ export function normalizeDate(date: Date) {
     normalizedDate.setUTCHours(0, 0, 0, 0);
 
     return normalizedDate;
-}
-
-export function getInitialDates(status: GameStatus) {
-    switch (status) {
-        case "PLAYING":
-            return {
-                startedAt: normalizeDate(new Date()),
-                completedAt: null,
-            };
-
-        case "COMPLETED":
-            return {
-                startedAt: null,
-                completedAt: normalizeDate(new Date()),
-            };
-
-        default:
-            return {
-                startedAt: null,
-                completedAt: null,
-            };
-    }
 }
 
 export function formatLibraryEntry(entry: LibraryEntryData) {
@@ -47,10 +24,7 @@ export function formatLibraryEntry(entry: LibraryEntryData) {
     };
 }
 
-export function applyLibraryEntryStatusRules(
-    currentEntry: CurrentLibraryEntry,
-    data: UpdateLibraryEntryData,
-): UpdateLibraryEntryData {
+export function normalizeLibraryEntryDates(data: UpdateLibraryEntryData): UpdateLibraryEntryData {
     const updatedData: UpdateLibraryEntryData = { ...data };
 
     if (updatedData.startedAt instanceof Date) {
@@ -59,80 +33,6 @@ export function applyLibraryEntryStatusRules(
 
     if (updatedData.completedAt instanceof Date) {
         updatedData.completedAt = normalizeDate(updatedData.completedAt);
-    }
-
-    const finalStatus = updatedData.status ?? currentEntry.status;
-
-    switch (finalStatus) {
-        case "WANT_TO_PLAY":
-            if (updatedData.startedAt !== undefined && updatedData.startedAt !== null) {
-                throw new AppError(
-                    "Um jogo com status WANT_TO_PLAY não pode possuir data de início",
-                    400,
-                );
-            }
-
-            if (updatedData.completedAt !== undefined && updatedData.completedAt !== null) {
-                throw new AppError(
-                    "Um jogo com status WANT_TO_PLAY não pode possuir data de conclusão",
-                    400,
-                );
-            }
-
-            updatedData.rating = null;
-            updatedData.startedAt = null;
-            updatedData.completedAt = null;
-
-            break;
-
-        case "PLAYING":
-            if (updatedData.startedAt === null) {
-                throw new AppError(
-                    "Um jogo com status PLAYING deve possuir uma data de início",
-                    400,
-                );
-            }
-
-            if (updatedData.completedAt !== undefined && updatedData.completedAt !== null) {
-                throw new AppError(
-                    "Um jogo com status PLAYING não pode possuir data de conclusão",
-                    400,
-                );
-            }
-
-            if (currentEntry.startedAt === null && updatedData.startedAt === undefined) {
-                updatedData.startedAt = normalizeDate(new Date());
-            }
-
-            updatedData.completedAt = null;
-
-            break;
-
-        case "COMPLETED":
-            if (updatedData.completedAt === null) {
-                throw new AppError(
-                    "Um jogo com status COMPLETED deve possuir uma data de conclusão",
-                    400,
-                );
-            }
-
-            if (currentEntry.completedAt === null && updatedData.completedAt === undefined) {
-                updatedData.completedAt = normalizeDate(new Date());
-            }
-
-            break;
-
-        case "ABANDONED":
-            if (updatedData.completedAt !== undefined && updatedData.completedAt !== null) {
-                throw new AppError(
-                    "Um jogo com status ABANDONED não pode possuir data de conclusão",
-                    400,
-                );
-            }
-
-            updatedData.completedAt = null;
-
-            break;
     }
 
     return updatedData;
@@ -150,7 +50,6 @@ export function validateLibraryEntryDates(
     const today = normalizeDate(new Date());
 
     const startedDay = finalStartedAt !== null ? normalizeDate(finalStartedAt) : null;
-
     const completedDay = finalCompletedAt !== null ? normalizeDate(finalCompletedAt) : null;
 
     if (startedDay !== null && startedDay > today) {
