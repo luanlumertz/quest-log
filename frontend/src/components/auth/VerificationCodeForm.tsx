@@ -93,8 +93,14 @@ export function VerificationCodeForm({
                         error={errors.code?.message}
                     />
                     <p className="text-sm leading-relaxed text-ink-dim">
-                        O código vale por 10 minutos. Se não encontrar o e-mail, confira a pasta de
-                        spam.
+                        O código vale por 10 minutos.
+                    </p>
+                    <p className="rounded-xl border border-brand/25 bg-brand/10 px-4 py-3 text-sm leading-relaxed text-ink-dim">
+                        Não encontrou o e-mail? Confira também a{" "}
+                        <strong className="font-semibold text-ink">
+                            pasta de spam ou lixo eletrônico
+                        </strong>
+                        .
                     </p>
                 </fieldset>
 

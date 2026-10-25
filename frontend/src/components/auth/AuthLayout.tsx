@@ -15,6 +15,7 @@ export function AuthLayout({ children, mobileNavigation }: AuthLayoutProps) {
                     relative hidden min-h-dvh overflow-hidden
                     bg-[url('/images/auth-bg.jpg')]
                     bg-cover bg-center
+                    lg:sticky lg:top-0 lg:h-dvh lg:self-start
                     lg:flex lg:flex-col lg:justify-end
                     px-12 py-16
                 "
