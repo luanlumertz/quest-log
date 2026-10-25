@@ -5,8 +5,11 @@ import cors from "cors";
 import { routes } from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.middleware.js";
+import { getTrustProxyHops } from "./lib/trustProxy.js";
 
 const app = express();
+
+app.set("trust proxy", getTrustProxyHops());
 
 app.use(helmet());
 app.use(

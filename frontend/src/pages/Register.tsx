@@ -83,7 +83,7 @@ export function Register() {
                     <AuthInput
                         label="Nome de exibição"
                         type="text"
-                        placeholder="Pedro ou PedroPlayer"
+                        placeholder="Seu nome de exibição"
                         autoComplete="nickname"
                         registration={register("name")}
                         error={errors.name?.message}
