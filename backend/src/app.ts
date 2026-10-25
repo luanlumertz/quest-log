@@ -11,6 +11,22 @@ const app = express();
 
 app.set("trust proxy", getTrustProxyHops());
 
+// Diagnóstico temporário: remover após conferir os proxies no Render.
+if (process.env.PROXY_DIAGNOSTICS === "true") {
+    app.use((req, _res, next) => {
+        console.log("[proxy-diagnostics]", {
+            remoteAddress: req.socket.remoteAddress,
+            forwardedFor: req.headers["x-forwarded-for"],
+            ip: req.ip,
+            ips: req.ips,
+            trustProxyHops: app.get("trust proxy"),
+        });
+
+        next();
+    });
+}
+// Remover bloco acima
+
 app.use(helmet());
 app.use(
     cors({
