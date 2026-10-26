@@ -10,6 +10,7 @@
     "author": "Luan Lumertz",
     "license": "MIT",
     "devDependencies": {
+        "@playwright/test": "^1.64.1",
         "husky": "^9.1.7",
         "lint-staged": "^17.6.0",
         "prettier": "^3.9.9"
