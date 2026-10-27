@@ -27,7 +27,6 @@ test("deve cadastrar e autenticar usuário após confirmar o e-mail", async ({
     await page.getByRole("button", { name: "Cadastrar" }).click();
 
     await expect(page).toHaveURL(/\/register\/verify$/);
-
     await expect(page.getByRole("heading", { name: "Confira seu e-mail" })).toBeVisible();
 
     // Aguarda o e-mail de verificação chegar ao Mailpit.
@@ -48,37 +47,50 @@ test("deve cadastrar e autenticar usuário após confirmar o e-mail", async ({
 
                 return code;
             },
-            {
-                timeout: 20_000,
-            },
+            { timeout: 20_000 },
         )
         .toMatch(/^\d{6}$/);
 
-    await page
-        .getByRole("textbox", {
-            name: "Código de verificação",
-        })
-        .fill(code);
+    await page.getByRole("textbox", { name: "Código de verificação" }).fill(code);
 
-    await page
-        .getByRole("button", {
-            name: "Confirmar e criar conta",
-        })
-        .click();
+    await page.getByRole("button", { name: "Confirmar e criar conta" }).click();
 
     await expect(page).toHaveURL(/\/login$/);
 
     // Confirma que o usuário criado consegue entrar.
     await page.getByRole("textbox", { name: "Email" }).fill(email);
     await page.getByLabel("Senha", { exact: true }).fill(password);
-
     await page.getByRole("button", { name: "Entrar" }).click();
 
     await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page.getByRole("heading", { name: "Bem-vindo de volta, Jogador" })).toBeVisible();
+});
 
-    await expect(
-        page.getByRole("heading", {
-            name: "Bem-vindo de volta, Jogador",
-        }),
-    ).toBeVisible();
+test("deve encerrar a sessão e impedir acesso ao dashboard após sair", async ({
+    page,
+    authenticatedUser: _authenticatedUser,
+}) => {
+    await page.goto("/profile");
+
+    await expect(page.getByRole("heading", { name: "Meu Perfil", exact: true })).toBeVisible();
+
+    // Confirma que a sessão funciona também após recarregar.
+    await page.reload();
+
+    await expect(page.getByRole("heading", { name: "Meu Perfil", exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "Sair", exact: true }).click();
+
+    await expect(page).toHaveURL(/\/login$/);
+
+    // Tenta acessar diretamente uma rota protegida após o logout.
+    await page.goto("/dashboard");
+
+    await expect(page).toHaveURL(/\/login$/);
+
+    // Confirma que o bloqueio permanece sem o estado em memória.
+    await page.reload();
+
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByRole("heading", { name: "Bem-vindo!", exact: true })).toBeVisible();
 });
