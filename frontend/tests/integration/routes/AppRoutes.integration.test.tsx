@@ -19,12 +19,7 @@ import { server } from "../../mocks/server.mock";
 function LocalizacaoDeTeste() {
     const { pathname, search } = useLocation();
 
-    return (
-        <output data-testid="rota-atual">
-            {" "}
-            {pathname} {search}{" "}
-        </output>
-    );
+    return <output data-testid="rota-atual">{pathname + search}</output>;
 }
 
 function renderAppRoutes(path: string, authenticated = false) {
