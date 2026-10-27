@@ -27,6 +27,9 @@ const passwordSchema = z
     .string()
     .min(8, { error: "Senha deve ter pelo menos 8 caracteres" })
     .max(70, { error: "Senha muito grande. Máximo: 70 caracteres" })
+    .refine((password) => new TextEncoder().encode(password).length <= 72, {
+        error: "Senha muito grande. Use menos caracteres; acentos e emojis ocupam mais espaço.",
+    })
     .refine((password) => password.trim().length > 0, {
         error: "A senha não pode conter apenas espaços",
     });

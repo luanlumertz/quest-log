@@ -365,6 +365,75 @@ describe("auth.schema.ts", () => {
     });
 });
 
+describe("limite de bytes da nova senha", () => {
+    const schemas = [
+        {
+            name: "cadastro",
+            schema: registerSchema,
+            payload: { name: "Jogador", email: "teste@email.com" },
+        },
+        { name: "redefinição", schema: resetPasswordSchema, payload: {} },
+        {
+            name: "alteração",
+            schema: changePasswordSchema,
+            payload: { currentPassword: "senha antiga123" },
+        },
+    ];
+
+    test.each(schemas)(
+        "deve aceitar exatamente 72 bytes no fluxo de $name",
+        ({ schema, payload }) => {
+            for (const password of ["é".repeat(36), "🎮".repeat(18)]) {
+                const result = schema.safeParse({
+                    ...payload,
+                    password,
+                    confirmPassword: password,
+                });
+
+                assert.isTrue(result.success);
+                assert.equal(result.data.password, password);
+            }
+        },
+    );
+
+    test.each(schemas)(
+        "deve rejeitar mais de 72 bytes no fluxo de $name",
+        ({ schema, payload }) => {
+            for (const password of ["é".repeat(36) + "a", "🎮".repeat(19)]) {
+                const result = schema.safeParse({
+                    ...payload,
+                    password,
+                    confirmPassword: password,
+                });
+
+                assert.isFalse(result.success);
+                assert.isTrue(
+                    result.error.issues.some(
+                        (issue) =>
+                            issue.path[0] === "password" &&
+                            issue.message ===
+                                "Senha muito grande. Use menos caracteres; acentos e emojis ocupam mais espaço.",
+                    ),
+                );
+            }
+        },
+    );
+
+    test("deve manter a senha antiga com mais de 72 bytes no login e na confirmação da senha atual", () => {
+        const password = "é".repeat(40);
+
+        assert.equal(loginSchema.parse({ email: "teste@email.com", password }).password, password);
+        assert.equal(
+            changePasswordSchema.parse({
+                currentPassword: password,
+                password: "nova senha123",
+                confirmPassword: "nova senha123",
+            }).currentPassword,
+            password,
+        );
+    });
+});
+
 describe("nome de exibição", () => {
     test.each(["Pedro_99", "xXPedroFodaXx", "_a_", "123", "João D’Ávila", "Ana-Maria"])(
         "deve aceitar e preservar %s no cadastro e na edição",
