@@ -62,6 +62,7 @@ async function tryRefreshSession(): Promise<RefreshResult> {
         refreshPromise = fetchWithNetworkHandling(`${API_URL}/auth/refresh`, {
             method: "POST",
             credentials: "include",
+            headers: createRequestHeaders({ method: "POST" }),
         })
             .then((response) => {
                 if (response.ok) {
@@ -106,6 +107,10 @@ async function createApiError(response: Response): Promise<ApiError> {
 
 function createRequestHeaders(options: RequestInit) {
     const headers = new Headers(options.headers);
+
+    if (!["GET", "HEAD", "OPTIONS"].includes((options.method ?? "GET").toUpperCase())) {
+        headers.set("X-QuestLog-Request", "true");
+    }
 
     const hasJsonBody = typeof options.body === "string";
 

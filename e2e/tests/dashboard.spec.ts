@@ -1,5 +1,5 @@
 import { test, expect } from "../fixtures/test.fixture";
-import { API_URL } from "../helpers/env.helper";
+import { API_URL, API_REQUEST_HEADERS } from "../helpers/env.helper";
 
 test("deve atualizar o dashboard após editar um jogo na biblioteca", async ({
     page,
@@ -8,6 +8,7 @@ test("deve atualizar o dashboard após editar um jogo na biblioteca", async ({
 }) => {
     // Prepara um jogo na biblioteca usando a API real.
     const response = await page.context().request.post(`${API_URL}/library`, {
+        headers: API_REQUEST_HEADERS,
         data: {
             externalId: catalogGame.externalId,
             status: "WANT_TO_PLAY",

@@ -21,6 +21,7 @@ export default defineConfig({
             {
                 test: {
                     name: "integration",
+                    env: { FRONTEND_URL: process.env.FRONTEND_URL ?? "http://localhost:5173" },
                     include: ["tests/integration/**/*.test.ts"],
                     setupFiles: [
                         "./tests/mocks/rawg.mock.ts",
