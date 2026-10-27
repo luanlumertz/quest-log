@@ -1,6 +1,6 @@
 import { assert, describe, test } from "vitest";
 
-import { formatPlayTime } from "../../../src/utils/formatPlayTime";
+import { formatPlayTime, formatPlayTimeHours } from "../../../src/utils/formatPlayTime";
 
 describe("formatPlayTime", () => {
     test.each([
@@ -40,13 +40,29 @@ describe("formatPlayTime", () => {
             expected: "230,5 h",
         },
         {
-            scenario: "milhares de horas sem separador de agrupamento",
+            scenario: "milhares de horas com separador de agrupamento",
             entry: 138300,
-            expected: "2305 h",
+            expected: "2.305 h",
+        },
+        {
+            scenario: "milhares de horas com uma casa decimal",
+            entry: 74070,
+            expected: "1.234,5 h",
+        },
+        {
+            scenario: "milhões de horas",
+            entry: 60000000,
+            expected: "1.000.000 h",
         },
     ])("deve formatar corretamente $scenario", ({ entry, expected }) => {
         const result = formatPlayTime(entry);
 
         assert.equal(result, expected);
+    });
+
+    test("deve manter as horas sem agrupamento para o campo de edição", () => {
+        const result = formatPlayTimeHours(74070);
+
+        assert.equal(result, "1234,5");
     });
 });
