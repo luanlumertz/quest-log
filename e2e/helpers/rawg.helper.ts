@@ -2,7 +2,10 @@ import type { Page } from "@playwright/test";
 import { E2E_GAME } from "../fixtures/game.fixture";
 import { API_URL } from "./env.helper";
 
-export async function mockGameCatalog(page: Page) {
+export async function mockGameCatalog(
+    page: Page,
+    { games = [E2E_GAME], pageSize = 20 }: { games?: (typeof E2E_GAME)[]; pageSize?: number } = {},
+) {
     const apiOrigin = new URL(API_URL).origin;
 
     await page.route(
@@ -20,28 +23,31 @@ export async function mockGameCatalog(page: Page) {
             if (url.pathname === "/games/search") {
                 const query = (url.searchParams.get("query") ?? "").trim().toLowerCase();
                 const pageNumber = Number(url.searchParams.get("page") ?? 1);
-                const matches = E2E_GAME.title.toLowerCase().includes(query);
-                const game = {
-                    externalId: E2E_GAME.externalId,
-                    title: E2E_GAME.title,
-                    coverUrl: E2E_GAME.coverUrl,
-                    releaseDate: E2E_GAME.releaseDate,
-                    platforms: E2E_GAME.platforms,
-                };
+                const matches = games.filter((game) => game.title.toLowerCase().includes(query));
+                const start = (pageNumber - 1) * pageSize;
+                const results = matches.slice(start, start + pageSize).map((game) => ({
+                    externalId: game.externalId,
+                    title: game.title,
+                    coverUrl: game.coverUrl,
+                    releaseDate: game.releaseDate,
+                    platforms: game.platforms,
+                }));
 
                 await route.fulfill({
                     json: {
-                        games: matches && pageNumber === 1 ? [game] : [],
+                        games: results,
                         page: pageNumber,
                         hasPrevious: pageNumber > 1,
-                        hasNext: false,
+                        hasNext: start + pageSize < matches.length,
                     },
                 });
                 return;
             }
 
-            if (url.pathname === `/games/${E2E_GAME.externalId}`) {
-                await route.fulfill({ json: E2E_GAME });
+            const game = games.find((game) => url.pathname === `/games/${game.externalId}`);
+
+            if (game) {
+                await route.fulfill({ json: game });
                 return;
             }
 
