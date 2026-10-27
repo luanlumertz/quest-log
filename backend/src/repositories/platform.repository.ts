@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import type { Prisma } from "../generated/prisma/client.js";
 
 export function findPlatformByName(namePlatform: string) {
     return prisma.platform.findUnique({
@@ -8,11 +9,15 @@ export function findPlatformByName(namePlatform: string) {
     });
 }
 
-export function createPlatform(namePlatform: string) {
-    return prisma.platform.create({
-        data: {
-            name: namePlatform,
-        },
+export async function getOrCreatePlatforms(names: string[], tx: Prisma.TransactionClient) {
+    await tx.platform.createMany({
+        data: names.map((name) => ({ name })),
+        skipDuplicates: true,
+    });
+
+    return tx.platform.findMany({
+        where: { name: { in: names } },
+        select: { id: true },
     });
 }
 

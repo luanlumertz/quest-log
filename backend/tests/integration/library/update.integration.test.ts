@@ -2,7 +2,7 @@ import { assert, describe, test } from "vitest";
 
 import type { GameStatus } from "../../../src/generated/prisma/client.js";
 import { findLibraryEntryByUserAndGameId } from "../../../src/repositories/library.repository.js";
-import { createPlatform } from "../../../src/repositories/platform.repository.js";
+import { prisma } from "../../../src/lib/prisma.js";
 
 import type { UpdatedLibraryEntryResponse } from "../../types/library.types.js";
 import { findGamePlatformsByGameId } from "../../helpers/database/game.helper.js";
@@ -584,7 +584,7 @@ describe("PATCH /library/:gameId", () => {
         assert.ok(pc);
         assert.ok(playStation);
 
-        const xbox = await createPlatform("Xbox");
+        const xbox = await prisma.platform.create({ data: { name: "Xbox" } });
 
         const response = await updateLibraryEntry(agent, game.id, { platforms: [xbox.id] });
 

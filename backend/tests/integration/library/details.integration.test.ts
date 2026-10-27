@@ -1,6 +1,6 @@
 import { assert, describe, test } from "vitest";
 
-import { createGame } from "../../../src/repositories/game.repository.js";
+import { prisma } from "../../../src/lib/prisma.js";
 
 import { createAuthenticatedAgent, createRegisteredUser } from "../../fixtures/auth.fixture.js";
 import { createLibraryDataForUser } from "../../fixtures/library.fixture.js";
@@ -51,11 +51,13 @@ describe("GET /library/:gameId", () => {
     test("deve retornar 404 quando o jogo não pertence à biblioteca do usuário", async () => {
         const { agent } = await createAuthenticatedAgent();
 
-        const game = await createGame({
-            externalId: 123,
-            title: "Test Game",
-            coverUrl: null,
-            releaseDate: null,
+        const game = await prisma.game.create({
+            data: {
+                externalId: 123,
+                title: "Test Game",
+                coverUrl: null,
+                releaseDate: null,
+            },
         });
 
         const response = await getLibraryDetails(agent, game.id);
