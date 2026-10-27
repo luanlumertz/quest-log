@@ -82,7 +82,10 @@ test("deve trocar a senha, manter a sessão atual e encerrar as outras", async (
 
         await page.getByRole("button", { name: "Salvar nova senha", exact: true }).click();
 
-        await expect(page.getByText("Senha alterada com sucesso!", { exact: true })).toBeVisible();
+        // O alerta recolhido continua no DOM; o role respeita seu aria-hidden.
+        await expect(
+            page.getByRole("status").filter({ hasText: "Senha alterada com sucesso!" }),
+        ).toBeVisible();
 
         // A sessão atual continua válida após recarregar.
         await page.reload();
