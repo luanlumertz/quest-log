@@ -31,5 +31,10 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Pacotes
+# Temporário
 *.zip
+docs/
+
+# Playwright
+test-results/
+playwright-report/

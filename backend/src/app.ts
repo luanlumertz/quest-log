@@ -5,8 +5,27 @@ import cors from "cors";
 import { routes } from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.middleware.js";
+import { getTrustProxyHops } from "./lib/trustProxy.js";
 
 const app = express();
+
+app.set("trust proxy", getTrustProxyHops());
+
+// Diagnóstico temporário: remover após conferir os proxies no Render.
+if (process.env.PROXY_DIAGNOSTICS === "true") {
+    app.use((req, _res, next) => {
+        console.log("[proxy-diagnostics]", {
+            remoteAddress: req.socket.remoteAddress,
+            forwardedFor: req.headers["x-forwarded-for"],
+            ip: req.ip,
+            ips: req.ips,
+            trustProxyHops: app.get("trust proxy"),
+        });
+
+        next();
+    });
+}
+// Remover bloco acima
 
 app.use(helmet());
 app.use(

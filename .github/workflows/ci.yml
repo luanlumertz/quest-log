@@ -151,3 +151,109 @@ jobs:
                   path: frontend/coverage/
                   if-no-files-found: ignore
                   retention-days: 7
+
+    e2e:
+        name: E2E
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+
+        services:
+            postgres:
+                image: postgres:18
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: quest_log_e2e
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U postgres -d quest_log_e2e"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 10
+
+            mailpit:
+                image: axllent/mailpit:v1.29.4
+                ports:
+                    - 1025:1025
+                    - 8025:8025
+                options: >-
+                    --health-cmd "/mailpit readyz"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 10
+
+        env:
+            NODE_ENV: test
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quest_log_e2e
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+
+            - name: Configurar Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: npm
+                  cache-dependency-path: |
+                      package-lock.json
+                      backend/package-lock.json
+                      frontend/package-lock.json
+
+            - name: Instalar dependências da raiz
+              run: npm ci --ignore-scripts
+
+            - name: Instalar dependências do backend
+              run: npm ci --prefix backend
+
+            - name: Instalar dependências do frontend
+              run: npm ci --prefix frontend
+
+            - name: Preparar ambiente E2E
+              run: |
+                  cat > backend/.env.e2e <<EOF
+                  DATABASE_URL=${DATABASE_URL}
+                  NODE_ENV=${NODE_ENV}
+                  PORT_LOCAL=3000
+                  FRONTEND_URL=http://localhost:5173
+                  JWT_SECRET=chave_secreta_exclusiva_para_e2e_na_ci
+                  RAWG_API_KEY=chave_ficticia_para_e2e
+                  EMAIL_PROVIDER=smtp
+                  SMTP_HOST=127.0.0.1
+                  SMTP_PORT=1025
+                  SMTP_FROM="QuestLog E2E <noreply@questlog.test>"
+                  EOF
+
+                  cat > frontend/.env.e2e <<EOF
+                  VITE_API_URL=http://localhost:3000
+                  EOF
+
+            - name: Gerar Prisma Client
+              working-directory: backend
+              run: npx prisma generate
+
+            - name: Typecheck dos E2E
+              working-directory: backend
+              run: npx tsc --project ../e2e/tsconfig.json --noEmit
+
+            - name: Aplicar migrations no banco E2E
+              working-directory: backend
+              run: npx prisma migrate deploy
+
+            - name: Instalar Chromium e dependências do sistema
+              run: npx playwright install --with-deps chromium
+
+            - name: Executar E2E
+              run: npx playwright test
+
+            - name: Publicar relatório e resultados dos E2E
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: e2e-report
+                  path: |
+                      playwright-report/
+                      test-results/
+                  if-no-files-found: ignore
+                  retention-days: 7

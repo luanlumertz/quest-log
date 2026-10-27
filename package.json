@@ -10,6 +10,9 @@
     "author": "Luan Lumertz",
     "license": "MIT",
     "devDependencies": {
+        "@playwright/test": "^1.64.1",
+        "@prisma/adapter-pg": "7.10.1",
+        "@types/node": "^26.6.5",
         "husky": "^9.1.7",
         "lint-staged": "^17.6.0",
         "prettier": "^3.9.9"
@@ -22,6 +25,12 @@
         "backend/**/*.ts": [
             "prettier --write",
             "npm --prefix backend exec eslint --"
+        ],
+        "e2e/**/*.{ts,mts}": [
+            "prettier --write"
+        ],
+        "playwright.config.ts": [
+            "prettier --write"
         ],
         "*.{json,md,yml,yaml}": [
             "prettier --write"

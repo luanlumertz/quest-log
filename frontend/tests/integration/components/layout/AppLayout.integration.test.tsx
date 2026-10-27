@@ -47,6 +47,20 @@ function renderAppLayout(overrides: Partial<AuthContextType> = {}) {
 }
 
 describe("AppLayout.tsx", () => {
+    test("deve exibir a atribuição da RAWG no rodapé com link para uma nova aba", () => {
+        renderAppLayout();
+
+        const footer = within(screen.getByRole("contentinfo"));
+        const link = footer.getByRole("link", { name: "RAWG" });
+
+        expect(link).toBeVisible();
+        expect(link).toHaveAttribute("href", "https://rawg.io/");
+        expect(link).toHaveAttribute("target", "_blank");
+        expect(link.getAttribute("rel")?.split(/\s+/)).toEqual(
+            expect.arrayContaining(["noopener", "noreferrer"]),
+        );
+    });
+
     test("deve renderizar as rotas filhas e navegar pelo cabeçalho com indicação da página ativa", async () => {
         const user = userEvent.setup();
 

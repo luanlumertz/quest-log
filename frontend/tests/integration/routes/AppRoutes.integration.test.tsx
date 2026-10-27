@@ -1,19 +1,25 @@
 import { describe, expect, test } from "vitest";
 import { MemoryRouter, useLocation } from "react-router";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { http, HttpResponse } from "msw";
 
 import { AuthContext } from "../../../src/contexts/AuthContext";
 import { AppRoutes } from "../../../src/routes/AppRoutes";
+import { API_URL } from "../../../src/services/api";
+import type { DashboardData } from "../../../src/types/dashboard.types";
 
 import { createTestQueryClient } from "../../helpers/createTestQueryClient.helper";
+import { createLibraryEntry } from "../../fixtures/library.fixture";
 import { mockApiResponse } from "../../mocks/api.mock";
 import { createAuthContextMock } from "../../mocks/authContext.mock";
+import { server } from "../../mocks/server.mock";
 
 function LocalizacaoDeTeste() {
-    const { pathname } = useLocation();
+    const { pathname, search } = useLocation();
 
-    return <output data-testid="rota-atual">{pathname}</output>;
+    return <output data-testid="rota-atual">{pathname + search}</output>;
 }
 
 function renderAppRoutes(path: string, authenticated = false) {
@@ -34,7 +40,7 @@ function renderAppRoutes(path: string, authenticated = false) {
     );
 }
 
-function mockDashboard() {
+function mockDashboard(stats: Partial<DashboardData["stats"]> = {}) {
     mockApiResponse({
         method: "GET",
         endpoint: "/dashboard",
@@ -50,6 +56,7 @@ function mockDashboard() {
                         ABANDONED: 0,
                     },
                     totalPlaytimeMinutes: 0,
+                    ...stats,
                 },
                 recentGames: [],
             },
@@ -85,6 +92,57 @@ describe("AppRoutes.tsx", () => {
         ).toBeVisible();
         expect(screen.getByTestId("rota-atual")).toHaveTextContent(/^\/dashboard$/);
         expect(screen.getByRole("banner")).toBeInTheDocument();
+    });
+
+    test("deve abrir a biblioteca filtrada ao clicar no indicador Jogando do dashboard", async () => {
+        const user = userEvent.setup();
+        const playingGame = createLibraryEntry({ status: "PLAYING" });
+        const completedGame = createLibraryEntry({
+            status: "COMPLETED",
+            game: { ...playingGame.game, id: 2, externalId: 456, title: "Hades" },
+        });
+        const games = [playingGame, completedGame];
+
+        mockDashboard({
+            totalGames: 2,
+            byStatus: {
+                WANT_TO_PLAY: 0,
+                PLAYING: 1,
+                PAUSED: 0,
+                COMPLETED: 1,
+                ABANDONED: 0,
+            },
+        });
+        server.use(
+            http.get(`${API_URL}/library`, ({ request }) => {
+                const status = new URL(request.url).searchParams.get("status");
+
+                return HttpResponse.json({
+                    libraryEntries: status ? games.filter((game) => game.status === status) : games,
+                });
+            }),
+        );
+
+        renderAppRoutes("/dashboard", true);
+
+        const playingCard = (await screen.findByRole("heading", { name: "Jogando" })).closest("a");
+
+        expect(playingCard).not.toBeNull();
+
+        await user.click(playingCard!);
+
+        expect(await screen.findByRole("heading", { name: "Minha Biblioteca" })).toBeVisible();
+        expect(screen.getByTestId("rota-atual")).toHaveTextContent(/^\/library\?status=PLAYING$/);
+        expect(screen.getByRole("button", { name: /^Jogando/i })).toHaveAttribute(
+            "aria-pressed",
+            "true",
+        );
+        expect(screen.getByRole("button", { name: /^Todos/i })).toHaveAttribute(
+            "aria-pressed",
+            "false",
+        );
+        expect(await screen.findByRole("heading", { name: "Elden Ring" })).toBeVisible();
+        expect(screen.queryByRole("heading", { name: "Hades" })).not.toBeInTheDocument();
     });
 
     test.each(["/login", "/register", "/register/verify"])(
