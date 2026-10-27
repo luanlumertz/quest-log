@@ -26,6 +26,12 @@
             "prettier --write",
             "npm --prefix backend exec eslint --"
         ],
+        "e2e/**/*.{ts,mts}": [
+            "prettier --write"
+        ],
+        "playwright.config.ts": [
+            "prettier --write"
+        ],
         "*.{json,md,yml,yaml}": [
             "prettier --write"
         ]

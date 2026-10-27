@@ -30,7 +30,10 @@ test("deve adicionar um jogo à biblioteca e persistir após recarregar", async 
     });
 
     await expect(modal).toBeVisible();
-    await expect(modal.getByRole("button", { name: "Quero jogar", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(modal.getByRole("button", { name: "Quero jogar", exact: true })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+    );
 
     await modal.getByRole("button", { name: "PC", exact: true }).click();
     await modal.getByRole("button", { name: "Adicionar à biblioteca", exact: true }).click();
@@ -54,7 +57,9 @@ test("deve adicionar um jogo à biblioteca e persistir após recarregar", async 
     await expect(libraryCard).toHaveCount(1);
     await expect(libraryCard).toBeVisible();
     await expect(libraryCard.getByText("Quero jogar", { exact: true })).toBeVisible();
-    await expect(libraryCard.getByText("PC", { exact: true }).filter({ visible: true })).toBeVisible();
+    await expect(
+        libraryCard.getByText("PC", { exact: true }).filter({ visible: true }),
+    ).toBeVisible();
     await expect(libraryCard.getByText("0 h", { exact: true })).toBeVisible();
 });
 
@@ -85,11 +90,12 @@ test("deve editar o jogo e persistir as alterações após recarregar", async ({
 
     await libraryCard.click();
 
-    await expect(page.getByRole("heading", {
-        name: catalogGame.title,
-        exact: true,
-        level: 1,
-    }),
+    await expect(
+        page.getByRole("heading", {
+            name: catalogGame.title,
+            exact: true,
+            level: 1,
+        }),
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Jogando", exact: true }).click();
@@ -102,10 +108,17 @@ test("deve editar o jogo e persistir as alterações após recarregar", async ({
 
     await page.reload();
 
-    await expect(page.getByRole("button", { name: "Jogando", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByRole("textbox", { name: "Horas jogadas", exact: true })).toHaveValue("12,5");
+    await expect(page.getByRole("button", { name: "Jogando", exact: true })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+    );
+    await expect(page.getByRole("textbox", { name: "Horas jogadas", exact: true })).toHaveValue(
+        "12,5",
+    );
     await expect(page.getByRole("textbox", { name: "Nota", exact: true })).toHaveValue("4,2");
-    await expect(page.getByRole("button", { name: "Salvar alterações", exact: true })).toBeDisabled();
+    await expect(
+        page.getByRole("button", { name: "Salvar alterações", exact: true }),
+    ).toBeDisabled();
 });
 
 test("deve remover um jogo da biblioteca e persistir após recarregar", async ({
@@ -135,7 +148,8 @@ test("deve remover um jogo da biblioteca e persistir após recarregar", async ({
 
     await libraryCard.click();
 
-    await expect(page.getByRole("heading", {
+    await expect(
+        page.getByRole("heading", {
             name: catalogGame.title,
             exact: true,
             level: 1,
