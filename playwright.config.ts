@@ -5,15 +5,18 @@ export default defineConfig({
     globalSetup: "./e2e/global-setup.ts",
 
     fullyParallel: false,
+    forbidOnly: !!process.env.CI,
     workers: 1,
     retries: 0,
+    globalTimeout: process.env.CI ? 10 * 60 * 1000 : undefined,
 
-    reporter: "list",
+    reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
 
     use: {
         baseURL: "http://localhost:5173",
         browserName: "chromium",
         trace: "retain-on-failure",
+        screenshot: "only-on-failure",
     },
 
     webServer: [

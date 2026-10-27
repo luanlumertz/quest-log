@@ -4,3 +4,5 @@
 **/coverage/
 **/generated/prisma/
 **/package-lock.json
+playwright-report/
+test-results/
