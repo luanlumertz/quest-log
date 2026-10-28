@@ -9,7 +9,6 @@ import { getTrustProxyHops } from "./lib/trustProxy.js";
 import { createCsrfProtection } from "./middlewares/csrf.middleware.js";
 import { createOriginProtection } from "./middlewares/origin.middleware.js";
 import { withRequestContext } from "./middlewares/requestContext.middleware.js";
-import { logger } from "./lib/logger.js";
 
 const app = express();
 const frontendOrigin = new URL(process.env.FRONTEND_URL ?? "").origin;
@@ -23,24 +22,6 @@ app.use((_req, res, next) => {
     next();
 });
 app.use(createOriginProtection(process.env.ORIGIN_SECRET));
-app.use((req, _res, next) => {
-    // Temporário: conferir o caminho da Vercel até o Render após o deploy.
-    if (process.env.PROXY_DIAGNOSTICS === "true" && req.get("X-Forwarded-For")) {
-        logger.info(
-            {
-                event: "proxy.diagnostics",
-                remoteAddress: req.socket.remoteAddress,
-                forwardedFor: req.get("X-Forwarded-For"),
-                ip: req.ip,
-                ips: req.ips,
-                trustProxyHops: app.get("trust proxy"),
-            },
-            "[proxy-diagnostics]",
-        );
-    }
-
-    next();
-});
 app.use(
     cors({
         origin: frontendOrigin,
