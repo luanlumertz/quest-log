@@ -1,14 +1,9 @@
 import { getRawgGameById } from "../integrations/rawg.js";
-import {
-    createGame,
-    createGamePlatform,
-    findGameByExternalId,
-} from "../repositories/game.repository.js";
-import { createPlatform, findPlatformByName } from "../repositories/platform.repository.js";
+import { saveGameWithPlatforms, findGameByExternalId } from "../repositories/game.repository.js";
 import type { CreateGameData } from "../types/game.types.js";
 
 export async function getOrCreateGame(externalId: number) {
-    let game = await findGameByExternalId(externalId);
+    const game = await findGameByExternalId(externalId);
 
     if (game) {
         return game;
@@ -23,25 +18,13 @@ export async function getOrCreateGame(externalId: number) {
         releaseDate: gameRawg.releaseDate ? new Date(gameRawg.releaseDate) : null,
     };
 
-    game = await createGame(createData);
-
     const rawgPlatforms = [
         ...new Set(
             gameRawg.platforms
                 .map((platform) => platform.trim())
                 .filter((platform) => platform !== ""),
         ),
-    ];
+    ].sort();
 
-    for (const namePlatform of rawgPlatforms) {
-        let platform = await findPlatformByName(namePlatform);
-
-        if (!platform) {
-            platform = await createPlatform(namePlatform);
-        }
-
-        await createGamePlatform(game.id, platform.id);
-    }
-
-    return game;
+    return saveGameWithPlatforms(createData, rawgPlatforms);
 }

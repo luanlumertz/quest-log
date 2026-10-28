@@ -73,8 +73,6 @@ describe("POST /auth/register/resend", () => {
     });
 
     test("deve invalidar o código após falha SMTP no reenvio e permitir nova tentativa", async () => {
-        vi.spyOn(console, "error").mockImplementation(() => {});
-
         const registration = await registerUser(makeRegisterUserPayload());
         const id = registration.body.pendingRegistrationId;
 

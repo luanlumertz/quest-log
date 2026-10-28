@@ -5,18 +5,19 @@ import { prisma } from "./lib/prisma.js";
 import { startPendingRegistrationCleanup } from "./jobs/cleanupPendingRegistrations.js";
 import { startPasswordRecoveryCleanup } from "./jobs/cleanupPasswordRecoveries.js";
 import { waitForPasswordRecoveryEmails } from "./services/password.service.js";
+import { logger } from "./lib/logger.js";
 
 const PORT = process.env.PORT || process.env.PORT_LOCAL;
 
 const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    logger.info({ event: "server.started", port: PORT }, "Servidor iniciado");
 });
 
 const stopPendingRegistrationCleanup = startPendingRegistrationCleanup();
 const stopPasswordRecoveryCleanup = startPasswordRecoveryCleanup();
 
 async function shutdown() {
-    console.log("Shutting down server...");
+    logger.info({ event: "server.stopping" }, "Encerrando servidor");
 
     stopPendingRegistrationCleanup();
     stopPasswordRecoveryCleanup();
@@ -25,7 +26,7 @@ async function shutdown() {
         await waitForPasswordRecoveryEmails();
         await prisma.$disconnect();
 
-        console.log("Server closed successfully.");
+        logger.info({ event: "server.stopped" }, "Servidor encerrado");
         process.exit(0);
     });
 }

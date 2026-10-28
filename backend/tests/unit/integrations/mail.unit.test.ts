@@ -124,6 +124,10 @@ describe("sendEmail", () => {
 
         await expect(
             sendEmail({ to: "teste@email.com", subject: "Teste", text: "Teste" }),
-        ).rejects.toThrow("SMTP indisponível");
+        ).rejects.toMatchObject({
+            message: "Falha no envio SMTP",
+            context: { service: "smtp", reason: "delivery" },
+            cause: { message: "SMTP indisponível" },
+        });
     });
 });

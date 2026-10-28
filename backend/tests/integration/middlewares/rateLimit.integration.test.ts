@@ -2,6 +2,7 @@ import { describe, test, assert, vi } from "vitest";
 import request from "supertest";
 
 import app from "../../../src/app.js";
+import { csrfHeaders } from "../../helpers/http/csrf.helper.js";
 
 import { createRegisteredUser, createAuthenticatedAgent } from "../../fixtures/auth.fixture.js";
 import { mockRawgGameDetails, mockRawgSearch } from "../../fixtures/rawg.fixture.js";
@@ -36,10 +37,10 @@ describe("rateLimit.middleware.ts", () => {
         { route: "/auth/password/reset", limit: 10 },
     ])("deve bloquear $route após $limit chamadas malsucedidas", async ({ route, limit }) => {
         for (let attempt = 0; attempt < limit; attempt++) {
-            assert.equal((await request(app).post(route).send({})).status, 422);
+            assert.equal((await request(app).post(route).set(csrfHeaders).send({})).status, 422);
         }
 
-        const response = await request(app).post(route).send({});
+        const response = await request(app).post(route).set(csrfHeaders).send({});
 
         assert.equal(response.status, 429);
         assert.exists(response.headers["retry-after"]);
@@ -48,12 +49,12 @@ describe("rateLimit.middleware.ts", () => {
     test("solicitação e reenvio de recuperação devem compartilhar o limite por IP", async () => {
         for (let attempt = 0; attempt < 10; attempt++) {
             const route = attempt % 2 === 0 ? "/auth/password/forgot" : "/auth/password/resend";
-            const response = await request(app).post(route).send({});
+            const response = await request(app).post(route).set(csrfHeaders).send({});
 
             assert.equal(response.status, 422);
         }
 
-        const response = await request(app).post("/auth/password/resend").send({});
+        const response = await request(app).post("/auth/password/resend").set(csrfHeaders).send({});
 
         assert.equal(response.status, 429);
         assert.exists(response.headers["retry-after"]);
@@ -196,10 +197,13 @@ describe("rateLimit.middleware.ts", () => {
 
     test("deve limitar chamadas de alteração por IP antes da autenticação", async () => {
         for (let attempt = 0; attempt < 30; attempt++) {
-            assert.equal((await request(app).patch("/auth/me/password").send({})).status, 401);
+            assert.equal(
+                (await request(app).patch("/auth/me/password").set(csrfHeaders).send({})).status,
+                401,
+            );
         }
 
-        const response = await request(app).patch("/auth/me/password").send({});
+        const response = await request(app).patch("/auth/me/password").set(csrfHeaders).send({});
 
         assert.equal(response.status, 429);
         assert.exists(response.headers["retry-after"]);

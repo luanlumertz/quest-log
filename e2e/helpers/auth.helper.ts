@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { createTestUser } from "./db.helper";
-import { API_URL } from "./env.helper";
+import { API_URL, API_REQUEST_HEADERS } from "./env.helper";
 
 export async function createAuthenticatedUser(page: Page, email: string) {
     const request = page.context().request;
@@ -13,6 +13,7 @@ export async function createAuthenticatedUser(page: Page, email: string) {
 
     // O login real salva os cookies no mesmo contexto usado pelo navegador.
     const loginResponse = await request.post(`${API_URL}/auth/login`, {
+        headers: API_REQUEST_HEADERS,
         data: { email, password },
     });
 

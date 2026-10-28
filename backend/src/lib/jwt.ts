@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { ACCESS_TOKEN_EXPIRES_IN_SECONDS } from "../constants/auth.js";
+import { AppError } from "../errors/AppError.js";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -22,7 +23,7 @@ export function verifyToken(token: string) {
         !Number.isSafeInteger(payload.sessionVersion) ||
         payload.sessionVersion < 0
     ) {
-        throw new Error("Token inválido");
+        throw new AppError("Token inválido", 401);
     }
 
     return {

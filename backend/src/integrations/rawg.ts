@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { AppError } from "../errors/AppError.js";
+import { IntegrationError } from "../errors/IntegrationError.js";
 import type {
     GameDetailsResult,
     GameSearchResult,
@@ -21,18 +22,28 @@ if (!RAWG_API_KEY) {
 async function fetchRawg<T extends z.ZodType>(
     url: string,
     schema: T,
+    operation: "search" | "details",
     errorMessage: string,
     notFoundMessage?: string,
 ): Promise<z.infer<T>> {
+    const signal = AbortSignal.timeout(10_000);
+
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
 
         if (!response.ok) {
             if (response.status === 404 && notFoundMessage) {
                 throw new AppError(notFoundMessage, 404);
             }
 
-            throw new AppError(errorMessage, 502);
+            throw new AppError(errorMessage, 502, {
+                cause: new IntegrationError("Resposta HTTP de erro da RAWG", {
+                    service: "rawg",
+                    operation,
+                    reason: "http",
+                    upstreamStatus: response.status,
+                }),
+            });
         }
 
         const data: unknown = await response.json();
@@ -43,7 +54,30 @@ async function fetchRawg<T extends z.ZodType>(
             throw error;
         }
 
-        throw new AppError(errorMessage, 502);
+        if (signal.aborted) {
+            throw new AppError("A RAWG demorou para responder. Tente novamente.", 504, {
+                cause: new IntegrationError(
+                    "Timeout da RAWG",
+                    { service: "rawg", operation, reason: "timeout" },
+                    error,
+                ),
+            });
+        }
+
+        throw new AppError(errorMessage, 502, {
+            cause: new IntegrationError(
+                "Falha na integração RAWG",
+                {
+                    service: "rawg",
+                    operation,
+                    reason:
+                        error instanceof z.ZodError || error instanceof SyntaxError
+                            ? "invalid_response"
+                            : "network",
+                },
+                error,
+            ),
+        });
     }
 }
 
@@ -77,6 +111,7 @@ export async function searchRawgGames(query: string, page = 1): Promise<GameSear
     const data = await fetchRawg(
         `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodedQuery}&page_size=20&page=${page}`,
         rawgSearchResponseSchema,
+        "search",
         "Erro ao buscar jogos na RAWG",
     );
 
@@ -92,6 +127,7 @@ export async function getRawgGameById(externalId: number): Promise<GameDetailsRe
     const data = await fetchRawg(
         `https://api.rawg.io/api/games/${externalId}?key=${RAWG_API_KEY}`,
         rawgDetailsSchema,
+        "details",
         "Erro ao buscar jogo na RAWG",
         "Jogo não encontrado",
     );

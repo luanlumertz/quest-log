@@ -95,9 +95,15 @@ describe("sendBrevoEmail", () => {
         async (status) => {
             mockFetchResponse({ message: "detalhe interno" }, status);
 
-            await expect(sendBrevoEmail(message)).rejects.toThrow(
-                `Falha no envio pela Brevo (HTTP ${status})`,
-            );
+            await expect(sendBrevoEmail(message)).rejects.toMatchObject({
+                message: `Falha no envio pela Brevo (HTTP ${status})`,
+                context: {
+                    service: "brevo",
+                    operation: "send",
+                    reason: "http",
+                    upstreamStatus: status,
+                },
+            });
         },
     );
 

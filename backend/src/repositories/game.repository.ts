@@ -1,5 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import type { CreateGameData } from "../types/game.types.js";
+import { Prisma } from "../generated/prisma/client.js";
+import { getOrCreatePlatforms } from "./platform.repository.js";
 
 export function findGameByExternalId(externalId: number) {
     return prisma.game.findUnique({
@@ -7,22 +9,29 @@ export function findGameByExternalId(externalId: number) {
     });
 }
 
-export function createGame(data: CreateGameData) {
-    return prisma.game.create({
-        data: {
-            externalId: data.externalId,
-            title: data.title,
-            coverUrl: data.coverUrl ?? null,
-            releaseDate: data.releaseDate ?? null,
-        },
-    });
-}
+export function saveGameWithPlatforms(data: CreateGameData, platformNames: string[]) {
+    return prisma.$transaction(
+        async (tx) => {
+            // ON CONFLICT evita a disputa entre buscar e criar o mesmo jogo.
+            const created = await tx.game.createMany({ data, skipDuplicates: true });
+            const game = await tx.game.findUniqueOrThrow({
+                where: { externalId: data.externalId },
+            });
 
-export function createGamePlatform(gameId: number, platformId: number) {
-    return prisma.gamePlatform.create({
-        data: {
-            gameId,
-            platformId,
+            // Uma criação concorrente só fica visível após confirmar todos os vínculos.
+            if (created.count === 0 || platformNames.length === 0) {
+                return game;
+            }
+
+            const platforms = await getOrCreatePlatforms(platformNames, tx);
+
+            await tx.gamePlatform.createMany({
+                data: platforms.map(({ id }) => ({ gameId: game.id, platformId: id })),
+                skipDuplicates: true,
+            });
+
+            return game;
         },
-    });
+        { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted },
+    );
 }

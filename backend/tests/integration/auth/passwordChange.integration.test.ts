@@ -1,3 +1,4 @@
+import { logger } from "../../../src/lib/logger.js";
 import { assert, describe, test, vi, afterEach } from "vitest";
 
 import { prisma } from "../../../src/lib/prisma.js";
@@ -136,7 +137,7 @@ describe("PATCH /auth/me/password", () => {
 
     test("deve manter a sessão renovada mesmo se o aviso por e-mail falhar", async () => {
         const { agent, user, registerPayload } = await createAuthenticatedAgent();
-        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        const log = vi.spyOn(logger, "error").mockImplementation(() => {});
 
         vi.mocked(sendEmail).mockRejectedValueOnce(new Error("SMTP indisponível"));
 
@@ -168,7 +169,7 @@ describe("PATCH /auth/me/password", () => {
 
         await requestPasswordRecovery({ email: registerPayload.email });
 
-        vi.spyOn(console, "error").mockImplementation(() => {});
+        vi.spyOn(logger, "error").mockImplementation(() => {});
         vi.spyOn(refreshTokenLib, "generateRefreshToken").mockReturnValue(conflictingToken);
 
         const response = await changePassword(agent, {

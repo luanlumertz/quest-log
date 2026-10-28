@@ -1,5 +1,5 @@
 import { test, expect } from "../fixtures/test.fixture";
-import { API_URL } from "../helpers/env.helper";
+import { API_URL, API_REQUEST_HEADERS } from "../helpers/env.helper";
 
 test("deve alterar o nome e persistir a atualização após recarregar", async ({
     page,
@@ -56,6 +56,7 @@ test("deve trocar a senha, manter a sessão atual e encerrar as outras", async (
     try {
         // Autentica a mesma conta nesse segundo navegador.
         const login = await otherContext.request.post(`${API_URL}/auth/login`, {
+            headers: API_REQUEST_HEADERS,
             data: {
                 email: authenticatedUser.email,
                 password: authenticatedUser.password,

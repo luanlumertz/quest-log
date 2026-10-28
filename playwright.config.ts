@@ -1,5 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
+const e2eOriginSecret = "chave_ficticia_exclusiva_para_proxy_e2e";
+
 export default defineConfig({
     testDir: "./e2e/tests",
     globalSetup: "./e2e/global-setup.ts",
@@ -23,6 +25,7 @@ export default defineConfig({
         {
             name: "Backend E2E",
             command: "npm --prefix backend run dev:e2e",
+            env: { ORIGIN_SECRET: e2eOriginSecret },
             url: "http://localhost:3000/healthz",
             reuseExistingServer: false,
             timeout: 60_000,
@@ -30,6 +33,7 @@ export default defineConfig({
         {
             name: "Frontend E2E",
             command: "npm --prefix frontend run dev:e2e",
+            env: { VITE_API_URL: "/api", ORIGIN_SECRET: e2eOriginSecret },
             url: "http://localhost:5173",
             reuseExistingServer: false,
             timeout: 60_000,

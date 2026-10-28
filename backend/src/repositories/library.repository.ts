@@ -52,11 +52,11 @@ export async function gameInUserLibraryEntryExists(userId: number, externalId: n
     return entry !== null;
 }
 
-export function createLibraryEntry(
+export async function createLibraryEntry(
     data: AddGameToLibraryRepositoryData,
     tx: Prisma.TransactionClient,
 ) {
-    return tx.libraryEntry.create({
+    const [entry] = await tx.libraryEntry.createManyAndReturn({
         data: {
             userId: data.userId,
             gameId: data.gameId,
@@ -64,7 +64,10 @@ export function createLibraryEntry(
             startedAt: data.startedAt,
             completedAt: data.completedAt,
         },
+        skipDuplicates: true,
     });
+
+    return entry ?? null;
 }
 
 export function createLibraryEntryPlatform(

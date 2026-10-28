@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { SendEmailOptions } from "../types/mail.types.js";
+import { IntegrationError } from "../errors/IntegrationError.js";
 
 const responseSchema = z.object({ messageId: z.string().min(1) });
 
@@ -9,23 +10,37 @@ export async function sendBrevoEmail({ to, subject, text, html }: SendEmailOptio
     const name = process.env.BREVO_SENDER_NAME || "QuestLog";
 
     if (!apiKey || !email) {
-        throw new Error("Configuração Brevo incompleta");
+        throw new IntegrationError("Configuração Brevo incompleta", {
+            service: "brevo",
+            operation: "send",
+            reason: "configuration",
+        });
     }
 
     let htmlContent = html;
     if (htmlContent?.includes("cid:questlog-logo")) {
         const frontendUrl = process.env.FRONTEND_URL;
-        if (!frontendUrl) throw new Error("FRONTEND_URL necessária para a logo dos e-mails");
+        if (!frontendUrl)
+            throw new IntegrationError("FRONTEND_URL necessária para a logo dos e-mails", {
+                service: "brevo",
+                operation: "send",
+                reason: "configuration",
+            });
 
         const logoUrl = new URL("/favicon/android-chrome-192x192.png", frontendUrl);
         if (logoUrl.protocol !== "https:") {
-            throw new Error("A logo dos e-mails da Brevo exige FRONTEND_URL com HTTPS");
+            throw new IntegrationError("A logo dos e-mails da Brevo exige FRONTEND_URL com HTTPS", {
+                service: "brevo",
+                operation: "send",
+                reason: "configuration",
+            });
         }
 
         htmlContent = htmlContent.replaceAll("cid:questlog-logo", logoUrl.href);
     }
 
     let response: Response;
+    const signal = AbortSignal.timeout(10_000);
     try {
         response = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
@@ -41,20 +56,40 @@ export async function sendBrevoEmail({ to, subject, text, html }: SendEmailOptio
                 textContent: text,
                 ...(htmlContent ? { htmlContent } : {}),
             }),
-            signal: AbortSignal.timeout(10_000),
+            signal,
         });
-    } catch {
-        // Não inclui credenciais nem conteúdo sensível da requisição nos logs.
-        throw new Error("Não foi possível comunicar com a Brevo");
+    } catch (error) {
+        throw new IntegrationError(
+            "Não foi possível comunicar com a Brevo",
+            {
+                service: "brevo",
+                operation: "send",
+                reason: signal.aborted ? "timeout" : "network",
+            },
+            error,
+        );
     }
 
     if (!response.ok) {
-        throw new Error(`Falha no envio pela Brevo (HTTP ${response.status})`);
+        throw new IntegrationError(`Falha no envio pela Brevo (HTTP ${response.status})`, {
+            service: "brevo",
+            operation: "send",
+            reason: "http",
+            upstreamStatus: response.status,
+        });
     }
 
     try {
         responseSchema.parse(await response.json());
-    } catch {
-        throw new Error("Resposta inválida ao enviar e-mail pela Brevo");
+    } catch (error) {
+        throw new IntegrationError(
+            "Resposta inválida ao enviar e-mail pela Brevo",
+            {
+                service: "brevo",
+                operation: "send",
+                reason: "invalid_response",
+            },
+            error,
+        );
     }
 }

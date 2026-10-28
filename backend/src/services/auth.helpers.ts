@@ -2,6 +2,7 @@ import { renderEmailTemplate } from "../templates/email.template.js";
 import { AppError } from "../errors/AppError.js";
 import { sendEmail } from "../integrations/mail.js";
 import { invalidatePendingCodeAfterEmailFailure } from "../repositories/pendingRegistration.repository.js";
+import { logger } from "../lib/logger.js";
 
 type SendRegistrationVerificationEmailOptions = {
     pendingRegistrationId: string;
@@ -11,7 +12,6 @@ type SendRegistrationVerificationEmailOptions = {
     text: string;
     code: string;
     validity?: string;
-    logMessage: string;
     errorMessage: string;
 };
 
@@ -23,7 +23,6 @@ export async function sendRegistrationVerificationEmail({
     text,
     code,
     validity,
-    logMessage,
     errorMessage,
 }: SendRegistrationVerificationEmailOptions) {
     try {
@@ -45,11 +44,12 @@ export async function sendRegistrationVerificationEmail({
         try {
             await invalidatePendingCodeAfterEmailFailure(pendingRegistrationId, codeHash);
         } catch (cleanupError) {
-            console.error("Erro ao invalidar código após falha SMTP:", cleanupError);
+            logger.error(
+                { event: "registration.code_cleanup_failed", err: cleanupError },
+                "Falha ao invalidar código de cadastro",
+            );
         }
 
-        console.error(logMessage, error);
-
-        throw new AppError(errorMessage, 503);
+        throw new AppError(errorMessage, 503, { cause: error });
     }
 }

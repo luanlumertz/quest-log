@@ -1,4 +1,4 @@
-import express, { urlencoded } from "express";
+import express from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
@@ -6,35 +6,48 @@ import { routes } from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.middleware.js";
 import { getTrustProxyHops } from "./lib/trustProxy.js";
+import { createCsrfProtection } from "./middlewares/csrf.middleware.js";
+import { createOriginProtection } from "./middlewares/origin.middleware.js";
+import { withRequestContext } from "./middlewares/requestContext.middleware.js";
+import { logger } from "./lib/logger.js";
 
 const app = express();
+const frontendOrigin = new URL(process.env.FRONTEND_URL ?? "").origin;
 
 app.set("trust proxy", getTrustProxyHops());
 
-// Diagnóstico temporário: remover após conferir os proxies no Render.
-if (process.env.PROXY_DIAGNOSTICS === "true") {
-    app.use((req, _res, next) => {
-        console.log("[proxy-diagnostics]", {
-            remoteAddress: req.socket.remoteAddress,
-            forwardedFor: req.headers["x-forwarded-for"],
-            ip: req.ip,
-            ips: req.ips,
-            trustProxyHops: app.get("trust proxy"),
-        });
-
-        next();
-    });
-}
-// Remover bloco acima
-
+app.use(withRequestContext);
 app.use(helmet());
+app.use((_req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    next();
+});
+app.use(createOriginProtection(process.env.ORIGIN_SECRET));
+app.use((req, _res, next) => {
+    // Temporário: conferir o caminho da Vercel até o Render após o deploy.
+    if (process.env.PROXY_DIAGNOSTICS === "true" && req.get("X-Forwarded-For")) {
+        logger.info(
+            {
+                event: "proxy.diagnostics",
+                remoteAddress: req.socket.remoteAddress,
+                forwardedFor: req.get("X-Forwarded-For"),
+                ip: req.ip,
+                ips: req.ips,
+                trustProxyHops: app.get("trust proxy"),
+            },
+            "[proxy-diagnostics]",
+        );
+    }
+
+    next();
+});
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL,
+        origin: frontendOrigin,
         credentials: true,
     }),
 );
-app.use(urlencoded({ extended: true }));
+app.use(createCsrfProtection(frontendOrigin));
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(cookieParser());

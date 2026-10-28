@@ -1,4 +1,5 @@
 import { AppError } from "../errors/AppError.js";
+import { logger } from "../lib/logger.js";
 import { comparePassword, hashPassword } from "../lib/bcrypt.js";
 import { generateToken } from "../lib/jwt.js";
 import { generateRefreshToken, hashRefreshToken } from "../lib/refreshToken.js";
@@ -47,7 +48,10 @@ export function requestPasswordRecovery(data: RequestPasswordRecoveryData) {
     })
         .then(() => sendPasswordRecoveryCode(data.email))
         .catch((error: unknown) => {
-            console.error("Erro ao processar recuperação de senha:", error);
+            logger.error(
+                { event: "password.recovery_failed", err: error },
+                "Falha ao processar recuperação de senha",
+            );
         });
 
     pendingRecoveryEmails.add(task);

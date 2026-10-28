@@ -1,3 +1,4 @@
+import { logger } from "../../../src/lib/logger.js";
 import { assert, describe, test, expect, vi, afterEach } from "vitest";
 import type { PasswordRecovery } from "../../../src/generated/prisma/client.js";
 
@@ -61,7 +62,7 @@ describe("Recuperação de senha em segundo plano", () => {
 
     test("deve registrar falha do processamento sem propagar rejeição nem expor detalhes na resposta", async () => {
         const error = new Error("Banco indisponível");
-        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        const log = vi.spyOn(logger, "error").mockImplementation(() => {});
 
         vi.mocked(sendPasswordRecoveryCode).mockRejectedValueOnce(error);
 
@@ -72,7 +73,10 @@ describe("Recuperação de senha em segundo plano", () => {
         assert.sameMembers(Object.keys(result), ["message"]);
         assert.include(result.message, "Se houver uma conta");
         assert.notInclude(result.message, error.message);
-        expect(log).toHaveBeenCalledWith("Erro ao processar recuperação de senha:", error);
+        expect(log).toHaveBeenCalledExactlyOnceWith(
+            { event: "password.recovery_failed", err: error },
+            "Falha ao processar recuperação de senha",
+        );
     });
 
     test("não deve devolver autorização se o código for invalidado entre a comparação e seu consumo", async () => {

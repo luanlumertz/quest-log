@@ -7,11 +7,14 @@ export async function mockGameCatalog(
     { games = [E2E_GAME], pageSize = 20 }: { games?: (typeof E2E_GAME)[]; pageSize?: number } = {},
 ) {
     const apiOrigin = new URL(API_URL).origin;
+    const apiPath = new URL(API_URL).pathname.replace(/\/$/, "");
 
     await page.route(
         (url) =>
             url.origin === apiOrigin &&
-            (url.pathname === "/games/search" || /^\/games\/\d+$/.test(url.pathname)),
+            (url.pathname === `${apiPath}/games/search` ||
+                (url.pathname.startsWith(`${apiPath}/`) &&
+                    /^\/games\/\d+$/.test(url.pathname.slice(apiPath.length)))),
         async (route) => {
             if (route.request().method() !== "GET") {
                 await route.fallback();
@@ -20,7 +23,7 @@ export async function mockGameCatalog(
 
             const url = new URL(route.request().url());
 
-            if (url.pathname === "/games/search") {
+            if (url.pathname === `${apiPath}/games/search`) {
                 const query = (url.searchParams.get("query") ?? "").trim().toLowerCase();
                 const pageNumber = Number(url.searchParams.get("page") ?? 1);
                 const matches = games.filter((game) => game.title.toLowerCase().includes(query));
@@ -44,7 +47,9 @@ export async function mockGameCatalog(
                 return;
             }
 
-            const game = games.find((game) => url.pathname === `/games/${game.externalId}`);
+            const game = games.find(
+                (game) => url.pathname === `${apiPath}/games/${game.externalId}`,
+            );
 
             if (game) {
                 await route.fulfill({ json: game });

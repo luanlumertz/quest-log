@@ -23,8 +23,16 @@ test("deve recuperar a senha e permitir login somente com a nova", async ({
     await page.getByRole("link", { name: "Esqueceu sua senha?" }).click();
 
     await expect(page).toHaveURL(/\/forgot-password$/);
+    // A URL pode mudar antes de o React substituir o formulário de login.
+    await expect(
+        page.getByRole("heading", { name: "Esqueceu sua senha?", exact: true }),
+    ).toBeVisible();
 
-    await page.getByRole("textbox", { name: "Email", exact: true }).fill(testEmail);
+    const emailInput = page.getByRole("textbox", { name: "Email", exact: true });
+
+    await emailInput.fill(testEmail);
+
+    await expect(emailInput).toHaveValue(testEmail);
     await page.getByRole("button", { name: "Enviar código", exact: true }).click();
 
     await expect(page).toHaveURL(/\/forgot-password\/verify$/);

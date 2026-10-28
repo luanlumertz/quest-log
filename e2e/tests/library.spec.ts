@@ -1,5 +1,5 @@
 import { test, expect } from "../fixtures/test.fixture";
-import { API_URL } from "../helpers/env.helper";
+import { API_URL, API_REQUEST_HEADERS } from "../helpers/env.helper";
 
 test("deve adicionar um jogo à biblioteca e persistir após recarregar", async ({
     page,
@@ -70,6 +70,7 @@ test("deve editar o jogo e persistir as alterações após recarregar", async ({
 }) => {
     // Prepara a biblioteca usando a API real e os cookies do navegador.
     const response = await page.context().request.post(`${API_URL}/library`, {
+        headers: API_REQUEST_HEADERS,
         data: {
             externalId: catalogGame.externalId,
             status: "WANT_TO_PLAY",
@@ -128,6 +129,7 @@ test("deve remover um jogo da biblioteca e persistir após recarregar", async ({
 }) => {
     // Prepara a biblioteca usando a API real e os cookies do navegador.
     const response = await page.context().request.post(`${API_URL}/library`, {
+        headers: API_REQUEST_HEADERS,
         data: {
             externalId: catalogGame.externalId,
             status: "WANT_TO_PLAY",

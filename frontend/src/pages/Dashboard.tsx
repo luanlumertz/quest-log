@@ -58,7 +58,6 @@ export function Dashboard() {
             <h1
                 className="
                     mt-8
-                    max-w-md
                     font-display
                     text-4xl
                     font-bold

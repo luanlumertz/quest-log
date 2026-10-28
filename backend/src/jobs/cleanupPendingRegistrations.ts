@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { logger } from "../lib/logger.js";
 
 const CLEANUP_INTERVAL_MS = 30 * 60 * 1000;
 
@@ -13,10 +14,16 @@ async function cleanupExpiredRegistrations() {
         });
 
         if (result.count > 0) {
-            console.log(`${result.count} cadastro(s) temporário(s) expirado(s) removido(s).`);
+            logger.info(
+                { event: "registration.cleanup_completed", count: result.count },
+                "Cadastros expirados removidos",
+            );
         }
     } catch (error) {
-        console.error("Erro ao limpar cadastros temporários:", error);
+        logger.error(
+            { event: "registration.cleanup_failed", err: error },
+            "Falha ao limpar cadastros expirados",
+        );
     }
 }
 

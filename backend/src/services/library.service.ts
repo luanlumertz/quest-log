@@ -59,6 +59,10 @@ export async function addGameToLibraryEntry(data: AddGameToLibraryServiceData) {
     const libraryEntry = await runInTransaction(async (tx) => {
         const createdLibraryEntry = await createLibraryEntry(createLibraryEntryData, tx);
 
+        if (!createdLibraryEntry) {
+            throw new AppError("Este jogo já está na sua biblioteca", 409);
+        }
+
         for (const namePlatform of data.platforms) {
             const platform = availablePlatforms.find((platform) => platform.name === namePlatform);
 

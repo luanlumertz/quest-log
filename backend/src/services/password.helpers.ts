@@ -1,5 +1,6 @@
 import { renderEmailTemplate } from "../templates/email.template.js";
 import { sendEmail } from "../integrations/mail.js";
+import { logger } from "../lib/logger.js";
 import { generateVerificationCode, hashVerificationCode } from "../lib/verificationCode.js";
 import {
     invalidatePasswordRecoveryCode,
@@ -29,7 +30,14 @@ export async function sendPasswordRecoveryCode(email: string) {
             text: `Seu código para recuperar a senha é ${code}. Ele é válido por 10 minutos. Se você não fez esta solicitação, ignore este e-mail. Sua senha permanece a mesma.`,
         });
     } catch (error) {
-        await invalidatePasswordRecoveryCode(recovery.id, codeHash);
+        try {
+            await invalidatePasswordRecoveryCode(recovery.id, codeHash);
+        } catch (cleanupError) {
+            logger.error(
+                { event: "password.code_cleanup_failed", err: cleanupError },
+                "Falha ao invalidar código de recuperação",
+            );
+        }
         throw error;
     }
 }
@@ -56,6 +64,9 @@ export async function sendPasswordChangedNotification(
         });
     } catch (error) {
         // A senha já foi alterada; uma falha no aviso não deve aparentar desfazer a operação.
-        console.error("Erro ao enviar aviso de alteração de senha:", error);
+        logger.error(
+            { event: "password.notification_failed", err: error },
+            "Falha no aviso de alteração de senha",
+        );
     }
 }

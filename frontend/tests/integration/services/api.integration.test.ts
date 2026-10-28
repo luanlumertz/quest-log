@@ -13,6 +13,61 @@ import { server } from "../../mocks/server.mock";
 import { mockApiResponse } from "../../mocks/api.mock";
 
 describe("api.ts", () => {
+    test.each(["POST", "PATCH", "PUT", "DELETE"])(
+        "deve enviar o cabeçalho CSRF em %s preservando outros cabeçalhos",
+        async (method) => {
+            let receivedHeaders: Headers | undefined;
+            server.use(
+                http.all(`${API_URL}/csrf-test`, ({ request }) => {
+                    receivedHeaders = request.headers;
+                    return HttpResponse.json({ ok: true });
+                }),
+            );
+
+            await apiRequest("/csrf-test", {
+                method,
+                headers: { "X-Custom": "preservado" },
+            });
+
+            assert.equal(receivedHeaders?.get("X-QuestLog-Request"), "true");
+            assert.equal(receivedHeaders?.get("X-Custom"), "preservado");
+        },
+    );
+
+    test("deve preservar a proteção na renovação e na repetição de uma alteração", async () => {
+        const captured: { url: string; header: string | null }[] = [];
+        let attempts = 0;
+        server.use(
+            http.patch(`${API_URL}/auth/me`, ({ request }) => {
+                captured.push({
+                    url: request.url,
+                    header: request.headers.get("X-QuestLog-Request"),
+                });
+                attempts++;
+                return HttpResponse.json({}, { status: attempts === 1 ? 401 : 200 });
+            }),
+            http.post(`${API_URL}/auth/refresh`, ({ request }) => {
+                captured.push({
+                    url: request.url,
+                    header: request.headers.get("X-QuestLog-Request"),
+                });
+                return new HttpResponse(null, { status: 204 });
+            }),
+        );
+
+        const response = await apiRequest("/auth/me", {
+            method: "PATCH",
+            body: JSON.stringify({ name: "Jogador" }),
+        });
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(captured, [
+            { url: `${API_URL}/auth/me`, header: "true" },
+            { url: `${API_URL}/auth/refresh`, header: "true" },
+            { url: `${API_URL}/auth/me`, header: "true" },
+        ]);
+    });
+
     test.each([
         "/auth/register/verify",
         "/auth/register/resend",
@@ -56,6 +111,9 @@ describe("api.ts", () => {
             assert.equal(response.status, 200);
             assert.deepEqual(await response.json(), { ok: true });
             assert.equal(requests[0]?.method, "GET");
+            assert.isFalse(
+                new Headers(fetchSpy.mock.calls[0]?.[1]?.headers).has("X-QuestLog-Request"),
+            );
             assert.equal(fetchSpy.mock.calls[0]?.[1]?.credentials, "include");
         } finally {
             fetchSpy.mockRestore();

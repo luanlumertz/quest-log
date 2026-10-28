@@ -148,7 +148,6 @@ describe("POST /auth/register", () => {
     });
 
     test("deve invalidar o código após falha SMTP e permitir nova tentativa", async () => {
-        vi.spyOn(console, "error").mockImplementation(() => {});
         vi.mocked(sendEmail).mockRejectedValueOnce(new Error("SMTP indisponível"));
 
         const payload = makeRegisterUserPayload();
@@ -201,8 +200,6 @@ describe("POST /auth/register", () => {
     });
 
     test("uma falha SMTP atrasada não deve invalidar a tentativa mais recente", async () => {
-        vi.spyOn(console, "error").mockImplementation(() => {});
-
         let rejectEmail!: (error: Error) => void;
         let notifySending!: () => void;
         const sending = new Promise<void>((resolve) => {
