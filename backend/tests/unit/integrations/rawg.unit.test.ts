@@ -65,6 +65,23 @@ describe("rawg.ts", () => {
     });
 
     describe("searchRawgGames", () => {
+        test("deve preservar o status real do provedor como causa sem alterar o erro público", async () => {
+            mockFetchResponse({ message: "detalhe privado" }, 401);
+
+            await expect(searchRawgGames("gta")).rejects.toMatchObject({
+                statusCode: 502,
+                message: "Erro ao buscar jogos na RAWG",
+                cause: {
+                    context: {
+                        service: "rawg",
+                        operation: "search",
+                        reason: "http",
+                        upstreamStatus: 401,
+                    },
+                },
+            });
+        });
+
         test("deve buscar jogos na RAWG e mapear corretamente os resultados", async () => {
             const fetchMock = mockFetchResponse(rawgSearchApiResponse);
 

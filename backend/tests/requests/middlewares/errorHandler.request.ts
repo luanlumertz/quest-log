@@ -5,6 +5,8 @@ import request from "supertest";
 import app from "../../../src/app.js";
 import { csrfHeaders } from "../../helpers/http/csrf.helper.js";
 import { errorHandler } from "../../../src/middlewares/errorHandler.middleware.js";
+import { withRequestContext } from "../../../src/middlewares/requestContext.middleware.js";
+import { AppError } from "../../../src/errors/AppError.js";
 
 export function registerWithMalformedJson() {
     return request(app)
@@ -16,6 +18,7 @@ export function registerWithMalformedJson() {
 
 export function requestUnexpectedError() {
     const app = express();
+    app.use(withRequestContext);
 
     app.get("/erro-teste", () => {
         throw new Error("Erro interno de teste");
@@ -24,6 +27,17 @@ export function requestUnexpectedError() {
     app.use(errorHandler);
 
     return request(app).get("/erro-teste");
+}
+
+export function requestHandledError(error: AppError) {
+    const app = express();
+    app.use(withRequestContext);
+    app.get("/erro-integracao", () => {
+        throw error;
+    });
+    app.use(errorHandler);
+
+    return request(app).get("/erro-integracao?key=NAO_LOGAR").set("X-Request-Id", "id-forjado");
 }
 
 export function requestPrismaNotFound() {

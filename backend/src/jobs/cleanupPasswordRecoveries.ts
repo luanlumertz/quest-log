@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { logger } from "../lib/logger.js";
 
 const CLEANUP_INTERVAL_MS = 30 * 60 * 1000;
 
@@ -9,10 +10,16 @@ async function cleanupExpiredPasswordRecoveries() {
         });
 
         if (result.count > 0) {
-            console.log(`${result.count} recuperação(ões) de senha expirada(s) removida(s).`);
+            logger.info(
+                { event: "password.cleanup_completed", count: result.count },
+                "Recuperações expiradas removidas",
+            );
         }
     } catch (error) {
-        console.error("Erro ao limpar recuperações de senha:", error);
+        logger.error(
+            { event: "password.cleanup_failed", err: error },
+            "Falha ao limpar recuperações expiradas",
+        );
     }
 }
 

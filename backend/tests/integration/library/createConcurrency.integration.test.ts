@@ -120,7 +120,6 @@ describe("POST /library: concorrência e rollback", () => {
                 { id: -1 }, // Força uma violação real de chave estrangeira após criar a plataforma.
             ],
         );
-        vi.spyOn(console, "error").mockImplementation(() => {});
         const payload = { externalId: 123, platforms: ["PC"] };
 
         const failed = await addGameToLibrary(agent, payload);

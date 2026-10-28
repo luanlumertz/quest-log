@@ -1,3 +1,4 @@
+import { logger } from "../../../src/lib/logger.js";
 import { assert, describe, test, vi, afterEach } from "vitest";
 
 import { prisma } from "../../../src/lib/prisma.js";
@@ -189,7 +190,7 @@ describe("Solicitação e reenvio de recuperação de senha", () => {
 
     test("deve manter a resposta genérica após falha SMTP, invalidar o código e liberar outra tentativa", async () => {
         const { user, payload } = await createRegisteredUser();
-        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        const log = vi.spyOn(logger, "error").mockImplementation(() => {});
 
         vi.mocked(sendEmail).mockRejectedValueOnce(new Error("SMTP indisponível"));
 

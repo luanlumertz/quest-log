@@ -1,3 +1,4 @@
+import { logger } from "../../../src/lib/logger.js";
 import { assert, describe, test, vi, afterEach } from "vitest";
 
 import { prisma } from "../../../src/lib/prisma.js";
@@ -187,7 +188,7 @@ describe("POST /auth/password/reset", () => {
 
     test("não deve desfazer a troca nem devolver erro se o aviso por e-mail falhar", async () => {
         const { user, resetToken } = await createAuthorizedPasswordReset();
-        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        const log = vi.spyOn(logger, "error").mockImplementation(() => {});
 
         vi.mocked(sendEmail).mockRejectedValueOnce(new Error("SMTP indisponível"));
 

@@ -1,3 +1,4 @@
+import { logger } from "../../../src/lib/logger.js";
 import { describe, test, assert, expect, vi, afterEach } from "vitest";
 
 import { prisma } from "../../../src/lib/prisma.js";
@@ -16,7 +17,7 @@ describe("startPendingRegistrationCleanup", () => {
     test("deve limpar ao iniciar e a cada 30 minutos, preservando registros válidos e permitindo parar", async () => {
         vi.useFakeTimers();
         vi.mocked(prisma.pendingRegistration.deleteMany).mockResolvedValue({ count: 0 });
-        const log = vi.spyOn(console, "log").mockImplementation(() => {});
+        const log = vi.spyOn(logger, "info").mockImplementation(() => {});
 
         const stop = startPendingRegistrationCleanup();
         await vi.advanceTimersByTimeAsync(0);
@@ -30,7 +31,10 @@ describe("startPendingRegistrationCleanup", () => {
         await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
 
         assert.equal(vi.mocked(prisma.pendingRegistration.deleteMany).mock.calls.length, 2);
-        expect(log).toHaveBeenCalledWith("2 cadastro(s) temporário(s) expirado(s) removido(s).");
+        expect(log).toHaveBeenCalledWith(
+            { event: "registration.cleanup_completed", count: 2 },
+            "Cadastros expirados removidos",
+        );
 
         stop();
         await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
@@ -46,12 +50,15 @@ describe("startPendingRegistrationCleanup", () => {
             .mockRejectedValueOnce(error)
             .mockResolvedValue({ count: 0 });
 
-        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        const log = vi.spyOn(logger, "error").mockImplementation(() => {});
 
         const stop = startPendingRegistrationCleanup();
         await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
 
-        expect(log).toHaveBeenCalledWith("Erro ao limpar cadastros temporários:", error);
+        expect(log).toHaveBeenCalledWith(
+            { event: "registration.cleanup_failed", err: error },
+            "Falha ao limpar cadastros expirados",
+        );
         assert.equal(vi.mocked(prisma.pendingRegistration.deleteMany).mock.calls.length, 2);
 
         stop();

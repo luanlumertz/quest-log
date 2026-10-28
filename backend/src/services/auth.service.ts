@@ -66,7 +66,6 @@ export async function registerUser(data: RegisterUserData) {
         code,
         subject: "Código de verificação - QuestLog",
         text: `Seu código de verificação é ${code}. Ele é válido por 10 minutos.`,
-        logMessage: "Erro ao enviar e-mail de cadastro:",
         errorMessage: "Não foi possível enviar o código de verificação. Tente novamente.",
     });
 
@@ -212,7 +211,6 @@ export async function resendRegistrationCode(data: ResendRegistrationCodeData) {
         validity: "Válido por até 10 minutos, respeitando o prazo do cadastro",
         subject: "Novo código de verificação - QuestLog",
         text: `Seu novo código de verificação é ${code}. Ele é válido por até 10 minutos, respeitando o prazo do cadastro.`,
-        logMessage: "Erro ao reenviar código de verificação:",
         errorMessage: "Não foi possível reenviar o código. Tente novamente.",
     });
 
