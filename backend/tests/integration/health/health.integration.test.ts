@@ -6,6 +6,7 @@ describe("GET /healthz", () => {
         const response = await getHealth();
 
         assert.equal(response.status, 200);
+        assert.equal(response.headers["cache-control"], "no-store");
         assert.deepEqual(response.body, { status: "ok" });
     });
 });

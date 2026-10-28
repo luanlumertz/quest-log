@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseEnv } from "node:util";
 
-export const API_URL = process.env.E2E_API_URL ?? "http://localhost:3000";
+export const API_URL = process.env.E2E_API_URL ?? "http://localhost:5173/api";
 export const API_REQUEST_HEADERS = {
     Origin: process.env.E2E_FRONTEND_URL ?? "http://localhost:5173",
     "X-QuestLog-Request": "true",

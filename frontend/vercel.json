@@ -1,8 +1,24 @@
 {
-    "rewrites": [
+    "routes": [
         {
-            "source": "/(.*)",
-            "destination": "/index.html"
+            "src": "/api(?:/(.*))?$",
+            "dest": "https://questlog-api-a95s.onrender.com/$1",
+            "transforms": [
+                {
+                    "type": "request.headers",
+                    "op": "set",
+                    "target": { "key": "x-questlog-origin-secret" },
+                    "args": "$ORIGIN_SECRET",
+                    "env": ["ORIGIN_SECRET"]
+                }
+            ]
+        },
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
         }
     ]
 }

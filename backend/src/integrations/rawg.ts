@@ -24,8 +24,10 @@ async function fetchRawg<T extends z.ZodType>(
     errorMessage: string,
     notFoundMessage?: string,
 ): Promise<z.infer<T>> {
+    const signal = AbortSignal.timeout(10_000);
+
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
 
         if (!response.ok) {
             if (response.status === 404 && notFoundMessage) {
@@ -41,6 +43,10 @@ async function fetchRawg<T extends z.ZodType>(
     } catch (error) {
         if (error instanceof AppError) {
             throw error;
+        }
+
+        if (signal.aborted) {
+            throw new AppError("A RAWG demorou para responder. Tente novamente.", 504);
         }
 
         throw new AppError(errorMessage, 502);

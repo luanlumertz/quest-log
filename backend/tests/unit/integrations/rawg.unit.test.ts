@@ -12,7 +12,56 @@ import { rawgDetailsApiResponse, rawgSearchApiResponse } from "../../factories/r
 
 describe("rawg.ts", () => {
     afterEach(() => {
+        vi.restoreAllMocks();
         vi.unstubAllGlobals();
+    });
+
+    test.each([
+        { scenario: "busca", run: () => searchRawgGames("gta") },
+        { scenario: "detalhes", run: () => getRawgGameById(123) },
+    ])("deve interromper a $scenario após o prazo e retornar AppError 504", async ({ run }) => {
+        const controller = new AbortController();
+        const timeout = vi.spyOn(AbortSignal, "timeout").mockReturnValue(controller.signal);
+        const fetchMock = vi.fn<typeof fetch>().mockImplementation(
+            (_url, options) =>
+                new Promise((_resolve, reject) => {
+                    options?.signal?.addEventListener(
+                        "abort",
+                        () => reject(options.signal?.reason),
+                        { once: true },
+                    );
+                }),
+        );
+        vi.stubGlobal("fetch", fetchMock);
+
+        const pending = run();
+        const rejected = expect(pending).rejects.toMatchObject({
+            statusCode: 504,
+            message: "A RAWG demorou para responder. Tente novamente.",
+        });
+        controller.abort(new DOMException("Prazo excedido", "TimeoutError"));
+
+        await rejected;
+
+        assert.equal(fetchMock.mock.calls.length, 1);
+        expect(timeout).toHaveBeenCalledWith(10_000);
+        expect(fetchMock.mock.calls[0]?.[1]?.signal).toBe(controller.signal);
+    });
+
+    test("deve manter o prazo durante a leitura do corpo da resposta", async () => {
+        const controller = new AbortController();
+        vi.spyOn(AbortSignal, "timeout").mockReturnValue(controller.signal);
+        const response = new Response("{}", { status: 200 });
+        vi.spyOn(response, "json").mockImplementation(async () => {
+            controller.abort(new DOMException("Prazo excedido", "TimeoutError"));
+            throw controller.signal.reason;
+        });
+        vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(response));
+
+        await expect(searchRawgGames("gta")).rejects.toMatchObject({
+            statusCode: 504,
+            message: "A RAWG demorou para responder. Tente novamente.",
+        });
     });
 
     describe("searchRawgGames", () => {

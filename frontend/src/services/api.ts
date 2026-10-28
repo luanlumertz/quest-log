@@ -1,4 +1,6 @@
-export const API_URL = import.meta.env.VITE_API_URL;
+export const API_URL = import.meta.env.PROD
+    ? "/api"
+    : import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export const AUTH_SESSION_EXPIRED_EVENT = "auth:session-expired";
 
