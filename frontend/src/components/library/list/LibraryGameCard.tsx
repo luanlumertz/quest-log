@@ -25,7 +25,7 @@ export function LibraryGameCard({ entry }: LibraryGameCardProps) {
                 rounded-2xl
                 border border-divider
                 bg-surface
-                transition-[translate,scale,transform,border-color] duration-300 ease-out
+                transition
                 hover:-translate-y-1
                 hover:border-divider-bright
             "
@@ -34,7 +34,7 @@ export function LibraryGameCard({ entry }: LibraryGameCardProps) {
                 <div
                     className="
                         absolute inset-0
-                        transition-[translate,scale,transform] ease-out
+                        transition-transform
                         duration-300
                         group-hover:scale-105
                     "

@@ -15,7 +15,7 @@ export function StatCard({ label, content, color, to, className = "" }: StatCard
         border border-white/5
         bg-[#0D0F17]
         px-3 py-5
-        transition-[translate,scale,transform] duration-300 ease-out
+        transition-transform
         ${to ? "hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-brand" : ""}
         ${className}
     `;

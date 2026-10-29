@@ -36,7 +36,7 @@ export function NowPlayingCard({ entry, tabIndex }: NowPlayingCardProps) {
             rounded-[20px]
             border border-divider
             bg-surface
-            transition-[translate,scale,transform] duration-300 ease-out
+            transition-transform
             hover:-translate-y-1
             focus-visible:outline-2
             focus-visible:outline-brand
@@ -46,7 +46,7 @@ export function NowPlayingCard({ entry, tabIndex }: NowPlayingCardProps) {
                 <div
                     className="
                     absolute inset-0
-                    transition-[translate,scale,transform] duration-300 ease-out
+                    transition-transform duration-300
                     group-hover:scale-105
                 "
                 >
