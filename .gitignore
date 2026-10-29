@@ -33,7 +33,6 @@ Thumbs.db
 
 # Temporário
 *.zip
-docs/
 
 # Playwright
 test-results/

@@ -2,6 +2,8 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { openApiDocument } from "./openapi.js";
 import { routes } from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.middleware.js";
@@ -32,6 +34,22 @@ app.use(createCsrfProtection(frontendOrigin));
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(cookieParser());
+
+if (process.env.NODE_ENV === "development") {
+    app.use(
+        "/docs",
+        helmet.contentSecurityPolicy({
+            directives: {
+                upgradeInsecureRequests: null,
+            },
+        }),
+        swaggerUi.serve,
+        swaggerUi.setup(openApiDocument, {
+            customSiteTitle: "QuestLog API · Documentação",
+            swaggerOptions: { withCredentials: true },
+        }),
+    );
+}
 
 app.use(routes);
 
