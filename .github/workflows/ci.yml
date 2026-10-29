@@ -257,3 +257,92 @@ jobs:
                       test-results/
                   if-no-files-found: ignore
                   retention-days: 7
+
+    deploy:
+        name: Deploy do backend no Render
+        needs: [formatting, backend, frontend, e2e]
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        permissions:
+            contents: read
+            deployments: write
+        concurrency:
+            group: render-production
+            cancel-in-progress: false
+
+        steps:
+            - name: Publicar e acompanhar deploy
+              uses: JorgeLNJunior/render-deploy@32c271db15b8b87b91cec4bb2cc094cc7c0f98a2 # v1.5.0
+              with:
+                  service_id: ${{ secrets.RENDER_SERVICE_ID }}
+                  api_key: ${{ secrets.RENDER_API_KEY }}
+                  ref: ${{ github.sha }}
+                  wait_deploy: true
+                  github_deployment: true
+                  deployment_environment: production
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    deploy-comment:
+        name: Resultado do deploy no PR
+        needs: [deploy]
+        if: >-
+            always() && github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+            needs.deploy.result != 'skipped'
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            contents: read
+            pull-requests: write
+
+        steps:
+            - name: Publicar ou atualizar comentário
+              uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+              env:
+                  DEPLOY_RESULT: ${{ needs.deploy.result }}
+              with:
+                  script: |
+                      const { owner, repo } = context.repo;
+                      const pullRequests = await github.paginate(
+                          github.rest.repos.listPullRequestsAssociatedWithCommit,
+                          { owner, repo, commit_sha: context.sha, per_page: 100 },
+                      );
+                      const mergedPullRequests = pullRequests.filter(
+                          (pr) => pr.merged_at && pr.base.ref === 'main',
+                      );
+
+                      if (!mergedPullRequests.length) {
+                          core.info('Nenhum PR mergeado associado ao commit; resultado disponível na execução da CI.');
+                          return;
+                      }
+
+                      const marker = '<!-- questlog-render-deploy -->';
+                      const result = process.env.DEPLOY_RESULT;
+                      const title = result === 'success'
+                          ? '✅ Deploy do backend concluído no Render'
+                          : result === 'cancelled'
+                              ? '⚠️ Acompanhamento do deploy cancelado; confira o estado no Render'
+                              : '❌ Deploy do backend falhou; confira os detalhes da execução';
+                      const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+                      const body = `${marker}\n${title}\n\nCommit: \`${context.sha.slice(0, 7)}\`\n\n[Ver detalhes da execução](${runUrl})`;
+
+                      for (const pr of mergedPullRequests) {
+                          const comments = await github.paginate(
+                              github.rest.issues.listComments,
+                              { owner, repo, issue_number: pr.number, per_page: 100 },
+                          );
+                          const existing = comments.find(
+                              (comment) => comment.user?.login === 'github-actions[bot]' &&
+                                  comment.body?.includes(marker),
+                          );
+
+                          if (existing) {
+                              await github.rest.issues.updateComment({
+                                  owner, repo, comment_id: existing.id, body,
+                              });
+                          } else {
+                              await github.rest.issues.createComment({
+                                  owner, repo, issue_number: pr.number, body,
+                              });
+                          }
+                      }
