@@ -17,7 +17,7 @@ export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
                 group overflow-hidden rounded-2xl
                 border border-divider
                 bg-surface
-                transition-transform
+                transition-[translate,scale,transform] duration-300 ease-out
                 hover:-translate-y-1
             "
         >
@@ -44,7 +44,7 @@ export function SearchGameCard({ game, isInLibrary }: SearchGameCardProps) {
                     alt={`Capa de ${game.title}`}
                     className="
                         size-full object-cover
-                        transition-transform
+                        transition-[translate,scale,transform] ease-out
                         duration-300
                         group-hover:scale-105
                     "
