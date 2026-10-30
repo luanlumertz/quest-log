@@ -73,4 +73,22 @@ describe("proteção da origem por chave privada", () => {
 
         assert.equal(response.status, 204);
     });
+
+    test("deve permitir acesso público direto no sandbox sem a chave privada da produção", async () => {
+        vi.stubEnv("NODE_ENV", "production");
+        vi.stubEnv("APP_ENV", "sandbox");
+
+        const response = await request(createApp(undefined)).get("/docs");
+
+        assert.equal(response.status, 204);
+    });
+
+    test("deve rejeitar chave de proxy configurada no sandbox de acesso direto", () => {
+        vi.stubEnv("NODE_ENV", "production");
+        vi.stubEnv("APP_ENV", "sandbox");
+
+        expect(() => createApp(secret)).toThrow(
+            "Não configure ORIGIN_SECRET no sandbox: o acesso é direto, sem o proxy privado da produção.",
+        );
+    });
 });

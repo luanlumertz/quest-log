@@ -1,8 +1,19 @@
 import { timingSafeEqual } from "node:crypto";
 import type { RequestHandler } from "express";
 import { AppError } from "../errors/AppError.js";
+import { getAppEnvironment } from "../lib/appEnvironment.js";
 
 export function createOriginProtection(secret: string | undefined): RequestHandler {
+    if (getAppEnvironment() === "sandbox") {
+        if (secret) {
+            throw new Error(
+                "Não configure ORIGIN_SECRET no sandbox: o acesso é direto, sem o proxy privado da produção.",
+            );
+        }
+
+        return (_req, _res, next) => next();
+    }
+
     if (process.env.NODE_ENV === "production" && (!secret || secret.length < 32)) {
         throw new Error("ORIGIN_SECRET deve ter pelo menos 32 caracteres em produção.");
     }

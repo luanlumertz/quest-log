@@ -1,8 +1,9 @@
-import { describe, test, expect, vi, afterEach } from "vitest";
+import { describe, test, expect, vi, afterEach, beforeEach } from "vitest";
 import express from "express";
 import request from "supertest";
 
 describe("Cookies de autenticação", () => {
+    beforeEach(() => vi.stubEnv("APP_ENV", undefined));
     afterEach(() => {
         vi.unstubAllEnvs();
         vi.resetModules();
@@ -14,6 +15,14 @@ describe("Cookies de autenticação", () => {
             prefix: undefined,
             accessPath: "/api",
             refreshPath: "/api/auth",
+            secure: true,
+        },
+        {
+            environment: "production",
+            appEnvironment: "sandbox",
+            prefix: undefined,
+            accessPath: "/",
+            refreshPath: "/auth",
             secure: true,
         },
         {
@@ -32,8 +41,9 @@ describe("Cookies de autenticação", () => {
         },
     ])(
         "deve emitir e remover cookies nos mesmos caminhos em $environment com prefixo $prefix",
-        async ({ environment, prefix, accessPath, refreshPath, secure }) => {
+        async ({ environment, appEnvironment, prefix, accessPath, refreshPath, secure }) => {
             vi.stubEnv("NODE_ENV", environment);
+            vi.stubEnv("APP_ENV", appEnvironment);
             vi.stubEnv("AUTH_COOKIE_PATH_PREFIX", prefix);
             vi.resetModules();
 
@@ -98,6 +108,17 @@ describe("Cookies de autenticação", () => {
 
         await expect(import("../../../src/lib/authCookies.js")).rejects.toThrow(
             "AUTH_COOKIE_PATH_PREFIX deve ser vazio ou /api.",
+        );
+    });
+
+    test("deve impedir cookies com prefixo /api no sandbox de acesso direto", async () => {
+        vi.stubEnv("NODE_ENV", "production");
+        vi.stubEnv("APP_ENV", "sandbox");
+        vi.stubEnv("AUTH_COOKIE_PATH_PREFIX", "/api");
+        vi.resetModules();
+
+        await expect(import("../../../src/lib/authCookies.js")).rejects.toThrow(
+            "AUTH_COOKIE_PATH_PREFIX deve ser vazio no sandbox, pois a API usa caminhos diretos.",
         );
     });
 });

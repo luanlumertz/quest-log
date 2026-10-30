@@ -7,7 +7,12 @@ export default defineConfig({
             reporter: ["text", "html", "lcov"],
             reportsDirectory: "./coverage",
             include: ["src/**/*.ts"],
-            exclude: ["src/server.ts", "src/generated/prisma/**"],
+            exclude: [
+                "src/server.ts",
+                "src/generated/prisma/**",
+                "src/openapi.ts",
+                "src/openapi/**",
+            ],
 
             thresholds: {
                 statements: 90,

@@ -2,6 +2,8 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { openApiDocument } from "./openapi.js";
 import { routes } from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.middleware.js";
@@ -9,8 +11,10 @@ import { getTrustProxyHops } from "./lib/trustProxy.js";
 import { createCsrfProtection } from "./middlewares/csrf.middleware.js";
 import { createOriginProtection } from "./middlewares/origin.middleware.js";
 import { withRequestContext } from "./middlewares/requestContext.middleware.js";
+import { getAppEnvironment } from "./lib/appEnvironment.js";
 
 const app = express();
+const appEnvironment = getAppEnvironment();
 const frontendOrigin = new URL(process.env.FRONTEND_URL ?? "").origin;
 
 app.set("trust proxy", getTrustProxyHops());
@@ -32,6 +36,22 @@ app.use(createCsrfProtection(frontendOrigin));
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(cookieParser());
+
+if (process.env.NODE_ENV === "development" || appEnvironment === "sandbox") {
+    app.use(
+        "/docs",
+        helmet.contentSecurityPolicy({
+            directives: {
+                upgradeInsecureRequests: appEnvironment === "sandbox" ? [] : null,
+            },
+        }),
+        swaggerUi.serve,
+        swaggerUi.setup(openApiDocument, {
+            customSiteTitle: "QuestLog API · Documentação",
+            swaggerOptions: { withCredentials: true },
+        }),
+    );
+}
 
 app.use(routes);
 
