@@ -10,17 +10,20 @@ datasource db {
 }
 
 model User {
-    id             Int      @id @default(autoincrement())
+    id             Int       @id @default(autoincrement())
     name           String
-    email          String   @unique
+    email          String    @unique
     passwordHash   String
-    sessionVersion Int      @default(0)
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
+    sessionVersion Int       @default(0)
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    lastActiveAt   DateTime?
 
     libraryEntries   LibraryEntry[]
     refreshSessions  RefreshSession[]
     passwordRecovery PasswordRecovery?
+
+    @@index([lastActiveAt])
 }
 
 model Game {

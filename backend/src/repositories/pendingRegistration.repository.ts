@@ -4,6 +4,7 @@ import { AppError } from "../errors/AppError.js";
 import type { PendingRegistration } from "../generated/prisma/client.js";
 import { MAX_VERIFICATION_ATTEMPTS, VERIFICATION_RESEND_COOLDOWN_MS } from "../constants/auth.js";
 import { prisma } from "../lib/prisma.js";
+import { getAppEnvironment } from "../lib/appEnvironment.js";
 
 type SavePendingRegistrationData = {
     name: string;
@@ -106,6 +107,7 @@ export function completePendingRegistration(pending: PendingRegistration) {
                 name: pending.name,
                 email: pending.email,
                 passwordHash: pending.passwordHash,
+                ...(getAppEnvironment() === "sandbox" && { lastActiveAt: new Date() }),
             },
         });
     });
