@@ -89,8 +89,8 @@ export function registerAuthPaths(registry: OpenAPIRegistry) {
         tags: ["Autenticação"],
         summary: "Entrar na conta",
         description: isSandbox
-            ? `Autentica uma conta cadastrada e verificada neste sandbox. Retorna os dados públicos do usuário e define cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos, Path=/) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias, Path=/auth), ambos Secure e SameSite=Lax. Os tokens não são retornados no JSON. Envie X-QuestLog-Request: true e use uma conta criada neste ambiente. O navegador gerencia os cookies; não preencha Authorize. A renovação por /auth/refresh continua manual.`
-            : `Autentica uma conta já cadastrada e verificada. Retorna os dados públicos do usuário no JSON e define os cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias). Os tokens não são retornados no corpo. Os cookies usam SameSite=Lax e Secure em produção. No desenvolvimento padrão, os caminhos são / para acesso e /auth para renovação; com AUTH_COOKIE_PATH_PREFIX=/api, são /api e /api/auth. Para entrar pelo Swagger, abra http://localhost:5173/api/docs/, selecione o servidor /api, envie X-QuestLog-Request: true e substitua o exemplo pelas credenciais de uma conta local existente. O navegador armazena os cookies da resposta; não é necessário preencher Authorize. O Swagger não renova a sessão automaticamente. Para que o cookie de renovação também acompanhe chamadas pelo proxy /api, configure AUTH_COOKIE_PATH_PREFIX=/api no backend e entre novamente após reiniciá-lo.`,
+            ? `Autentica uma conta cadastrada e verificada neste sandbox. Retorna os dados públicos do usuário e define cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos, Path=/) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias, Path=/auth), ambos Secure e SameSite=Lax. Os tokens não são retornados no JSON. Envie X-QuestLog-Request: true e use uma conta criada neste ambiente. O navegador guarda e envia os cookies automaticamente. A renovação por /auth/refresh continua manual.`
+            : `Autentica uma conta já cadastrada e verificada. Retorna os dados públicos do usuário no JSON e define os cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias). Os tokens não são retornados no corpo. Os cookies usam SameSite=Lax e Secure em produção. No desenvolvimento padrão, os caminhos são / para acesso e /auth para renovação; com AUTH_COOKIE_PATH_PREFIX=/api, são /api e /api/auth. Para entrar pelo Swagger, abra http://localhost:5173/api/docs/, selecione o servidor /api, envie X-QuestLog-Request: true e substitua o exemplo pelas credenciais de uma conta local existente. O navegador armazena os cookies da resposta e os envia automaticamente nas próximas requisições. O Swagger não renova a sessão automaticamente. Para que o cookie de renovação também acompanhe chamadas pelo proxy /api, configure AUTH_COOKIE_PATH_PREFIX=/api no backend e entre novamente após reiniciá-lo.`,
         security: [],
         request: {
             headers: z.object({
@@ -119,14 +119,18 @@ export function registerAuthPaths(registry: OpenAPIRegistry) {
                 headers: {
                     "Set-Cookie": {
                         description:
-                            "Enviado em ocorrências separadas para accessToken e refreshToken. Os exemplos usam os caminhos padrão de desenvolvimento; o prefixo /api e Secure dependem da configuração do ambiente. O navegador gerencia esses cookies HttpOnly.",
+                            "Enviado em ocorrências separadas para accessToken e refreshToken. Os exemplos representam o sandbox HTTPS ou o proxy local com AUTH_COOKIE_PATH_PREFIX=/api. Com esse prefixo, também são enviados cabeçalhos para expirar cookies dos caminhos antigos. O navegador gerencia os cookies HttpOnly.",
                         schema: { type: "string" },
                         examples: {
                             access: {
-                                value: "accessToken=<token>; Path=/; HttpOnly; SameSite=Lax",
+                                value: isSandbox
+                                    ? "accessToken=<token>; Path=/; HttpOnly; Secure; SameSite=Lax"
+                                    : "accessToken=<token>; Path=/api; HttpOnly; SameSite=Lax",
                             },
                             refresh: {
-                                value: "refreshToken=<token>; Path=/auth; HttpOnly; SameSite=Lax",
+                                value: isSandbox
+                                    ? "refreshToken=<token>; Path=/auth; HttpOnly; Secure; SameSite=Lax"
+                                    : "refreshToken=<token>; Path=/api/auth; HttpOnly; SameSite=Lax",
                             },
                         },
                     },
@@ -151,11 +155,14 @@ export function registerAuthPaths(registry: OpenAPIRegistry) {
             },
             401: {
                 description:
-                    "E-mail não cadastrado ou senha incorreta. A mensagem é a mesma nos dois casos.",
+                    "E-mail não cadastrado ou senha incorreta retornam a mesma mensagem. Também pode ocorrer se a conta for removida ou a versão da sessão mudar durante a criação da sessão de login.",
                 content: {
                     "application/json": {
                         schema: messageResponseSchema,
-                        example: { message: "Email ou senha inválidos" },
+                        examples: {
+                            credentials: { value: { message: "Email ou senha inválidos" } },
+                            session: { value: { message: "Sessão inválida" } },
+                        },
                     },
                 },
             },

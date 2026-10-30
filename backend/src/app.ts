@@ -39,6 +39,41 @@ app.use(express.json());
 app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development" || appEnvironment === "sandbox") {
+    app.get("/docs/navigation.js", (_req, res) => {
+        res.type("application/javascript").send(`
+            const describeAuthentication = () => {
+                document.querySelectorAll(".swagger-ui .authorization__btn").forEach((button) => {
+                    if (button.disabled) return;
+                    button.disabled = true;
+                    button.title = "Exige autenticação por cookie. Faça login em POST /auth/login.";
+                    button.setAttribute("aria-label", button.title);
+                });
+            };
+            new MutationObserver(describeAuthentication).observe(document.body, {
+                childList: true,
+                subtree: true,
+            });
+            describeAuthentication();
+            document.addEventListener("click", (event) => {
+                const link = event.target instanceof Element
+                    ? event.target.closest('.swagger-ui a[href^="#/"]')
+                    : null;
+                if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                window.location.hash = link.getAttribute("href");
+                window.ui.layoutActions.parseDeepLinkHash(decodeURIComponent(window.location.hash));
+                const operationId = decodeURIComponent(window.location.hash).split("/")[2];
+                if (!operationId) return;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const operation = Array.from(document.querySelectorAll(".swagger-ui .opblock"))
+                            .find((element) => element.id.endsWith("-" + operationId));
+                        operation?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    });
+                });
+            });
+        `);
+    });
     app.use(
         "/docs",
         helmet.contentSecurityPolicy({
@@ -49,7 +84,10 @@ if (process.env.NODE_ENV === "development" || appEnvironment === "sandbox") {
         swaggerUi.serve,
         swaggerUi.setup(openApiDocument, {
             customSiteTitle: "QuestLog API · Documentação",
-            swaggerOptions: { withCredentials: true },
+            customJs: "./navigation.js",
+            customCss:
+                ".swagger-ui .auth-wrapper { display: none; } .swagger-ui .authorization__btn:disabled { cursor: default; opacity: 1; }",
+            swaggerOptions: { withCredentials: true, deepLinking: true },
         }),
     );
 }

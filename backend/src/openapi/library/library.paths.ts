@@ -1,4 +1,5 @@
 import { swaggerExecutionInstructions } from "../shared/usage.js";
+import { unexpectedBodyErrorResponses } from "../auth/auth.responses.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
 import {
@@ -41,6 +42,7 @@ export function registerLibraryPaths(registry: OpenAPIRegistry) {
             204: {
                 description: "Jogo removido da biblioteca. Resposta sem corpo.",
             },
+            ...unexpectedBodyErrorResponses,
             401: {
                 description: "Cookie de acesso ausente, inválido, expirado ou sessão revogada.",
                 content: {

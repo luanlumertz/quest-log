@@ -3,6 +3,7 @@ import { registerAuthPaths } from "./openapi/auth/auth.paths.js";
 import { registerLibraryPaths } from "./openapi/library/library.paths.js";
 import { registerSecuritySchemes } from "./openapi/shared/security.js";
 import { getAppEnvironment } from "./lib/appEnvironment.js";
+import { gettingStartedInstructions } from "./openapi/shared/usage.js";
 
 const isSandbox = getAppEnvironment() === "sandbox";
 const openApiRegistry = new OpenAPIRegistry();
@@ -18,21 +19,19 @@ export const openApiDocument = generator.generateDocument({
     info: {
         title: isSandbox ? "QuestLog API · Sandbox" : "QuestLog API",
         version: "1.0.0",
-        description: isSandbox
-            ? "Ambiente público de demonstração, separado da aplicação principal. As operações alteram os dados deste sandbox. Cadastre uma conta e faça login para experimentar as rotas protegidas. As contas são temporárias e podem ser removidas após mais de 30 dias sem atividade. Não use dados pessoais ou senhas de outras contas. A autenticação usa cookies enviados automaticamente pelo navegador."
-            : "API para gerenciar bibliotecas pessoais de jogos e acompanhar o progresso dos jogadores.",
+        description:
+            (isSandbox
+                ? "Ambiente público de demonstração, separado da aplicação principal. As operações alteram os dados deste sandbox. Cadastre uma conta e faça login para experimentar as rotas protegidas. As contas são temporárias e podem ser removidas após mais de 30 dias sem atividade. Não use dados pessoais ou senhas de outras contas. A autenticação usa cookies enviados automaticamente pelo navegador."
+                : "API para gerenciar bibliotecas pessoais de jogos e acompanhar o progresso dos jogadores. Para testar localmente, abra http://localhost:5173/api/docs/ com o frontend e o backend em execução.") +
+            "\n\n" +
+            gettingStartedInstructions,
     },
     servers: isSandbox
-        ? [{ url: "/", description: "API sandbox · mesmo endereço desta documentação" }]
+        ? [{ url: "/", description: "API sandbox" }]
         : [
               {
-                  url: "http://localhost:3000",
-                  description: "Ambiente de desenvolvimento local",
-              },
-              {
                   url: "/api",
-                  description:
-                      "Proxy local do Vite · abra a documentação em localhost:5173/api/docs/",
+                  description: "Proxy local do Vite",
               },
           ],
 });

@@ -35,6 +35,17 @@ export const jsonErrorResponses = {
     415: messageResponse("Corpo deve ser JSON.", "O corpo da requisição deve ser enviado em JSON."),
 };
 
+export const unexpectedBodyErrorResponses = {
+    400: messageResponse(
+        "Esta operação não recebe corpo, mas um JSON malformado enviado indevidamente é rejeitado antes de executar a rota.",
+        "JSON malformado",
+    ),
+    415: messageResponse(
+        "Esta operação não recebe corpo. Se um corpo for enviado indevidamente com Content-Type diferente de application/json, a proteção CSRF o rejeita.",
+        "O corpo da requisição deve ser enviado em JSON.",
+    ),
+};
+
 export const validationErrorResponse: ResponseConfig = {
     description:
         "Corpo inválido ou campos desconhecidos. Consulte issues para identificar os campos.",
