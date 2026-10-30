@@ -1,10 +1,12 @@
 import { OpenAPIRegistry, OpenApiGeneratorV31 } from "@asteasolutions/zod-to-openapi";
+import { registerAuthPaths } from "./openapi/auth/auth.paths.js";
 import { registerLibraryPaths } from "./openapi/library/library.paths.js";
 import { registerSecuritySchemes } from "./openapi/shared/security.js";
 
 const openApiRegistry = new OpenAPIRegistry();
 
 registerSecuritySchemes(openApiRegistry);
+registerAuthPaths(openApiRegistry);
 registerLibraryPaths(openApiRegistry);
 
 const generator = new OpenApiGeneratorV31(openApiRegistry.definitions);
