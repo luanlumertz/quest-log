@@ -1,3 +1,4 @@
+import { swaggerExecutionInstructions } from "../shared/usage.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
 import {
@@ -20,8 +21,7 @@ export function registerLibraryPaths(registry: OpenAPIRegistry) {
         operationId: "deleteLibraryEntry",
         tags: ["Biblioteca"],
         summary: "Remover um jogo da biblioteca",
-        description:
-            "Remove a entrada do jogo e suas associações de plataformas da biblioteca do usuário autenticado. O jogo permanece no catálogo local e nas bibliotecas de outros usuários. Use game.id como gameId, não o externalId da RAWG. Não envie corpo. A resposta de sucesso não contém JSON. Se a entrada não existir, inclusive após uma remoção anterior, retorna 404. Para executar pelo Swagger, faça login no frontend, abra http://localhost:5173/api/docs/, selecione o servidor /api e envie X-QuestLog-Request: true.",
+        description: `Remove a entrada do jogo e suas associações de plataformas da biblioteca do usuário autenticado. O jogo permanece no catálogo local e nas bibliotecas de outros usuários. Use game.id como gameId, não o externalId da RAWG. Não envie corpo. A resposta de sucesso não contém JSON. Se a entrada não existir, inclusive após uma remoção anterior, retorna 404. ${swaggerExecutionInstructions}`,
         security: [{ cookieAuth: [] }],
         request: {
             params: gameIdParamsSchema.extend({
@@ -97,8 +97,7 @@ export function registerLibraryPaths(registry: OpenAPIRegistry) {
         operationId: "updateLibraryEntry",
         tags: ["Biblioteca"],
         summary: "Atualizar um jogo da biblioteca",
-        description:
-            "Atualiza somente os campos enviados; informe pelo menos um. Use game.id como gameId. rating aceita de 0 a 5, com no máximo uma casa decimal, ou null para remover a nota. playtimeMinutes é um inteiro não negativo em minutos. platforms recebe IDs de availablePlatforms, não nomes, e substitui toda a seleção; [] remove todas as plataformas. Datas devem ser enviadas preferencialmente em ISO 8601 e são normalizadas para 00:00:00 UTC. null remove a data. Não são permitidas datas futuras ou conclusão anterior ao início, considerando também as datas já salvas. Alterar o status não preenche datas automaticamente. A resposta contém updatedLibraryEntry, com game e plataformas selecionadas, sem availablePlatforms. Para executar pelo Swagger, faça login no frontend, abra http://localhost:5173/api/docs/, selecione o servidor /api e envie X-QuestLog-Request: true.",
+        description: `Atualiza somente os campos enviados; informe pelo menos um. Use game.id como gameId. rating aceita de 0 a 5, com no máximo uma casa decimal, ou null para remover a nota. playtimeMinutes é um inteiro não negativo em minutos. platforms recebe IDs de availablePlatforms, não nomes, e substitui toda a seleção; [] remove todas as plataformas. Datas devem ser enviadas preferencialmente em ISO 8601 e são normalizadas para 00:00:00 UTC. null remove a data. Não são permitidas datas futuras ou conclusão anterior ao início, considerando também as datas já salvas. Alterar o status não preenche datas automaticamente. A resposta contém updatedLibraryEntry, com game e plataformas selecionadas, sem availablePlatforms. ${swaggerExecutionInstructions}`,
         security: [{ cookieAuth: [] }],
         request: {
             params: gameIdParamsSchema.extend({
@@ -270,8 +269,7 @@ export function registerLibraryPaths(registry: OpenAPIRegistry) {
         operationId: "addGameToLibrary",
         tags: ["Biblioteca"],
         summary: "Adicionar um jogo à biblioteca",
-        description:
-            "Adiciona um jogo pelo externalId da RAWG. Se ainda não existir no banco local, consulta a RAWG para salvar o jogo e suas plataformas. status é opcional (padrão WANT_TO_PLAY) e platforms é uma lista opcional de nomes, sem repetições (padrão []). Os nomes são comparados exatamente com as plataformas disponíveis, após remover espaços nas extremidades. A resposta retorna os campos da entrada criada e os nomes das plataformas selecionadas, sem o objeto game. Nota e datas começam nulas, e o tempo jogado começa em zero. Para executar pelo Swagger, faça login no frontend, abra http://localhost:5173/api/docs/ e selecione o servidor /api (proxy local do Vite). Envie X-QuestLog-Request: true. A origem e o cabeçalho são conferidos pela proteção CSRF.",
+        description: `Adiciona um jogo pelo externalId da RAWG. Se ainda não existir no banco local, consulta a RAWG para salvar o jogo e suas plataformas. status é opcional (padrão WANT_TO_PLAY) e platforms é uma lista opcional de nomes, sem repetições (padrão []). Os nomes são comparados exatamente com as plataformas disponíveis, após remover espaços nas extremidades. A resposta retorna os campos da entrada criada e os nomes das plataformas selecionadas, sem o objeto game. Nota e datas começam nulas, e o tempo jogado começa em zero. ${swaggerExecutionInstructions}`,
         security: [{ cookieAuth: [] }],
         request: {
             headers: z.object({

@@ -1,5 +1,6 @@
 import type { ResponseConfig } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
+import { getAppEnvironment } from "../../lib/appEnvironment.js";
 import { messageResponseSchema, validationErrorResponseSchema } from "../shared/error.schemas.js";
 
 export function messageResponse(description: string, message: string): ResponseConfig {
@@ -93,4 +94,6 @@ export const clearedSessionCookieHeaders = {
 };
 
 export const swaggerSessionInstructions =
-    "No Swagger, use http://localhost:5173/api/docs/, selecione /api e envie X-QuestLog-Request: true. Para renovar ou encerrar sessões pelo proxy, configure AUTH_COOKIE_PATH_PREFIX=/api no backend, reinicie-o e entre novamente. O Swagger não renova a sessão automaticamente.";
+    getAppEnvironment() === "sandbox"
+        ? "Use esta documentação e envie X-QuestLog-Request: true nas operações de escrita. O navegador envia os cookies recebidos no login. Execute /auth/refresh quando precisar renovar a sessão; o Swagger não renova automaticamente."
+        : "No Swagger, use http://localhost:5173/api/docs/, selecione /api e envie X-QuestLog-Request: true. Para renovar ou encerrar sessões pelo proxy, configure AUTH_COOKIE_PATH_PREFIX=/api no backend, reinicie-o e entre novamente. O Swagger não renova a sessão automaticamente.";

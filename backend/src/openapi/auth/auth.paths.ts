@@ -1,3 +1,4 @@
+import { getAppEnvironment } from "../../lib/appEnvironment.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
 import {
@@ -12,6 +13,7 @@ import { registerRegistrationPaths } from "./registration.paths.js";
 import { registerSessionPaths } from "./session.paths.js";
 
 export function registerAuthPaths(registry: OpenAPIRegistry) {
+    const isSandbox = getAppEnvironment() === "sandbox";
     registerSessionPaths(registry);
     registerRegistrationPaths(registry);
     registerProfilePaths(registry);
@@ -23,8 +25,9 @@ export function registerAuthPaths(registry: OpenAPIRegistry) {
         operationId: "getCurrentUser",
         tags: ["Autenticação"],
         summary: "Consultar o usuário da sessão atual",
-        description:
-            "Retorna id, name e email do usuário autenticado pelo cookie HttpOnly accessToken. Não recebe corpo ou parâmetros e não exige o cabeçalho CSRF para esta consulta GET. Para executar pelo Swagger, abra http://localhost:5173/api/docs/, selecione o servidor /api e faça login por POST /auth/login; o navegador envia o cookie automaticamente. Senhas, hashes e tokens não são retornados. Esta rota não renova a sessão; se o acesso expirar, retorna 401.",
+        description: isSandbox
+            ? "Retorna id, name e email pelo cookie accessToken. Faça login por POST /auth/login nesta documentação. O navegador envia os cookies automaticamente. Esta consulta GET não exige cabeçalho CSRF, não retorna senhas ou tokens e não renova a sessão."
+            : "Retorna id, name e email do usuário autenticado pelo cookie HttpOnly accessToken. Não recebe corpo ou parâmetros e não exige o cabeçalho CSRF para esta consulta GET. Para executar pelo Swagger, abra http://localhost:5173/api/docs/, selecione o servidor /api e faça login por POST /auth/login; o navegador envia o cookie automaticamente. Senhas, hashes e tokens não são retornados. Esta rota não renova a sessão; se o acesso expirar, retorna 401.",
         security: [{ cookieAuth: [] }],
         responses: {
             200: {
@@ -85,7 +88,9 @@ export function registerAuthPaths(registry: OpenAPIRegistry) {
         operationId: "loginUser",
         tags: ["Autenticação"],
         summary: "Entrar na conta",
-        description: `Autentica uma conta já cadastrada e verificada. Retorna os dados públicos do usuário no JSON e define os cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias). Os tokens não são retornados no corpo. Os cookies usam SameSite=Lax e Secure em produção. No desenvolvimento padrão, os caminhos são / para acesso e /auth para renovação; com AUTH_COOKIE_PATH_PREFIX=/api, são /api e /api/auth. Para entrar pelo Swagger, abra http://localhost:5173/api/docs/, selecione o servidor /api, envie X-QuestLog-Request: true e substitua o exemplo pelas credenciais de uma conta local existente. O navegador armazena os cookies da resposta; não é necessário preencher Authorize. O Swagger não renova a sessão automaticamente. Para que o cookie de renovação também acompanhe chamadas pelo proxy /api, configure AUTH_COOKIE_PATH_PREFIX=/api no backend e entre novamente após reiniciá-lo.`,
+        description: isSandbox
+            ? `Autentica uma conta cadastrada e verificada neste sandbox. Retorna os dados públicos do usuário e define cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos, Path=/) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias, Path=/auth), ambos Secure e SameSite=Lax. Os tokens não são retornados no JSON. Envie X-QuestLog-Request: true e use uma conta criada neste ambiente. O navegador gerencia os cookies; não preencha Authorize. A renovação por /auth/refresh continua manual.`
+            : `Autentica uma conta já cadastrada e verificada. Retorna os dados públicos do usuário no JSON e define os cookies HttpOnly accessToken (validade de ${ACCESS_TOKEN_EXPIRES_IN_MINUTES} minutos) e refreshToken (validade de ${REFRESH_TOKEN_EXPIRES_IN_DAYS} dias). Os tokens não são retornados no corpo. Os cookies usam SameSite=Lax e Secure em produção. No desenvolvimento padrão, os caminhos são / para acesso e /auth para renovação; com AUTH_COOKIE_PATH_PREFIX=/api, são /api e /api/auth. Para entrar pelo Swagger, abra http://localhost:5173/api/docs/, selecione o servidor /api, envie X-QuestLog-Request: true e substitua o exemplo pelas credenciais de uma conta local existente. O navegador armazena os cookies da resposta; não é necessário preencher Authorize. O Swagger não renova a sessão automaticamente. Para que o cookie de renovação também acompanhe chamadas pelo proxy /api, configure AUTH_COOKIE_PATH_PREFIX=/api no backend e entre novamente após reiniciá-lo.`,
         security: [],
         request: {
             headers: z.object({

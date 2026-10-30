@@ -1,3 +1,4 @@
+import { mailDeliveryInstructions } from "../shared/usage.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
 import { messageResponseSchema } from "../shared/error.schemas.js";
@@ -23,7 +24,7 @@ export function registerRegistrationPaths(registry: OpenAPIRegistry) {
         operationId: "registerUser",
         tags: ["Cadastro"],
         summary: "Iniciar cadastro e enviar código de verificação",
-        description: `Cria ou atualiza um cadastro pendente e envia um código de seis dígitos. Uma nova solicitação para o mesmo e-mail substitui o ID e o código pendentes anteriores. O código vale dez minutos e o cadastro pendente vale trinta minutos. A conta só é criada após POST /auth/register/verify. Use pendingRegistrationId retornado nas próximas etapas. No ambiente local, consulte o código no Mailpit em http://localhost:8025. ${swaggerSessionInstructions}`,
+        description: `Cria ou atualiza um cadastro pendente e envia um código de seis dígitos. Uma nova solicitação para o mesmo e-mail substitui o ID e o código pendentes anteriores. O código vale dez minutos e o cadastro pendente vale trinta minutos. A conta só é criada após POST /auth/register/verify. Use pendingRegistrationId retornado nas próximas etapas. ${mailDeliveryInstructions} ${swaggerSessionInstructions}`,
         security: [],
         request: {
             headers: csrfHeadersSchema,

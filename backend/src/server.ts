@@ -6,11 +6,13 @@ import { startPendingRegistrationCleanup } from "./jobs/cleanupPendingRegistrati
 import { startPasswordRecoveryCleanup } from "./jobs/cleanupPasswordRecoveries.js";
 import { waitForPasswordRecoveryEmails } from "./services/password.service.js";
 import { logger } from "./lib/logger.js";
+import { getAppEnvironment } from "./lib/appEnvironment.js";
 
+const appEnvironment = getAppEnvironment();
 const PORT = process.env.PORT || process.env.PORT_LOCAL;
 
 const server = app.listen(PORT, () => {
-    logger.info({ event: "server.started", port: PORT }, "Servidor iniciado");
+    logger.info({ event: "server.started", port: PORT, appEnvironment }, "Servidor iniciado");
 });
 
 const stopPendingRegistrationCleanup = startPendingRegistrationCleanup();

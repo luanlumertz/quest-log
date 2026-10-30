@@ -11,8 +11,10 @@ import { getTrustProxyHops } from "./lib/trustProxy.js";
 import { createCsrfProtection } from "./middlewares/csrf.middleware.js";
 import { createOriginProtection } from "./middlewares/origin.middleware.js";
 import { withRequestContext } from "./middlewares/requestContext.middleware.js";
+import { getAppEnvironment } from "./lib/appEnvironment.js";
 
 const app = express();
+const appEnvironment = getAppEnvironment();
 const frontendOrigin = new URL(process.env.FRONTEND_URL ?? "").origin;
 
 app.set("trust proxy", getTrustProxyHops());
@@ -35,12 +37,12 @@ app.disable("x-powered-by");
 app.use(express.json());
 app.use(cookieParser());
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "development" || appEnvironment === "sandbox") {
     app.use(
         "/docs",
         helmet.contentSecurityPolicy({
             directives: {
-                upgradeInsecureRequests: null,
+                upgradeInsecureRequests: appEnvironment === "sandbox" ? [] : null,
             },
         }),
         swaggerUi.serve,

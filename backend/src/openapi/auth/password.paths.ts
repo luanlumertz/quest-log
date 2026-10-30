@@ -1,3 +1,4 @@
+import { mailDeliveryInstructions } from "../shared/usage.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
 import { PASSWORD_RESET_TOKEN_EXPIRES_IN_MS } from "../../constants/auth.js";
@@ -38,7 +39,7 @@ export function registerPasswordPaths(registry: OpenAPIRegistry) {
             method: "post",
             ...operation,
             tags: ["Senha"],
-            description: `Solicita o envio de um código de seis dígitos, válido por dez minutos. Retorna a mesma resposta 202 para e-mail existente ou inexistente, cooldown, limite por conta e falhas posteriores de envio. O processamento ocorre em segundo plano; 202 não garante que um e-mail foi enviado. Solicitação e reenvio compartilham o limite por IP. Por conta, há cooldown de sessenta segundos e limite de dez envios por hora. Um novo envio válido substitui o código e a autorização de redefinição anteriores. No ambiente local, consulte o Mailpit em http://localhost:8025. ${swaggerSessionInstructions}`,
+            description: `Solicita o envio de um código de seis dígitos, válido por dez minutos. Retorna a mesma resposta 202 para e-mail existente ou inexistente, cooldown, limite por conta e falhas posteriores de envio. O processamento ocorre em segundo plano; 202 não garante que um e-mail foi enviado. Solicitação e reenvio compartilham o limite por IP. Por conta, há cooldown de sessenta segundos e limite de dez envios por hora. Um novo envio válido substitui o código e a autorização de redefinição anteriores. ${mailDeliveryInstructions} ${swaggerSessionInstructions}`,
             security: [],
             request: {
                 headers: csrfHeadersSchema,
