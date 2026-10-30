@@ -3,6 +3,7 @@ import {
     parseSandboxCleanupArguments,
 } from "../lib/sandboxCleanup.js";
 import { logger } from "../lib/logger.js";
+import { appendFileSync } from "node:fs";
 
 let stage = "arguments";
 
@@ -22,6 +23,30 @@ async function main() {
         const result = await cleanupInactiveSandboxUsers({ execute });
 
         console.log(JSON.stringify(result));
+
+        if (process.env.GITHUB_STEP_SUMMARY) {
+            appendFileSync(
+                process.env.GITHUB_STEP_SUMMARY,
+                [
+                    "## Limpeza de contas do sandbox",
+                    "",
+                    result.mode === "execute"
+                        ? "Execução concluída. As contas elegíveis foram excluídas."
+                        : "Conferência concluída. Nenhuma conta foi excluída.",
+                    "",
+                    "| Informação | Resultado |",
+                    "| --- | --- |",
+                    `| Banco | ${result.database} |`,
+                    `| Modo | ${result.mode === "execute" ? "Exclusão" : "Somente conferência"} |`,
+                    `| Prazo de inatividade | Mais de ${result.inactivityDays} dias |`,
+                    `| Data de corte (UTC) | ${result.cutoff} |`,
+                    `| Contas elegíveis na conferência | ${result.candidates} |`,
+                    `| Contas excluídas | ${result.deleted} |`,
+                    "",
+                ].join("\n"),
+                "utf8",
+            );
+        }
     } finally {
         await prisma.$disconnect();
     }

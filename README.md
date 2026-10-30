@@ -4,6 +4,8 @@
 
 [Acesse o QuestLog](https://quest-log-omega-jade.vercel.app/)
 
+[Explore e teste a API no Swagger](https://questlog-sandbox.onrender.com/docs/)
+
 O QuestLog é uma aplicação web para organizar sua biblioteca de jogos e acompanhar sua experiência com cada título. Registre o progresso, o tempo jogado, as datas de início e conclusão e suas avaliações, reunindo em um só lugar o histórico da sua jornada nos jogos.
 
 O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse esses registros da forma como eu gostaria de usar. Desenvolvi o QuestLog para atender a uma necessidade própria e aproveitei essa oportunidade para aprofundar meus conhecimentos em desenvolvimento full stack, testes automatizados, Docker e pipelines de integração e entrega contínuas.
@@ -15,6 +17,7 @@ O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse
 - [Funcionalidades](#funcionalidades)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
+- [Documentação da API](#documentação-da-api)
 - [Como executar localmente](#como-executar-localmente)
 - [Como executar os testes](#como-executar-os-testes)
 - [Licença](#licença)
@@ -45,6 +48,7 @@ O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse
 - **Node.js, Express e TypeScript:** desenvolvimento da API REST.
 - **PostgreSQL e Prisma ORM:** persistência dos dados, consultas e migrations.
 - **Zod:** validação dos dados recebidos pela API.
+- **OpenAPI e Swagger UI:** documentação dos endpoints e execução de requisições pelo navegador.
 - **JSON Web Token (JWT) e bcryptjs:** autenticação e hash de senhas.
 - **Helmet, CORS e express-rate-limit:** cabeçalhos de segurança, configuração de acesso entre origens e limitação de requisições.
 - **Pino:** logs estruturados.
@@ -96,6 +100,16 @@ No backend, as responsabilidades são divididas entre **rotas e middlewares** (e
 No frontend, as **páginas e os componentes** compõem a interface, os **hooks** organizam consultas e mutações com React Query, e os **services** centralizam as chamadas à API. O cliente HTTP também coordena a renovação da sessão e a repetição da requisição quando necessário.
 
 No ambiente local, o Docker Compose disponibiliza PostgreSQL, pgAdmin e Mailpit. O Mailpit permite inspecionar os e-mails enviados por SMTP durante o desenvolvimento.
+
+## Documentação da API
+
+A [documentação interativa no Swagger UI](https://questlog-sandbox.onrender.com/docs/) permite consultar os endpoints documentados e testar requisições diretamente pelo navegador, sem instalar o projeto.
+
+Os testes usam um **sandbox com API e banco próprios**, separado das contas e dos dados da aplicação principal. As operações são reais dentro desse ambiente: é possível criar, alterar e excluir seus dados de teste.
+
+Para testar rotas protegidas, crie uma conta no sandbox pelas rotas de cadastro, confirme o código recebido por e-mail e faça login por `POST /auth/login`. O navegador gerencia os cookies automaticamente; não é necessário copiar tokens para o botão **Authorize**. Se a sessão de acesso expirar, use `POST /auth/refresh` ou faça login novamente.
+
+As contas do sandbox ficam elegíveis para exclusão automática após mais de **30 dias sem atividade**. O serviço pode demorar a responder no primeiro acesso após um período de inatividade.
 
 ## Como executar localmente
 

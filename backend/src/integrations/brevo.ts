@@ -19,24 +19,33 @@ export async function sendBrevoEmail({ to, subject, text, html }: SendEmailOptio
 
     let htmlContent = html;
     if (htmlContent?.includes("cid:questlog-logo")) {
+        const configuredLogoUrl = process.env.EMAIL_LOGO_URL;
         const frontendUrl = process.env.FRONTEND_URL;
-        if (!frontendUrl)
+        if (!configuredLogoUrl && !frontendUrl)
             throw new IntegrationError("FRONTEND_URL necessária para a logo dos e-mails", {
                 service: "brevo",
                 operation: "send",
                 reason: "configuration",
             });
 
-        const logoUrl = new URL("/favicon/android-chrome-192x192.png", frontendUrl);
-        if (logoUrl.protocol !== "https:") {
-            throw new IntegrationError("A logo dos e-mails da Brevo exige FRONTEND_URL com HTTPS", {
-                service: "brevo",
-                operation: "send",
-                reason: "configuration",
-            });
+        const logoUrl = z
+            .url()
+            .safeParse(
+                configuredLogoUrl ??
+                    new URL("/favicon/android-chrome-192x192.png", frontendUrl).href,
+            );
+        if (!logoUrl.success || new URL(logoUrl.data).protocol !== "https:") {
+            throw new IntegrationError(
+                "A logo dos e-mails da Brevo exige EMAIL_LOGO_URL ou FRONTEND_URL com HTTPS",
+                {
+                    service: "brevo",
+                    operation: "send",
+                    reason: "configuration",
+                },
+            );
         }
 
-        htmlContent = htmlContent.replaceAll("cid:questlog-logo", logoUrl.href);
+        htmlContent = htmlContent.replaceAll("cid:questlog-logo", logoUrl.data);
     }
 
     let response: Response;
