@@ -9,6 +9,7 @@
         "test": "dotenv -e .env.test -- vitest run",
         "test:migrate": "dotenv -e .env.test -- prisma migrate deploy",
         "test:coverage": "dotenv -e .env.test -- vitest run --coverage",
+        "sandbox:cleanup": "node dist/scripts/cleanupSandbox.js",
         "dev:e2e": "tsx ../e2e/scripts/start-backend.mts",
         "e2e:seed": "tsx ../e2e/seeds/game.seed.mts",
         "lint": "eslint .",

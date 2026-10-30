@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/AppError.js";
 import { verifyToken } from "../lib/jwt.js";
-import { findUserById } from "../repositories/user.repository.js";
+import { findUserById, recordSandboxActivity } from "../repositories/user.repository.js";
 
 export async function authenticateToken(req: Request, _res: Response, next: NextFunction) {
     const accessToken = req.cookies.accessToken;
@@ -23,6 +23,8 @@ export async function authenticateToken(req: Request, _res: Response, next: Next
     if (!user || user.sessionVersion !== payload.sessionVersion) {
         throw new AppError("Não autenticado", 401);
     }
+
+    await recordSandboxActivity(user.id, payload.sessionVersion);
 
     req.userId = user.id;
 

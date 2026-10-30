@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { AppError } from "../errors/AppError.js";
 import { lockUserForSession, runSessionTransaction } from "./session.repository.js";
+import { recordSandboxActivity } from "./user.repository.js";
 
 export function createRefreshSession(
     userId: number,
@@ -15,9 +16,13 @@ export function createRefreshSession(
             throw new AppError("Sessão inválida", 401);
         }
 
-        return tx.refreshSession.create({
+        const session = await tx.refreshSession.create({
             data: { userId, tokenHash, expiresAt },
         });
+
+        await recordSandboxActivity(userId, sessionVersion, tx);
+
+        return session;
     });
 }
 
@@ -64,12 +69,16 @@ export function rotateRefreshSession(
             throw new AppError("Sessão inválida", 401);
         }
 
-        return tx.refreshSession.create({
+        const session = await tx.refreshSession.create({
             data: {
                 userId,
                 tokenHash: newTokenHash,
                 expiresAt,
             },
         });
+
+        await recordSandboxActivity(userId, sessionVersion, tx);
+
+        return session;
     });
 }

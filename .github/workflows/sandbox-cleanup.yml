@@ -1,0 +1,60 @@
+name: Conferência de contas inativas do sandbox
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "17 6 * * *"
+
+permissions:
+    contents: read
+
+concurrency:
+    group: sandbox-account-cleanup
+    cancel-in-progress: false
+
+jobs:
+    dry-run:
+        name: Conferir contas sem excluir
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        defaults:
+            run:
+                working-directory: backend
+        env:
+            NODE_ENV: production
+            APP_ENV: sandbox
+            DATABASE_URL: postgresql://build:build@localhost:5432/quest_log_sandbox
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Configurar Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: npm
+                  cache-dependency-path: backend/package-lock.json
+
+            - name: Instalar dependências
+              run: npm ci --include=dev
+
+            - name: Gerar Prisma Client
+              run: npx prisma generate
+
+            - name: Compilar backend
+              run: npm run build
+
+            - name: Conferir contas inativas (sem excluir)
+              env:
+                  DATABASE_URL: ${{ secrets.SANDBOX_DATABASE_URL }}
+              run: |
+                  if [ -z "$DATABASE_URL" ]; then
+                      echo "::error::Cadastre o segredo SANDBOX_DATABASE_URL com a conexão exclusiva do sandbox."
+                      exit 1
+                  fi
+
+                  npm run sandbox:cleanup -- --dry-run

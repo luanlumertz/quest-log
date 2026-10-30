@@ -19,7 +19,7 @@ export const openApiDocument = generator.generateDocument({
         title: isSandbox ? "QuestLog API · Sandbox" : "QuestLog API",
         version: "1.0.0",
         description: isSandbox
-            ? "Ambiente público de demonstração, separado da aplicação principal. As operações alteram os dados deste sandbox. Cadastre uma conta e faça login para experimentar as rotas protegidas. Não use dados pessoais ou senhas de outras contas. A autenticação usa cookies enviados automaticamente pelo navegador."
+            ? "Ambiente público de demonstração, separado da aplicação principal. As operações alteram os dados deste sandbox. Cadastre uma conta e faça login para experimentar as rotas protegidas. As contas são temporárias e podem ser removidas após mais de 30 dias sem atividade. Não use dados pessoais ou senhas de outras contas. A autenticação usa cookies enviados automaticamente pelo navegador."
             : "API para gerenciar bibliotecas pessoais de jogos e acompanhar o progresso dos jogadores.",
     },
     servers: isSandbox
