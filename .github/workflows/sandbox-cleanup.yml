@@ -1,4 +1,4 @@
-name: Conferência de contas inativas do sandbox
+name: Limpeza de contas inativas do sandbox
 
 on:
     workflow_dispatch:
@@ -13,8 +13,8 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-    dry-run:
-        name: Conferir contas sem excluir
+    cleanup:
+        name: Excluir contas inativas do sandbox
         if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         timeout-minutes: 10
@@ -48,7 +48,7 @@ jobs:
             - name: Compilar backend
               run: npm run build
 
-            - name: Conferir contas inativas (sem excluir)
+            - name: Excluir contas com mais de 30 dias sem atividade
               env:
                   DATABASE_URL: ${{ secrets.SANDBOX_DATABASE_URL }}
               run: |
@@ -57,4 +57,4 @@ jobs:
                       exit 1
                   fi
 
-                  npm run sandbox:cleanup -- --dry-run
+                  npm run sandbox:cleanup -- --execute

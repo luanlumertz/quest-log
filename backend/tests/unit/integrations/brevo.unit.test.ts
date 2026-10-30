@@ -20,6 +20,7 @@ describe("sendBrevoEmail", () => {
         vi.stubEnv("BREVO_SENDER_EMAIL", "questlog@example.com");
         vi.stubEnv("BREVO_SENDER_NAME", "QuestLog");
         vi.stubEnv("FRONTEND_URL", "https://questlog.example.com");
+        vi.stubEnv("EMAIL_LOGO_URL", undefined);
     });
 
     afterEach(() => {
@@ -53,6 +54,29 @@ describe("sendBrevoEmail", () => {
         });
         assert.notInclude(options?.body as string, "chave-ficticia");
     });
+
+    test("deve usar a logo configurada mesmo quando FRONTEND_URL aponta para o sandbox", async () => {
+        vi.stubEnv("FRONTEND_URL", "https://sandbox.example.com");
+        vi.stubEnv("EMAIL_LOGO_URL", "https://frontend.example.com/logo.png");
+        const fetchMock = mockFetchResponse({ messageId: "<email-aceito>" }, 201);
+
+        await sendBrevoEmail(message);
+
+        const body = JSON.parse(fetchMock.mock.calls[0]![1]?.body as string);
+        assert.include(body.htmlContent, 'src="https://frontend.example.com/logo.png"');
+        assert.notInclude(body.htmlContent, "sandbox.example.com");
+    });
+
+    test.each(["http://frontend.example.com/logo.png", "endereco-invalido"])(
+        "deve rejeitar EMAIL_LOGO_URL inválida sem enviar e-mail: %s",
+        async (url) => {
+            vi.stubEnv("EMAIL_LOGO_URL", url);
+            const fetchMock = mockFetchResponse({ messageId: "<email>" });
+
+            await expect(sendBrevoEmail(message)).rejects.toThrow(/EMAIL_LOGO_URL/);
+            assert.equal(fetchMock.mock.calls.length, 0);
+        },
+    );
 
     test("deve aceitar envio somente em texto sem exigir URL de logo", async () => {
         vi.stubEnv("BREVO_SENDER_NAME", "");
