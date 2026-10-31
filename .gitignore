@@ -12,6 +12,7 @@ node_modules/
 # Builds
 dist/
 build/
+storybook-static/
 
 # Testes / coverage
 coverage/
