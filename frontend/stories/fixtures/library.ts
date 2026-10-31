@@ -1,5 +1,6 @@
-import type { LibraryEntry } from "../../src/types/library.types";
+import type { LibraryEntry, LibraryEntryDetails } from "../../src/types/library.types";
 import type { RecentGame } from "../../src/types/dashboard.types";
+import { GAME_STATUSES } from "../../src/types/game.types";
 
 export const demoLibraryEntry = {
     status: "PLAYING",
@@ -39,3 +40,20 @@ export const demoPlatforms = [
     { id: 4, name: "PlayStation 4" },
     { id: 5, name: "Xbox One" },
 ];
+
+export const demoLibraryEntryDetails: LibraryEntryDetails = {
+    ...demoLibraryEntry,
+    availablePlatforms: demoPlatforms,
+};
+
+export const demoLibraryEntries: LibraryEntry[] = GAME_STATUSES.map((status, index) => ({
+    ...demoLibraryEntry,
+    status,
+    rating: index === 1 ? null : index === 2 ? 0 : 4.5,
+    game: {
+        ...demoLibraryEntry.game,
+        id: index + 1,
+        title: index === 0 ? demoLibraryEntry.game.title : `Jogo de demonstração ${index + 1}`,
+        coverUrl: index % 2 === 0 ? demoLibraryEntry.game.coverUrl : null,
+    },
+}));

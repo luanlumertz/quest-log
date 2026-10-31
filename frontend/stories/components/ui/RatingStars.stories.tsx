@@ -4,12 +4,12 @@ import { RatingStars } from "../../../src/components/ui/RatingStars";
 const meta = {
     title: "Componentes/UI/RatingStars",
     component: RatingStars,
-    args: { rating: 4.2 },
+    args: { rating: 4.2, showValue: true, size: "md", tone: "amber" },
     parameters: {
         docs: {
             description: {
                 component:
-                    "Exibe uma nota numérica e cinco estrelas com preenchimento parcial. É somente leitura: clicar nas estrelas não altera a nota. O preenchimento visual é limitado entre 0 e 5, mas o texto e o aria-label usam o valor recebido; por isso, forneça uma nota válida. Inteiros aparecem sem casa decimal e valores fracionários com uma casa decimal. O componente exige um número; a indicação de jogo sem nota (null) fica a cargo de quem o utiliza.",
+                    "Exibe cinco estrelas com preenchimento parcial e número opcional. É somente leitura: clicar nas estrelas não altera a nota. O preenchimento visual é limitado entre 0 e 5, mas o texto e o aria-label usam o valor recebido; forneça uma nota válida. Inteiros aparecem sem casa decimal e valores fracionários com uma casa decimal. showValue=false mantém apenas as estrelas e o rótulo acessível, como no LibraryRatingField. size controla o tamanho das estrelas e tone sua cor. Por padrão preserva a apresentação dos cartões. A indicação de jogo sem nota (null) pertence a quem o utiliza.",
             },
         },
     },
@@ -21,6 +21,21 @@ const meta = {
         ),
     ],
     argTypes: {
+        showValue: {
+            control: "boolean",
+            description:
+                "Exibe o número com largura reservada de 3ch. Sem ele, o grupo ocupa apenas a largura das estrelas.",
+        },
+        size: {
+            control: "select",
+            options: ["md", "lg"],
+            description: "Estrelas de 18px ou 20px; não altera o tamanho do número.",
+        },
+        tone: {
+            control: "select",
+            options: ["amber", "gold"],
+            description: "Cor das estrelas preenchidas e do número.",
+        },
         rating: {
             control: { type: "range", min: 0, max: 5, step: 0.1 },
             description:
@@ -36,3 +51,8 @@ export const Fracionada: Story = {};
 export const Inteira: Story = { args: { rating: 3 } };
 export const Zero: Story = { args: { rating: 0 } };
 export const Maxima: Story = { name: "Máxima", args: { rating: 5 } };
+export const SemNumero: Story = { name: "Sem número", args: { showValue: false } };
+export const NoCampoDeNota: Story = {
+    name: "Apresentação do campo de nota",
+    args: { showValue: false, size: "lg", tone: "gold" },
+};
