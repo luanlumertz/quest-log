@@ -41,3 +41,27 @@ export const openApiDocument = generator.generateDocument({
               },
           ],
 });
+
+// Modelos na ordem dos grupos de rotas; mensagens e erros compartilhados ao final.
+const schemaOrder = [
+    "User",
+    "LibraryEntry",
+    "CreatedLibraryEntry",
+    "LibraryEntryDetails",
+    "GameSummary",
+    "GameDetails",
+    "GameSearchResponse",
+    "DashboardStats",
+    "DashboardRecentGame",
+    "DashboardData",
+    "MessageResponse",
+    "ValidationErrorResponse",
+];
+
+if (openApiDocument.components?.schemas) {
+    const schemas = openApiDocument.components.schemas;
+    openApiDocument.components.schemas = Object.fromEntries([
+        ...schemaOrder.filter((name) => name in schemas).map((name) => [name, schemas[name]]),
+        ...Object.entries(schemas).filter(([name]) => !schemaOrder.includes(name)),
+    ]);
+}
