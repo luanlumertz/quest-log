@@ -1,6 +1,5 @@
-import { useId } from "react";
 import type { Platform } from "../../../types/platform.types";
-import { MaterialIcon } from "../../ui/MaterialIcon";
+import { MultiSelectChips } from "../../ui/MultiSelectChips";
 
 type LibraryPlatformSelectorProps = {
     platforms: Platform[];
@@ -17,78 +16,21 @@ export function LibraryPlatformSelector({
     disabled = false,
     onToggle,
 }: LibraryPlatformSelectorProps) {
-    const errorId = `${useId()}-error`;
-
     return (
-        <fieldset
+        <MultiSelectChips
+            label={
+                <>
+                    Plataforma(s) jogada(s){" "}
+                    <span className="normal-case tracking-normal">(opcional)</span>
+                </>
+            }
+            options={platforms.map((platform) => ({ value: platform.id, label: platform.name }))}
+            selectedValues={selectedPlatforms}
+            onToggle={onToggle}
             disabled={disabled}
-            aria-invalid={!!error}
-            aria-describedby={error ? errorId : undefined}
-        >
-            <legend
-                className="
-                    text-[10px] font-semibold
-                    uppercase tracking-widest
-                    text-ink-mute
-                "
-            >
-                Plataforma(s) jogada(s){" "}
-                <span className="normal-case tracking-normal">(opcional)</span>
-            </legend>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-                {platforms.map((platform) => {
-                    const isSelected = selectedPlatforms.includes(platform.id);
-
-                    return (
-                        <button
-                            key={platform.id}
-                            type="button"
-                            aria-pressed={isSelected}
-                            onClick={() => onToggle(platform.id)}
-                            className={`
-                                flex items-center gap-1
-                                rounded-lg border
-                                px-3 py-1.5
-                                text-xs font-medium
-                                transition-colors
-                                cursor-pointer
-                                disabled:cursor-not-allowed
-                                disabled:opacity-60
-                                ${
-                                    isSelected
-                                        ? `
-                                            border-brand/60
-                                            bg-brand/15
-                                            text-brand
-                                        `
-                                        : `
-                                            border-divider-bright
-                                            bg-surface
-                                            text-ink-mute
-                                            hover:border-ink-mute
-                                            hover:text-ink-dim
-                                        `
-                                }
-                            `}
-                        >
-                            {isSelected && <MaterialIcon name="check" className="text-sm!" />}
-
-                            {platform.name}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {platforms.length === 0 && (
-                <p className="mt-3 text-sm text-ink-mute">Nenhuma plataforma disponível.</p>
-            )}
-
-            {error && (
-                <p id={errorId} className="mt-2 text-xs text-danger">
-                    {error}
-                </p>
-            )}
-        </fieldset>
+            error={error}
+            emptyMessage="Nenhuma plataforma disponível."
+            showCheck
+        />
     );
 }

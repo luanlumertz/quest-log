@@ -11,7 +11,7 @@ import type { LibraryEntry } from "../types/library.types";
 import { LibraryGrid } from "../components/library/list/LibraryGrid";
 import { LibraryFilters } from "../components/library/list/LibraryFilters";
 
-import { Alert } from "../components/ui/Alert";
+import { RetryAlert } from "../components/ui/RetryAlert";
 import { Button, ButtonLink } from "../components/ui/Button";
 import { StateView } from "../components/ui/StateView";
 import { RetryErrorState } from "../components/ui/RetryErrorState";
@@ -130,22 +130,13 @@ export function Library() {
             />
 
             {isAllLibraryError && !isError && entries.length > 0 && (
-                <Alert className="mt-5">
-                    <div>
-                        <p>Não foi possível atualizar os contadores da biblioteca.</p>
-
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            isLoading={isAllLibraryFetching}
-                            loadingText="Tentando..."
-                            onClick={() => void refetchAllLibrary()}
-                            className="mt-3"
-                        >
-                            Tentar novamente
-                        </Button>
-                    </div>
-                </Alert>
+                <RetryAlert
+                    className="mt-5"
+                    isRetrying={isAllLibraryFetching}
+                    onRetry={() => void refetchAllLibrary()}
+                >
+                    <p>Não foi possível atualizar os contadores da biblioteca.</p>
+                </RetryAlert>
             )}
 
             {isLoading || isResolvingEmptyState ? (

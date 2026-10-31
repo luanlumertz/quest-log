@@ -1,7 +1,6 @@
 import type { GameSearchResult } from "../../../types/game.types";
 
-import { Alert } from "../../ui/Alert";
-import { Button } from "../../ui/Button";
+import { RetryAlert } from "../../ui/RetryAlert";
 import { LoadingState } from "../../ui/LoadingState";
 import { StateView } from "../../ui/StateView";
 import { RetryErrorState } from "../../ui/RetryErrorState";
@@ -90,26 +89,16 @@ export function SearchGamesResults({
             </p>
 
             {isLibraryError && (
-                <Alert className="mb-6">
-                    <div>
-                        <p>Não foi possível verificar quais jogos já estão na sua biblioteca.</p>
-
-                        <p className="mt-1 text-xs opacity-80">
-                            Os resultados da busca continuam disponíveis normalmente.
-                        </p>
-
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            isLoading={isLibraryFetching}
-                            loadingText="Tentando..."
-                            onClick={onRetryLibrary}
-                            className="mt-3"
-                        >
-                            Tentar novamente
-                        </Button>
-                    </div>
-                </Alert>
+                <RetryAlert
+                    className="mb-6"
+                    onRetry={onRetryLibrary}
+                    isRetrying={isLibraryFetching}
+                >
+                    <p>Não foi possível verificar quais jogos já estão na sua biblioteca.</p>
+                    <p className="mt-1 text-xs opacity-80">
+                        Os resultados da busca continuam disponíveis normalmente.
+                    </p>
+                </RetryAlert>
             )}
 
             <div
