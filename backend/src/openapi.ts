@@ -5,6 +5,7 @@ import { registerSecuritySchemes } from "./openapi/shared/security.js";
 import { getAppEnvironment } from "./lib/appEnvironment.js";
 import { gettingStartedInstructions } from "./openapi/shared/usage.js";
 import { registerGamePaths } from "./openapi/games/game.paths.js";
+import { registerDashboardPaths } from "./openapi/dashboard/dashboard.paths.js";
 
 const isSandbox = getAppEnvironment() === "sandbox";
 const openApiRegistry = new OpenAPIRegistry();
@@ -13,6 +14,7 @@ registerSecuritySchemes(openApiRegistry);
 registerAuthPaths(openApiRegistry);
 registerLibraryPaths(openApiRegistry);
 registerGamePaths(openApiRegistry);
+registerDashboardPaths(openApiRegistry);
 
 const generator = new OpenApiGeneratorV31(openApiRegistry.definitions);
 
