@@ -1,8 +1,7 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
-import { Button } from "../components/ui/Button";
+import { SessionErrorState } from "../components/auth/SessionErrorState";
 import { LoadingState } from "../components/ui/LoadingState";
-import { StateView } from "../components/ui/StateView";
 
 export function PublicRoute() {
     const { user, status, retryAuth } = useAuth();
@@ -12,16 +11,7 @@ export function PublicRoute() {
     }
 
     if (status === "error") {
-        return (
-            <StateView
-                icon="error"
-                tone="danger"
-                title="Não foi possível verificar sua sessão"
-                description="Verifique sua conexão e tente novamente."
-                className="min-h-dvh! bg-backdrop"
-                action={<Button onClick={() => void retryAuth()}>Tentar novamente</Button>}
-            />
-        );
+        return <SessionErrorState onRetry={() => void retryAuth()} />;
     }
 
     if (status === "authenticated" && user) {

@@ -4,6 +4,7 @@ import { Alert } from "../../ui/Alert";
 import { Button } from "../../ui/Button";
 import { LoadingState } from "../../ui/LoadingState";
 import { StateView } from "../../ui/StateView";
+import { RetryErrorState } from "../../ui/RetryErrorState";
 
 import { SearchGameCard } from "./SearchGameCard";
 
@@ -53,17 +54,12 @@ export function SearchGamesResults({
 
     if (isError) {
         return (
-            <StateView
-                icon="error"
-                tone="danger"
+            <RetryErrorState
                 title="Não foi possível buscar os jogos"
                 description="Tente novamente em alguns instantes."
                 className="mt-8"
-                action={
-                    <Button isLoading={isFetching} loadingText="Tentando..." onClick={onRetry}>
-                        Tentar novamente
-                    </Button>
-                }
+                isRetrying={isFetching}
+                onRetry={onRetry}
             />
         );
     }

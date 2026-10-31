@@ -2,8 +2,8 @@ import { Link } from "react-router";
 
 import type { RecentGame } from "../../types/dashboard.types";
 import { StateView } from "../ui/StateView";
+import { ButtonLink } from "../ui/Button";
 import { RecentGameItem } from "./RecentGameItem";
-import { RecentGamesEmptyState } from "./RecentGamesEmptyState";
 
 type RecentGamesProps = {
     games: RecentGame[];
@@ -42,7 +42,13 @@ export function RecentGames({ games, totalGames }: RecentGamesProps) {
             <div className="px-5 py-3.5">
                 {!hasRecentGames ? (
                     totalGames === 0 ? (
-                        <RecentGamesEmptyState />
+                        <StateView
+                            icon="stadia_controller"
+                            title="Sua biblioteca está vazia"
+                            description="Adicione seu primeiro jogo para começar a acompanhar seu progresso."
+                            className="min-h-0! py-8"
+                            action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
+                        />
                     ) : (
                         <StateView
                             icon="schedule"

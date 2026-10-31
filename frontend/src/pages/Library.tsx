@@ -8,14 +8,13 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { GameStatus } from "../types/game.types";
 import type { LibraryEntry } from "../types/library.types";
 
-import { LibraryEmptyState } from "../components/library/list/LibraryEmptyState";
 import { LibraryGrid } from "../components/library/list/LibraryGrid";
-import { LibraryNoResults } from "../components/library/list/LibraryNoResults";
 import { LibraryFilters } from "../components/library/list/LibraryFilters";
 
 import { Alert } from "../components/ui/Alert";
-import { Button } from "../components/ui/Button";
+import { Button, ButtonLink } from "../components/ui/Button";
 import { StateView } from "../components/ui/StateView";
+import { RetryErrorState } from "../components/ui/RetryErrorState";
 import { LoadingState } from "../components/ui/LoadingState";
 
 function isGameStatus(value: string | null): value is GameStatus {
@@ -152,43 +151,41 @@ export function Library() {
             {isLoading || isResolvingEmptyState ? (
                 <LoadingState label="Carregando biblioteca..." />
             ) : isError ? (
-                <StateView
-                    icon="error"
-                    tone="danger"
+                <RetryErrorState
                     title="Não foi possível carregar sua biblioteca"
                     description="Tente novamente em alguns instantes."
                     className="mt-8"
-                    action={
-                        <Button
-                            isLoading={isFetching}
-                            loadingText="Tentando..."
-                            onClick={() => void refetch()}
-                        >
-                            Tentar novamente
-                        </Button>
-                    }
+                    isRetrying={isFetching}
+                    onRetry={() => void refetch()}
                 />
             ) : isAllLibraryError && entries.length === 0 ? (
-                <StateView
-                    icon="error"
-                    tone="danger"
+                <RetryErrorState
                     title="Não foi possível carregar sua biblioteca"
                     description="Não conseguimos verificar os jogos da sua biblioteca. Tente novamente."
                     className="mt-8"
+                    isRetrying={isAllLibraryFetching}
+                    onRetry={() => void refetchAllLibrary()}
+                />
+            ) : isLibraryEmpty ? (
+                <StateView
+                    icon="library_books"
+                    title="Sua biblioteca está vazia"
+                    description="Procure jogos e adicione os que você quer acompanhar."
+                    className="mt-8"
+                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
+                />
+            ) : entries.length === 0 ? (
+                <StateView
+                    icon="search_off"
+                    title="Nenhum jogo encontrado"
+                    description="Nenhum jogo corresponde aos filtros atuais."
+                    className="mt-8"
                     action={
-                        <Button
-                            isLoading={isAllLibraryFetching}
-                            loadingText="Tentando..."
-                            onClick={() => void refetchAllLibrary()}
-                        >
-                            Tentar novamente
+                        <Button variant="secondary" onClick={handleClearFilters}>
+                            Limpar filtros
                         </Button>
                     }
                 />
-            ) : isLibraryEmpty ? (
-                <LibraryEmptyState />
-            ) : entries.length === 0 ? (
-                <LibraryNoResults onClearFilters={handleClearFilters} />
             ) : (
                 <LibraryGrid entries={entries} />
             )}

@@ -7,14 +7,29 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { GameDetailsHero } from "../components/game/details/GameDetailsHero";
 import { GameDetailsAbout } from "../components/game/details/GameDetailsAbout";
 
-import { Button, ButtonLink } from "../components/ui/Button";
+import { ButtonLink } from "../components/ui/Button";
 import { BackButton } from "../components/ui/BackButton";
 import { LoadingState } from "../components/ui/LoadingState";
 import { StateView } from "../components/ui/StateView";
+import { RetryErrorState } from "../components/ui/RetryErrorState";
 
 import { DEFAULT_GAME_COVER_URL } from "../config/game.config";
 
 import { ApiError } from "../services/api";
+
+function GameNotFoundState({ description, onBack }: { description: string; onBack: () => void }) {
+    return (
+        <div className="pt-4">
+            <BackButton onClick={onBack}>Voltar</BackButton>
+            <StateView
+                icon="search_off"
+                title="Jogo não encontrado"
+                description={description}
+                action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
+            />
+        </div>
+    );
+}
 
 export function GameDetails() {
     const { externalId } = useParams();
@@ -36,15 +51,10 @@ export function GameDetails() {
 
     if (!isValidExternalId) {
         return (
-            <div className="pt-4">
-                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
-                <StateView
-                    icon="search_off"
-                    title="Jogo não encontrado"
-                    description="O endereço acessado não corresponde a um jogo válido."
-                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
-                />
-            </div>
+            <GameNotFoundState
+                description="O endereço acessado não corresponde a um jogo válido."
+                onBack={() => navigate(-1)}
+            />
         );
     }
 
@@ -54,49 +64,30 @@ export function GameDetails() {
 
     if (isError && error instanceof ApiError && error.status === 404) {
         return (
-            <div className="pt-4">
-                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
-                <StateView
-                    icon="search_off"
-                    title="Jogo não encontrado"
-                    description="O jogo solicitado não existe ou não está mais disponível."
-                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
-                />
-            </div>
+            <GameNotFoundState
+                description="O jogo solicitado não existe ou não está mais disponível."
+                onBack={() => navigate(-1)}
+            />
         );
     }
 
     if (isError) {
         return (
-            <StateView
-                icon="error"
-                tone="danger"
+            <RetryErrorState
                 title="Não foi possível carregar o jogo"
                 description="Tente novamente em alguns instantes."
-                action={
-                    <Button
-                        isLoading={isFetching}
-                        loadingText="Tentando..."
-                        onClick={() => void refetch()}
-                    >
-                        Tentar novamente
-                    </Button>
-                }
+                isRetrying={isFetching}
+                onRetry={() => void refetch()}
             />
         );
     }
 
     if (!data) {
         return (
-            <div className="pt-4">
-                <BackButton onClick={() => navigate(-1)}>Voltar</BackButton>
-                <StateView
-                    icon="search_off"
-                    title="Jogo não encontrado"
-                    description="O jogo solicitado não está disponível."
-                    action={<ButtonLink to="/games/search">Procurar jogos</ButtonLink>}
-                />
-            </div>
+            <GameNotFoundState
+                description="O jogo solicitado não está disponível."
+                onBack={() => navigate(-1)}
+            />
         );
     }
 
