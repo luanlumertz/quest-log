@@ -28,7 +28,9 @@ export function RatingStars({ rating }: RatingStarsProps) {
                 ))}
             </div>
 
-            <span className="text-sm font-semibold text-amber-400">{formatRating(rating)}</span>
+            <span className="w-[3ch] shrink-0 text-center text-sm font-semibold tabular-nums text-amber-400">
+                {formatRating(rating)}
+            </span>
         </div>
     );
 }
