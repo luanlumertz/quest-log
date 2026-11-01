@@ -52,7 +52,7 @@ O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse
 - **OpenAPI e Swagger UI:** documentação dos endpoints e execução de requisições pelo navegador.
 - **JSON Web Token (JWT) e bcryptjs:** autenticação e hash de senhas.
 - **Helmet, CORS e express-rate-limit:** cabeçalhos de segurança, configuração de acesso entre origens e limitação de requisições.
-- **Pino:** logs estruturados.
+- **Pino:** logs estruturados em JSON na produção e saída legível com pino-pretty no desenvolvimento.
 - **RAWG:** integração com o catálogo de jogos.
 - **Brevo e Nodemailer:** envio de e-mails pela API da Brevo ou por SMTP, conforme o ambiente.
 
@@ -148,6 +148,8 @@ npm run storybook
 
 Acesse [http://localhost:6006/](http://localhost:6006/). O catálogo usa **dados fictícios e operações simuladas**: não precisa de login, backend, banco ou Docker, e as interações não alteram os dados da aplicação. Os mesmos exemplos são usados localmente e no catálogo publicado.
 
+Com as dependências do frontend instaladas, você também pode iniciá-lo pela raiz com `npm run storybook`.
+
 Para gerar a versão estática, dentro de `frontend/`:
 
 ```sh
@@ -165,17 +167,15 @@ O resultado é gerado em `frontend/storybook-static/`, pasta ignorada pelo Git.
 - Docker com Docker Compose disponível.
 - Uma chave da API da RAWG para buscar jogos e consultar seus detalhes.
 
-### 1. Clonar o repositório e instalar as dependências
+### 1. Clonar o repositório e instalar as ferramentas da raiz
 
 ```sh
 git clone https://github.com/luanlumertz/quest-log.git
 cd quest-log
 npm ci
-npm ci --prefix backend
-npm ci --prefix frontend
 ```
 
-As dependências da raiz, do backend e do frontend são instaladas separadamente.
+O `npm ci` instala as ferramentas da raiz conforme o `package-lock.json`. As dependências do backend e do frontend serão instaladas pelo comando `setup`, após a configuração dos arquivos de ambiente.
 
 ### 2. Configurar as variáveis de ambiente
 
@@ -221,52 +221,78 @@ VITE_API_URL="http://localhost:3000"
 
 As chaves da RAWG e de autenticação ficam somente no backend. Os arquivos `.env` são ignorados pelo Git.
 
-### 3. Iniciar os serviços locais
+### 3. Instalar as aplicações e preparar o banco local
 
 Na raiz do repositório, com o Docker em execução:
 
 ```sh
-docker compose up -d
-docker compose ps
+npm run setup
+npm run db:prepare
 ```
 
-Aguarde o PostgreSQL ficar saudável antes de aplicar as migrations. O Compose inicia o banco, o pgAdmin e o Mailpit; o backend e o frontend serão executados separadamente nos próximos passos.
+O `setup` instala as dependências do backend e do frontend com `npm ci` e gera o Prisma Client. Execute-o no primeiro uso e quando precisar reinstalar as dependências.
 
-### 4. Preparar o banco e iniciar o backend
+O `db:prepare` inicia PostgreSQL, pgAdmin e Mailpit pelo Compose, aguarda o banco ficar saudável e aplica as migrations existentes. Ele exige uma conexão local com o banco `quest_log` na porta `5432`, conferindo tanto `DATABASE_URL` quanto `DIRECT_URL`, quando definida. Variáveis do terminal têm prioridade sobre o `backend/.env`; conexões de outros ambientes são recusadas.
 
-Em um terminal, a partir da raiz:
+Execute `db:prepare` no primeiro uso e após receber novas migrations. Esses comandos exigem o Docker instalado e em execução; não iniciam o Docker Desktop automaticamente.
+
+### 4. Iniciar o ambiente de desenvolvimento
+
+Na raiz:
 
 ```sh
-cd backend
-npx prisma generate
-npx prisma migrate deploy
 npm run dev
 ```
 
-O comando `prisma generate` gera o Prisma Client, e `prisma migrate deploy` aplica as migrations existentes ao banco local. A API fica disponível em `http://localhost:3000`, com healthcheck em `http://localhost:3000/healthz`.
+O comando verifica as portas, inicia a infraestrutura se necessário, aguarda o PostgreSQL e executa backend e frontend no mesmo terminal. Um resumo apresenta os endereços locais. O ambiente combinado inicia as ferramentas diretamente pelo Node, com menos anúncios de inicialização e preservando os avisos e erros do Vite e do Storybook. A telemetria do Storybook fica desativada nessa execução.
 
-### 5. Iniciar o frontend
+Os logs da API usam pino-pretty no desenvolvimento, com horário, nível e mensagem. A produção e a CI mantêm JSON. No Windows, a API recebe a saída direta para evitar uma incompatibilidade do `tsx watch`; os outros serviços recebem os prefixos **WEB** e **STORYBOOK**. As dependências e migrations devem estar preparadas conforme o passo anterior.
 
-Em outro terminal, a partir da raiz:
+Para incluir o Storybook:
 
 ```sh
-cd frontend
-npm run dev
+npm run dev:full
 ```
 
-Acesse `http://localhost:5173`. Mantenha essa porta disponível, pois ela está configurada como origem permitida no backend.
+Acesse a aplicação em `http://localhost:5173`, o Swagger em `http://localhost:5173/api/docs/` e o Storybook em `http://localhost:6006/`. A API usa `PORT` ou `PORT_LOCAL` do backend; com o exemplo local, fica em `http://localhost:3000`, com healthcheck em `/healthz`.
 
-### 6. Criar uma conta e acessar a aplicação
+O ambiente combinado exige `NODE_ENV=development` e `APP_ENV=development`, quando definidos, e o banco local `quest_log`. Se uma porta necessária estiver ocupada, a inicialização é interrompida sem encerrar o processo existente. O frontend e o Storybook também exigem suas portas ao serem iniciados individualmente.
+
+Os comandos individuais continuam disponíveis na raiz:
+
+| Comando                         | Finalidade                                         |
+| ------------------------------- | -------------------------------------------------- |
+| `npm run dev --prefix backend`  | Iniciar somente a API                              |
+| `npm run dev --prefix frontend` | Iniciar somente o frontend                         |
+| `npm run storybook`             | Iniciar somente o catálogo, sem depender do Docker |
+| `npm run infra:up`              | Iniciar a infraestrutura e aguardar sua preparação |
+| `npm run infra:stop`            | Parar a infraestrutura preservando os dados        |
+
+Você também pode entrar na pasta de cada aplicação e executar o comando diretamente, em terminais separados:
+
+| Pasta de execução | Comando             | Finalidade                 |
+| ----------------- | ------------------- | -------------------------- |
+| `backend/`        | `npm run dev`       | Iniciar somente a API      |
+| `frontend/`       | `npm run dev`       | Iniciar somente o frontend |
+| `frontend/`       | `npm run storybook` | Iniciar somente o catálogo |
+
+Por exemplo, `cd backend` seguido de `npm run dev` equivale a executar `npm run dev --prefix backend` na raiz. Os comandos individuais não iniciam a infraestrutura automaticamente: para usar a aplicação, mantenha os serviços preparados no passo anterior em execução ou use `npm run infra:up` na raiz. Encerre cada servidor com `Ctrl+C` no respectivo terminal.
+
+Se a preparação da infraestrutura falhar, os servidores não começam. Depois de iniciados, quando um dos comandos do grupo encerrar, os demais serão encerrados pelo `concurrently`. Erros de requisição ou falhas internas que mantenham um comando de observação aberto não encerram automaticamente o grupo.
+
+### 5. Criar uma conta e acessar a aplicação
 
 Cadastre-se pela interface e abra o Mailpit em `http://localhost:8025` para consultar o código de verificação enviado por e-mail. Após verificar o cadastro, entre na aplicação e busque jogos para montar sua biblioteca.
 
 O pgAdmin fica disponível em `http://localhost:5050`, com o e-mail e a senha definidos no `.env` da raiz. Para cadastrar a conexão com o banco nele, use o host `postgres`, a porta `5432`, o banco `quest_log`, o usuário `questlog` e a senha definida em `POSTGRES_PASSWORD`.
 
-Para encerrar, interrompa o frontend e o backend com `Ctrl+C` nos respectivos terminais e execute, na raiz:
+Para encerrar, use `Ctrl+C` no terminal de `dev` ou `dev:full`; os servidores daquele grupo serão encerrados com uma mensagem de conclusão. Esse encerramento intencional não é tratado como falha da aplicação. No Windows, o npm que abriu o comando ainda pode pedir uma confirmação de encerramento, dependendo do terminal. O encerramento dos servidores não para os containers; o aviso de infraestrutura ligada aparece somente quando a consulta ao Docker encontra containers do projeto em execução. Para parar a infraestrutura, execute na raiz:
 
 ```sh
-docker compose stop
+npm run infra:stop
 ```
+
+O `infra:stop` para apenas os containers do projeto. Se for executado com a aplicação ainda aberta, as operações que usam banco e SMTP podem falhar. Processos iniciados em outros terminais são independentes, mas compartilham esses serviços.
 
 Os dados são mantidos nos volumes do Docker. As credenciais iniciais do PostgreSQL são aplicadas na primeira criação do volume; alterar apenas o `.env` depois disso não altera a senha do banco existente.
 
@@ -277,6 +303,10 @@ Instale as dependências e gere o Prisma Client conforme o guia de execução lo
 Os bancos `quest_log_test` e `quest_log_e2e` são criados pelos scripts do Docker na primeira inicialização de um volume vazio; volumes anteriores à inclusão desses scripts precisam ter esses bancos criados separadamente.
 
 Para as migrations de testes, deixe `DIRECT_URL` sem definição, inclusive no terminal, para que o Prisma use a `DATABASE_URL` do banco de testes correspondente. Execute os comandos em um terminal sem variáveis de conexão de outro ambiente, pois variáveis já definidas nele podem ter prioridade sobre os arquivos `.env`.
+
+### Scripts do ambiente local
+
+Na raiz, execute `npm run test:dev` para verificar as proteções de conexão, os conflitos de portas e o encerramento do grupo. Esses testes usam conexões fictícias e processos isolados; não precisam de Docker nem acessam o banco.
 
 ### Backend: testes unitários e de integração
 
@@ -393,7 +423,9 @@ npx playwright show-report
 
 ### Verificações automatizadas
 
-A CI no GitHub Actions executa a verificação de formatação, lint, checagem de tipos, builds, testes com cobertura e E2E. O job **Frontend** também gera o build do Storybook para verificar se o catálogo compila. Os relatórios de cobertura e os resultados do Playwright são disponibilizados como artefatos das respectivas etapas.
+A CI no GitHub Actions executa a verificação de formatação, lint, checagem de tipos, builds, testes com cobertura e E2E. O job **Formatação** também executa os testes dos scripts de desenvolvimento da raiz. O job **Frontend** gera o build do Storybook para verificar se o catálogo compila. Os relatórios de cobertura e os resultados do Playwright são disponibilizados como artefatos das respectivas etapas.
+
+Todos os jobs têm limites de tempo explícitos, com limites adicionais nas etapas de builds e testes. Um novo commit no mesmo PR cancela a execução anterior daquele PR. As execuções de push na `main` mantêm o acompanhamento dos deploys, com grupos separados para produção e sandbox.
 
 ## Licença
 

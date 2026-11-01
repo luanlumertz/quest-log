@@ -1,4 +1,6 @@
 import { assert, describe, test } from "vitest";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { createLogger } from "../../../src/lib/logger.js";
 import { AppError } from "../../../src/errors/AppError.js";
@@ -19,6 +21,37 @@ function captureLogs() {
 }
 
 describe("logger", () => {
+    for (const mode of ["development", "production"]) {
+        test(`deve usar ${mode === "development" ? "formato legível no desenvolvimento" : "JSON em produção"} preservando a remoção de segredos`, () => {
+            const output = execFileSync(
+                process.execPath,
+                [
+                    "--import",
+                    "tsx",
+                    "--input-type=module",
+                    "--eval",
+                    'import { createLogger } from "./src/lib/logger.js"; const logger = createLogger(); logger.info({ password: "SEGREDO", port: 3000 }, "Log de teste");',
+                ],
+                {
+                    cwd: fileURLToPath(new URL("../../../", import.meta.url)),
+                    encoding: "utf8",
+                    timeout: 10000,
+                    env: { ...process.env, NODE_ENV: mode, CI: "", LOG_LEVEL: "info" },
+                },
+            );
+            assert.notInclude(output, "SEGREDO");
+            if (mode === "development") {
+                assert.include(output, "INFO");
+                assert.include(output, "[API] Log de teste");
+            } else {
+                const entry = JSON.parse(output);
+                assert.equal(entry.level, "info");
+                assert.equal(entry.msg, "Log de teste");
+                assert.equal(entry.service, "questlog-backend");
+            }
+        });
+    }
+
     test("deve registrar contexto e causa técnica sem mensagens arbitrárias ou credenciais", () => {
         const { logger, lines } = captureLogs();
         const original = Object.assign(
