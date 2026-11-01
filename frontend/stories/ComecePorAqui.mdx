@@ -1,0 +1,124 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Comece por aqui" />
+
+# Comece por aqui
+
+Este é o catálogo de interface do **QuestLog**, uma aplicação para organizar sua biblioteca de jogos, registrar o progresso, acompanhar o tempo jogado e avaliar sua experiência com cada título.
+
+Aqui você pode explorar os componentes e suas combinações em diferentes estados: preenchimento, validação, carregamento, sucesso, erro e ausência de dados.
+
+## Como explorar
+
+1. Escolha um grupo na barra lateral e abra um componente.
+2. Selecione **Docs** para consultar a descrição, as propriedades e os exemplos disponíveis.
+3. Abra um exemplo no **Canvas** para interagir com ele isoladamente. Cada exemplo apresenta um estado ou comportamento do componente.
+4. Use o painel **Controls** para modificar as propriedades disponíveis. O painel **Actions** registra os cliques e callbacks configurados na demonstração.
+
+Algumas prévias de Docs ficam em **iframes**, que são áreas isoladas usadas para preservar foco, medidas, identificadores dos campos e temporizadores. Nesses casos, a tabela é uma referência das propriedades; use o link **Canvas deste componente** para abrir os controles interativos. Nos exemplos exibidos diretamente em Docs, a própria tabela também permite editar as propriedades.
+
+## Dados e operações da demonstração
+
+Os usuários e registros da biblioteca são **fictícios**, e os serviços da API são simulados. Você pode experimentar salvar, sair da sessão ou excluir a conta nos exemplos sem alterar seus dados na aplicação.
+
+Os formulários mantêm as validações reais do projeto. As respostas de sucesso, falha e demora são simuladas conforme o cenário escolhido. Para confirmar um código no cenário de sucesso, por exemplo, você pode digitar qualquer sequência de **seis dígitos**; nenhum e-mail é enviado.
+
+Não é necessário fazer login, iniciar o backend ou ligar o Docker para explorar o catálogo. Alguns exemplos oferecem **Reiniciar demonstração** para repetir o fluxo; recarregar a página também restaura o estado inicial.
+
+## Experimente estes exemplos
+
+<ul>
+    <li>
+        <a href="./?path=/story/componentes-ui-button--primario" target="_top">
+            Button
+        </a>
+        : altere a variante, o tamanho e o estado de carregamento em Controls.
+    </li>
+    <li>
+        <a
+            href="./?path=/story/componentes-autentica%C3%A7%C3%A3o-verificationcodeform--confirmacao"
+            target="_top"
+        >
+            Verificação de código
+        </a>
+        : teste a validação, confirme um código e acompanhe a espera após um reenvio.
+    </li>
+    <li>
+        <a href="./?path=/story/componentes-dashboard-nowplaying--carrossel" target="_top">
+            Jogando agora
+        </a>
+        : navegue pelos cartões e experimente pausar o avanço automático.
+    </li>
+    <li>
+        <a
+            href="./?path=/story/componentes-navega%C3%A7%C3%A3o-applayout--responsivo"
+            target="_top"
+        >
+            Layout da aplicação
+        </a>
+        : navegue entre páginas ilustrativas e compare as apresentações de mobile e desktop.
+    </li>
+</ul>
+
+## Tamanhos de tela
+
+Use o controle de tamanho da prévia (**viewport**) na barra de ferramentas do Canvas ou redimensione sua área de visualização para observar o comportamento responsivo.
+
+Alguns exemplos de navegação usam presets fixos de **mobile (390px)** ou **desktop (1440px)**. Para variar livremente o tamanho, abra o exemplo **Responsivo** de AppLayout. A navegação inferior aparece abaixo de 1024px; a partir dessa largura, o cabeçalho desktop assume a navegação.
+
+## Organização do catálogo
+
+- **UI:** elementos reutilizáveis, como botões, alertas, campos de seleção, estrelas e modais.
+- **Autenticação:** campos, validação de nova senha, confirmação de código e layouts de acesso.
+- **Dashboard:** estatísticas, jogos em andamento, atividade recente e distribuição por status.
+- **Jogos:** busca, detalhes e adição de jogos à biblioteca.
+- **Biblioteca:** filtros, cartões, listagem e edição dos registros de um jogo.
+- **Perfil:** informações da conta, alteração de senha, logout e confirmação de exclusão.
+- **Navegação:** menu de perfil, cabeçalho, barra mobile e composição da aplicação.
+
+## Explore o projeto
+
+<ul>
+    <li>
+        <a
+            href="https://quest-log-omega-jade.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Aplicação QuestLog
+        </a>
+        : use a aplicação e sua biblioteca pessoal.
+    </li>
+    <li>
+        <a
+            href="https://questlog-sandbox.onrender.com/docs/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            API no Swagger
+        </a>
+        : consulte e teste as rotas em um sandbox separado. Ao contrário das simulações deste
+        catálogo, as operações da API são reais dentro do banco de testes.
+    </li>
+    <li>
+        <a
+            href="https://github.com/luanlumertz/quest-log"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Repositório no GitHub
+        </a>
+        : veja o código, os testes e as instruções para executar o projeto.
+    </li>
+</ul>
+
+## Executar o catálogo localmente
+
+Com as dependências do frontend já instaladas, execute a partir da raiz do repositório:
+
+```sh
+cd frontend
+npm run storybook
+```
+
+O endereço local padrão é **http://localhost:6006/**. O README do repositório reúne as instruções de instalação do projeto.

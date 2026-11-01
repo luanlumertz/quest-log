@@ -12,6 +12,7 @@ const preview: Preview = {
     tags: ["autodocs"],
     parameters: {
         layout: "padded",
+        options: { storySort: { order: ["Comece por aqui", "Componentes"] } },
         docs: { theme: themes.dark, page: DocsPage },
         backgrounds: {
             options: {
