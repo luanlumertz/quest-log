@@ -1,10 +1,9 @@
 # QuestLog
 
+[![Acesse o QuestLog](https://img.shields.io/badge/QuestLog-Acessar-7C6AF7?style=flat)](https://quest-log-omega-jade.vercel.app/)
+[![Explore e teste a API no Swagger](https://img.shields.io/badge/Swagger-API-85EA2D?style=flat&logo=swagger&logoColor=white)](https://questlog-sandbox.onrender.com/docs/)
+[![Explore o catálogo de componentes no Storybook](https://img.shields.io/badge/Storybook-Componentes-FF4785?style=flat&logo=storybook&logoColor=white)](#catálogo-de-componentes)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/luanlumertz/quest-log)
-
-[Acesse o QuestLog](https://quest-log-omega-jade.vercel.app/)
-
-[Explore e teste a API no Swagger](https://questlog-sandbox.onrender.com/docs/)
 
 O QuestLog é uma aplicação web para organizar sua biblioteca de jogos e acompanhar sua experiência com cada título. Registre o progresso, o tempo jogado, as datas de início e conclusão e suas avaliações, reunindo em um só lugar o histórico da sua jornada nos jogos.
 
@@ -18,6 +17,7 @@ O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Documentação da API](#documentação-da-api)
+- [Catálogo de componentes](#catálogo-de-componentes)
 - [Como executar localmente](#como-executar-localmente)
 - [Como executar os testes](#como-executar-os-testes)
 - [Licença](#licença)
@@ -42,6 +42,7 @@ O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse
 - **React Router:** navegação entre páginas.
 - **TanStack Query (React Query):** consultas à API, cache e sincronização dos dados.
 - **React Hook Form e Zod:** gerenciamento e validação dos formulários.
+- **Storybook:** catálogo interativo dos componentes, suas propriedades e estados.
 
 ### Backend
 
@@ -103,13 +104,57 @@ No ambiente local, o Docker Compose disponibiliza PostgreSQL, pgAdmin e Mailpit.
 
 ## Documentação da API
 
-A [documentação interativa no Swagger UI](https://questlog-sandbox.onrender.com/docs/) permite consultar os endpoints documentados e testar requisições diretamente pelo navegador, sem instalar o projeto.
+A documentação usa **OpenAPI e Swagger UI** para apresentar endpoints, parâmetros, autenticação, respostas e modelos de dados (**Schemas**), além de permitir a execução de requisições pelo navegador. A seção **Comece por aqui** orienta o cadastro, a confirmação da conta e o login.
+
+### Acesso público ao Swagger
+
+[Explore e teste a API no Swagger](https://questlog-sandbox.onrender.com/docs/), sem instalar o projeto.
 
 Os testes usam um **sandbox com API e banco próprios**, separado das contas e dos dados da aplicação principal. As operações são reais dentro desse ambiente: é possível criar, alterar e excluir seus dados de teste.
 
-Para testar rotas protegidas, crie uma conta no sandbox pelas rotas de cadastro, confirme o código recebido por e-mail e faça login por `POST /auth/login`. O navegador gerencia os cookies automaticamente; não é necessário copiar tokens para o botão **Authorize**. Se a sessão de acesso expirar, use `POST /auth/refresh` ou faça login novamente.
+Para testar rotas protegidas, crie uma conta no sandbox pelas rotas de cadastro, confirme o código recebido por e-mail e faça login por `POST /auth/login`. O navegador gerencia os cookies automaticamente; não é necessário copiar tokens manualmente. Nas operações que exigem `X-QuestLog-Request`, mantenha o valor `true`. Se a sessão de acesso expirar, use `POST /auth/refresh` ou faça login novamente.
 
 As contas do sandbox ficam elegíveis para exclusão automática após mais de **30 dias sem atividade**. O serviço pode demorar a responder no primeiro acesso após um período de inatividade.
+
+### Acesso local ao Swagger
+
+Siga o guia de [execução local](#como-executar-localmente) e mantenha o backend e o frontend em execução. Abra [http://localhost:5173/api/docs/](http://localhost:5173/api/docs/); o servidor `/api` usa o proxy local do Vite.
+
+Para renovar e encerrar a sessão pelo Swagger local, configure no `backend/.env`:
+
+```dotenv
+AUTH_COOKIE_PATH_PREFIX=/api
+```
+
+Reinicie o backend e faça login novamente após essa configuração. Use uma conta do ambiente local e consulte os códigos de confirmação no [Mailpit](http://localhost:8025). As requisições são reais e usam o banco configurado no backend local.
+
+## Catálogo de componentes
+
+O **Storybook** apresenta os componentes de UI, autenticação, dashboard, jogos, biblioteca, perfil e navegação. Em **Docs**, consulte as descrições e propriedades; no **Canvas**, interaja com os exemplos e use **Controls** para experimentar as opções disponíveis. A página **Comece por aqui** explica como explorar o catálogo.
+
+### Acesso público ao Storybook
+
+**Link público:** [LINK] — substituir pelo endereço do catálogo após a publicação.
+
+### Executar o Storybook localmente
+
+Com Node.js e npm instalados, execute a partir da raiz do repositório:
+
+```sh
+cd frontend
+npm ci
+npm run storybook
+```
+
+Acesse [http://localhost:6006/](http://localhost:6006/). O catálogo usa **dados fictícios e operações simuladas**: não precisa de login, backend, banco ou Docker, e as interações não alteram os dados da aplicação. Os mesmos exemplos são usados localmente e no catálogo publicado.
+
+Para gerar a versão estática, dentro de `frontend/`:
+
+```sh
+npm run build-storybook
+```
+
+O resultado é gerado em `frontend/storybook-static/`, pasta ignorada pelo Git.
 
 ## Como executar localmente
 
@@ -348,7 +393,7 @@ npx playwright show-report
 
 ### Verificações automatizadas
 
-A CI no GitHub Actions executa a verificação de formatação, lint, checagem de tipos, builds, testes com cobertura e E2E. Os relatórios de cobertura e os resultados do Playwright são disponibilizados como artefatos das respectivas etapas.
+A CI no GitHub Actions executa a verificação de formatação, lint, checagem de tipos, builds, testes com cobertura e E2E. O job **Frontend** também gera o build do Storybook para verificar se o catálogo compila. Os relatórios de cobertura e os resultados do Playwright são disponibilizados como artefatos das respectivas etapas.
 
 ## Licença
 
