@@ -10,9 +10,11 @@ import { setProfileDemoUser } from "../mocks/profileMutation";
 export function ProfileDemo({
     children,
     initialUser = demoProfileUser,
+    initialPath = "/profile",
 }: {
     children: ReactNode;
     initialUser?: User;
+    initialPath?: string;
 }) {
     const [user, setUser] = useState<User | null>(initialUser);
     const [queryClient] = useState(
@@ -34,7 +36,7 @@ export function ProfileDemo({
 
     return (
         <QueryClientProvider client={queryClient}>
-            <MemoryRouter initialEntries={["/profile"]}>
+            <MemoryRouter initialEntries={[initialPath]}>
                 <AuthContext.Provider
                     value={{
                         user,
