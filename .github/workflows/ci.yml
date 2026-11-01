@@ -8,10 +8,19 @@ on:
         branches:
             - main
 
+permissions:
+    contents: read
+
+# PRs compartilham um grupo; pushes na main têm grupos exclusivos por execução.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
     formatting:
         name: Formatação
         runs-on: ubuntu-latest
+        timeout-minutes: 5
 
         steps:
             - name: Checkout
@@ -30,9 +39,14 @@ jobs:
             - name: Verificar formatação
               run: npm run format:check
 
+            - name: Executar testes dos scripts de desenvolvimento
+              run: npm run test:dev
+              timeout-minutes: 2
+
     backend:
         name: Backend
         runs-on: ubuntu-latest
+        timeout-minutes: 15
 
         services:
             postgres:
@@ -77,25 +91,27 @@ jobs:
             - name: Gerar Prisma Client
               run: npx prisma generate
 
-            - name: Lint
+            - name: Verificar lint
               run: npm run lint
 
-            - name: Typecheck
+            - name: Verificar tipos
               run: npm run typecheck
 
-            - name: Typecheck dos testes
+            - name: Verificar tipos dos testes
               run: npm run typecheck:tests
 
-            - name: Build
+            - name: Gerar build do backend
               run: npm run build
+              timeout-minutes: 5
 
             - name: Aplicar migrations no banco de testes
               run: npm run test:migrate
 
-            - name: Executar testes com coverage
+            - name: Executar testes com cobertura
               run: npm run test:coverage
+              timeout-minutes: 5
 
-            - name: Publicar relatório de coverage
+            - name: Publicar relatório de cobertura
               if: always()
               uses: actions/upload-artifact@v4
               with:
@@ -107,6 +123,7 @@ jobs:
     frontend:
         name: Frontend
         runs-on: ubuntu-latest
+        timeout-minutes: 15
 
         defaults:
             run:
@@ -126,27 +143,30 @@ jobs:
             - name: Instalar dependências
               run: npm ci
 
-            - name: Lint
+            - name: Verificar lint
               run: npm run lint
 
-            - name: Typecheck
+            - name: Verificar tipos
               run: npm run typecheck
 
-            - name: Typecheck dos testes
+            - name: Verificar tipos dos testes
               run: npm run typecheck:tests
 
-            - name: Build
+            - name: Gerar build do frontend
               run: npm run build
+              timeout-minutes: 5
 
-            - name: Build do Storybook
+            - name: Gerar build do Storybook
               run: npm run build-storybook -- --disable-telemetry
+              timeout-minutes: 5
 
-            - name: Executar testes com coverage
+            - name: Executar testes com cobertura
               run: npm run test:coverage
+              timeout-minutes: 5
               env:
                   VITE_API_URL: http://localhost:3999
 
-            - name: Publicar relatório de coverage
+            - name: Publicar relatório de cobertura
               if: always()
               uses: actions/upload-artifact@v4
               with:
@@ -236,7 +256,7 @@ jobs:
               working-directory: backend
               run: npx prisma generate
 
-            - name: Typecheck dos E2E
+            - name: Verificar tipos dos E2E
               working-directory: backend
               run: npx tsc --project ../e2e/tsconfig.json --noEmit
 
@@ -247,8 +267,9 @@ jobs:
             - name: Instalar Chromium e dependências do sistema
               run: npx playwright install --with-deps chromium
 
-            - name: Executar E2E
+            - name: Executar testes E2E
               run: npx playwright test
+              timeout-minutes: 12
 
             - name: Publicar relatório e resultados dos E2E
               if: always()
