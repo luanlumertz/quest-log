@@ -3,8 +3,9 @@ import { themes } from "storybook/theming";
 import { sb } from "storybook/test";
 import "../src/index.css";
 
-// Somente no catálogo: nenhuma operação de biblioteca usa o serviço real.
+// Somente no catálogo: operações de biblioteca e conta usam serviços simulados.
 sb.mock(import("../src/services/library.service.ts"));
+sb.mock(import("../src/services/auth.service.ts"));
 
 const preview: Preview = {
     tags: ["autodocs"],
