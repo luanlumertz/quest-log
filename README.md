@@ -189,134 +189,18 @@ Para encerrar os servidores do grupo, use `Ctrl+C`; para parar a infraestrutura 
 
 ## Como executar os testes
 
-Instale as dependências e gere o Prisma Client conforme o [guia de desenvolvimento local](docs/development.md#primeiro-uso). Os comandos abaixo indicam quando devem ser executados na raiz ou dentro de uma pasta específica.
+O [guia de testes](docs/testing.md) reúne os arquivos de ambiente, a preparação dos bancos isolados, os comandos por suíte e a investigação de falhas. Prepare o ambiente correspondente antes de executar os comandos abaixo, a partir da raiz:
 
-Os bancos `quest_log_test` e `quest_log_e2e` são criados pelos scripts do Docker na primeira inicialização de um volume vazio; volumes anteriores à inclusão desses scripts precisam ter esses bancos criados separadamente.
+| Suíte          | Comando                      | Preparação                                                                           |
+| -------------- | ---------------------------- | ------------------------------------------------------------------------------------ |
+| Scripts locais | `npm run test:dev`           | Dependências da raiz; sem Docker ou banco.                                           |
+| Backend        | `npm test --prefix backend`  | `backend/.env.test`, Prisma Client e migrations em `quest_log_test` para integração. |
+| Frontend       | `npm test --prefix frontend` | Dependências do frontend; respostas da API simuladas.                                |
+| E2E            | `npx playwright test`        | Arquivos `.env.e2e`, migrations em `quest_log_e2e`, PostgreSQL, Mailpit e Chromium.  |
 
-Para as migrations de testes, deixe `DIRECT_URL` sem definição, inclusive no terminal, para que o Prisma use a `DATABASE_URL` do banco de testes correspondente. Execute os comandos em um terminal sem variáveis de conexão de outro ambiente, pois variáveis já definidas nele podem ter prioridade sobre os arquivos `.env`.
+Para cobertura, execute `npm run test:coverage` dentro de `backend/` ou `frontend/`. As duas configurações exigem no mínimo **90%** em statements, branches, functions e lines.
 
-### Scripts do ambiente local
-
-Na raiz, execute `npm run test:dev` para verificar as proteções de conexão, os conflitos de portas e o encerramento do grupo. Esses testes usam conexões fictícias e processos isolados; não precisam de Docker nem acessam o banco.
-
-### Backend: testes unitários e de integração
-
-Os testes de integração usam o PostgreSQL local e limpam os dados do banco de testes entre os casos. Configure um arquivo `backend/.env.test` dedicado:
-
-```dotenv
-DATABASE_URL="postgresql://questlog:questlog_local@localhost:5432/quest_log_test"
-NODE_ENV=test
-JWT_SECRET="chave_ficticia_exclusiva_para_testes_locais"
-RAWG_API_KEY="chave_ficticia_para_testes"
-FRONTEND_URL="http://localhost:5173"
-TRUST_PROXY_HOPS=0
-```
-
-Substitua `questlog_local` pela senha do PostgreSQL definida no `.env` da raiz. Use exclusivamente o banco `quest_log_test`: a configuração dos testes de integração exige esse nome e uma conexão local. As integrações com RAWG e envio de e-mails são simuladas nessa suíte.
-
-Com o PostgreSQL do Docker em execução, aplique as migrations e rode os testes, a partir da raiz:
-
-```sh
-cd backend
-npm run test:migrate
-npm test
-```
-
-Para executar somente uma das suítes ou gerar a cobertura, ainda dentro de `backend/`:
-
-```sh
-npm test -- --project unit
-npm test -- --project integration
-npm run test:coverage
-```
-
-O relatório HTML de cobertura é gerado em `backend/coverage/index.html`.
-
-### Frontend: testes unitários e de integração
-
-Os testes do frontend usam Vitest, React Testing Library e MSW. Não precisam do backend ou do banco em execução; as respostas HTTP são simuladas.
-
-A partir da raiz:
-
-```sh
-cd frontend
-npm test
-```
-
-Para executar as suítes separadamente, acompanhar alterações ou gerar a cobertura, dentro de `frontend/`:
-
-```sh
-npm test -- --project unit
-npm test -- --project integration
-npm run test:watch
-npm run test:coverage
-```
-
-O relatório HTML de cobertura é gerado em `frontend/coverage/index.html`. As configurações de cobertura do frontend e do backend exigem no mínimo 90% de statements, branches, functions e lines.
-
-### Testes de ponta a ponta (E2E)
-
-O Playwright executa os testes no Chromium, com um worker, usando backend, frontend, PostgreSQL e Mailpit. O catálogo de jogos é preparado com dados de teste e respostas simuladas, permitindo usar uma chave fictícia da RAWG.
-
-Crie `backend/.env.e2e` com a configuração local abaixo, ajustando a senha do banco:
-
-```dotenv
-DATABASE_URL="postgresql://questlog:questlog_local@localhost:5432/quest_log_e2e"
-NODE_ENV=test
-PORT_LOCAL=3000
-FRONTEND_URL="http://localhost:5173"
-JWT_SECRET="chave_ficticia_exclusiva_para_e2e_locais"
-RAWG_API_KEY="chave_ficticia_para_e2e"
-TRUST_PROXY_HOPS=0
-EMAIL_PROVIDER=smtp
-SMTP_HOST=127.0.0.1
-SMTP_PORT=1025
-SMTP_FROM="QuestLog E2E <noreply@questlog.test>"
-```
-
-Use exclusivamente o banco `quest_log_e2e`, pois a suíte cria e remove dados nesse ambiente e verifica o nome do banco antes de acessá-lo. Crie também `frontend/.env.e2e`:
-
-```dotenv
-VITE_API_URL="/api"
-```
-
-O Playwright configura o proxy local e a proteção de origem automaticamente. Encerre os servidores de desenvolvimento das portas `3000` e `5173` antes de executar a suíte: o Playwright inicia seus próprios processos e não reutiliza servidores existentes.
-
-A partir da raiz, inicie os serviços, prepare o banco E2E e instale o navegador:
-
-```sh
-docker compose up -d
-cd backend
-npx dotenv -e .env.e2e -- prisma migrate deploy
-cd ..
-npx playwright install chromium
-```
-
-Na raiz, execute:
-
-```sh
-npx playwright test
-```
-
-O preparo inicial dos dados E2E é automático. Para acompanhar o navegador ou executar apenas um arquivo, use, respectivamente:
-
-```sh
-npx playwright test --headed
-npx playwright test e2e/tests/library.spec.ts
-```
-
-Em falhas, screenshots e traces são salvos em `test-results/`. Para gerar e abrir um relatório HTML local:
-
-```sh
-npx playwright test --reporter=html
-npx playwright show-report
-```
-
-### Verificações automatizadas
-
-A CI no GitHub Actions executa a verificação de formatação, lint, checagem de tipos, builds, testes com cobertura e E2E. O job **Formatação** também executa os testes dos scripts de desenvolvimento da raiz. O job **Frontend** gera o build do Storybook para verificar se o catálogo compila. Os relatórios de cobertura e os resultados do Playwright são disponibilizados como artefatos das respectivas etapas.
-
-Todos os jobs têm limites de tempo explícitos, com limites adicionais nas etapas de builds e testes. Um novo commit no mesmo PR cancela a execução anterior daquele PR. As execuções de push na `main` mantêm o acompanhamento dos deploys, com grupos separados para produção e sandbox.
+A CI verifica formatação, lint, tipos, builds, cobertura e E2E. O job do frontend também gera o Storybook. Os relatórios disponíveis no GitHub Actions e o papel de cada verificação estão descritos no [guia](docs/testing.md#verificações-locais-e-ci).
 
 ## Licença
 

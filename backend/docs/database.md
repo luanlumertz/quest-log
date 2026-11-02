@@ -214,7 +214,7 @@ Localmente, o [Compose](../../compose.yaml) cria `quest_log`, e o [script de ini
 
 A API usa `DATABASE_URL` no [cliente Prisma](../src/lib/prisma.ts). Os comandos do Prisma usam a [configuração](../prisma.config.ts), que prioriza `DIRECT_URL` quando preenchida e usa `DATABASE_URL` como alternativa. No Neon, isso permite separar a conexão com pooling da aplicação da conexão direta usada nos comandos do Prisma.
 
-As duas variáveis devem corresponder ao mesmo ambiente e banco. Os comandos locais da raiz validam ambas quando presentes; a suíte de integração exige uma conexão local com `quest_log_test`, e os helpers E2E exigem `quest_log_e2e`. A preparação das migrations dos testes também precisa usar a conexão correta: as instruções e os arquivos de ambiente estão no [guia de testes](../../README.md#como-executar-os-testes).
+As duas variáveis devem corresponder ao mesmo ambiente e banco. Os comandos locais da raiz validam ambas quando presentes; a suíte de integração exige uma conexão local com `quest_log_test`, e os helpers E2E exigem `quest_log_e2e`. A preparação das migrations dos testes também precisa usar a conexão correta: as instruções e os arquivos de ambiente estão no [guia de testes](../../docs/testing.md).
 
 ## Evolução com migrations
 
@@ -237,4 +237,4 @@ npx prisma generate
 
 `migrate dev` cria e aplica a nova migration no ambiente de desenvolvimento; versione o schema e o SQL gerado. `prisma generate` atualiza o cliente em `backend/src/generated/prisma`, pasta ignorada pelo Git. Gerar o cliente não aplica alterações ao banco.
 
-Nas instalações hospedadas, as migrations versionadas são aplicadas com `prisma migrate deploy`, usando a conexão daquele ambiente. A ordem deve manter o banco compatível com a versão da API que será iniciada. O [guia de desenvolvimento](../../docs/development.md) reúne a preparação local, e os comandos de testes permanecem no [README principal](../../README.md#como-executar-os-testes).
+Nas instalações hospedadas, as migrations versionadas são aplicadas com `prisma migrate deploy`, usando a conexão daquele ambiente. A ordem deve manter o banco compatível com a versão da API que será iniciada. O [guia de desenvolvimento](../../docs/development.md) reúne a preparação local, e os comandos das suítes estão no [guia de testes](../../docs/testing.md).

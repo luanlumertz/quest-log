@@ -4,7 +4,7 @@
 
 O frontend do QuestLog é uma aplicação React com TypeScript, construída com Vite e executada no navegador. As páginas combinam componentes, os hooks de dados usam TanStack Query e os serviços centralizam a comunicação com a API Express.
 
-Este guia explica a organização do código e o caminho dos dados na interface. A instalação e os comandos locais estão no [guia de desenvolvimento](../../docs/development.md), e os testes estão no [README principal](../../README.md#como-executar-os-testes). Os detalhes de cookies e renovação estão no [guia de autenticação](../../backend/docs/authentication.md).
+Este guia explica a organização do código e o caminho dos dados na interface. A instalação e os comandos locais estão no [guia de desenvolvimento](../../docs/development.md), e as suítes estão no [guia de testes](../../docs/testing.md). Os detalhes de cookies e renovação estão no [guia de autenticação](../../backend/docs/authentication.md).
 
 ## Organização dos arquivos
 
@@ -218,4 +218,4 @@ O Storybook usa os componentes da aplicação com dados e operações simuladas.
 
 O [guia de componentes e Storybook](components.md) explica os critérios de separação, a estrutura das stories, os controles, o isolamento e a manutenção das simulações.
 
-Os testes ficam em `tests/`, com suítes unitárias e de integração, React Testing Library e MSW. Os testes E2E pertencem à [estrutura da raiz](../../e2e). O [README](../../README.md#como-executar-os-testes) explica a execução de cada suíte, e a seção de [Storybook](../../README.md#catálogo-de-componentes) apresenta os comandos do catálogo.
+Os testes ficam em `tests/`, com suítes unitárias e de integração, React Testing Library e MSW. Os testes E2E pertencem à [estrutura da raiz](../../e2e). O [guia de testes](../../docs/testing.md) explica a execução de cada suíte, e a seção de [Storybook](../../README.md#catálogo-de-componentes) apresenta os comandos do catálogo.

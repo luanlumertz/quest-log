@@ -204,4 +204,4 @@ npm run build-storybook
 
 O [tsconfig do Storybook](../tsconfig.storybook.json) inclui a configuração e os arquivos TypeScript das stories, e está referenciado pelo projeto principal. O build do catálogo também verifica a compilação de MDX e dos exemplos para publicação; a saída vai para `storybook-static/`, ignorada pelo Git.
 
-Na [CI](../../.github/workflows/ci.yml), lint, tipos e build do Storybook fazem parte do job existente do frontend. O build valida a geração do catálogo. A apresentação e as interações precisam ser conferidas no navegador; os testes automatizados de comportamento ficam nas suítes de componentes, integração e E2E descritas no [README](../../README.md#como-executar-os-testes).
+Na [CI](../../.github/workflows/ci.yml), lint, tipos e build do Storybook fazem parte do job existente do frontend. O build valida a geração do catálogo. A apresentação e as interações precisam ser conferidas no navegador; os testes automatizados de comportamento ficam nas suítes de componentes, integração e E2E descritas no [guia de testes](../../docs/testing.md).

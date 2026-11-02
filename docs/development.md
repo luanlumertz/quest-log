@@ -25,7 +25,7 @@ npm ci
 
 Execute os comandos desta seção a partir da raiz, salvo indicação de outra pasta. O repositório tem arquivos `package.json` e `package-lock.json` separados para raiz, backend e frontend.
 
-O `npm ci` instala as dependências conforme o lockfile da pasta atual e exige que ele esteja consistente com o manifesto. Na raiz, instala as ferramentas compartilhadas, como Prettier, Husky, Playwright e o executor dos comandos combinados. As dependências das duas aplicações serão instaladas pelo `setup`. A instalação do navegador usado nos E2E faz parte do [preparo dos testes](../README.md#testes-de-ponta-a-ponta-e2e).
+O `npm ci` instala as dependências conforme o lockfile da pasta atual e exige que ele esteja consistente com o manifesto. Na raiz, instala as ferramentas compartilhadas, como Prettier, Husky, Playwright e o executor dos comandos combinados. As dependências das duas aplicações serão instaladas pelo `setup`. A instalação do navegador usado nos E2E faz parte do [preparo dos testes](testing.md#testes-de-ponta-a-ponta-e2e).
 
 ### 2. Configurar as variáveis de ambiente
 
@@ -223,7 +223,7 @@ O catálogo usa dados fictícios e operações simuladas. Não precisa configura
 
 `setup` usa `npm ci` para instalar o que já está nos manifestos e lockfiles. Ao adicionar uma dependência ao projeto, use `npm install` na pasta responsável, atualizando e versionando seu manifesto e lockfile.
 
-Os testes unitários, de integração e E2E usam configurações próprias; siga o [guia de execução dos testes](../README.md#como-executar-os-testes).
+Os testes unitários, de integração e E2E usam configurações próprias; siga o [guia de execução dos testes](testing.md).
 
 ## Logs e encerramento
 
