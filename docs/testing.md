@@ -256,6 +256,8 @@ Cada job tem um limite de tempo, com limites adicionais nas etapas de build e te
 
 Os artefatos `backend-coverage`, `frontend-coverage` e `e2e-report` ficam disponíveis na execução do GitHub Actions por sete dias, quando seus arquivos são produzidos. Os deploys do backend em produção e sandbox são acionados após os quatro jobs de validação em pushes na `main`.
 
+A configuração das hospedagens e o acompanhamento dessa publicação estão no [guia de deploy](deployment.md).
+
 ## Problemas comuns
 
 | Situação                                         | O que conferir                                                                                                  |

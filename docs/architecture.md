@@ -204,4 +204,6 @@ O Storybook usa os componentes do frontend com exemplos, dados fictícios e oper
 
 A [CI](../.github/workflows/ci.yml) verifica formatação, scripts de desenvolvimento, backend, frontend, build do Storybook e testes E2E. Em pushes na `main`, depois das verificações, jobs separados acionam os deploys de produção e sandbox no Render. A hospedagem do frontend usa a integração da Vercel.
 
+O [guia de deploy](deployment.md) reúne as configurações das hospedagens, os secrets dos workflows, a aplicação de migrations e a operação da limpeza do sandbox.
+
 Além da limpeza diária de contas do sandbox, o próprio [processo do servidor](../backend/src/server.ts) inicia tarefas periódicas para remover cadastros pendentes e recuperações de senha expirados. Essas tarefas pertencem à API em execução; a limpeza diária do sandbox pertence ao workflow separado.

@@ -13,6 +13,7 @@ Esta documentação explica a arquitetura, os fluxos e a manutenção do QuestLo
 | Organização dos componentes, stories e simulações      | [Componentes e Storybook](../frontend/docs/components.md)   |
 | Instalação, configuração e comandos locais             | [Desenvolvimento local](development.md)                     |
 | Testes e verificações automatizadas                    | [Testes e verificações](testing.md)                         |
+| Publicação, hospedagem e manutenção dos ambientes      | [Deploy e operação dos ambientes](deployment.md)            |
 | Endpoints, parâmetros, respostas e autenticação da API | [OpenAPI e Swagger UI](../README.md#documentação-da-api)    |
 | Componentes, propriedades e exemplos de interface      | [Storybook](../README.md#catálogo-de-componentes)           |
 
@@ -25,7 +26,7 @@ Os guias são acrescentados por etapas. Os arquivos disponíveis aparecem como l
 | [docs/architecture.md](architecture.md)                             | Visão do sistema, integrações, fluxo das requisições e diferenças entre desenvolvimento, produção e sandbox.   |
 | [docs/development.md](development.md)                               | Preparação do ambiente local, variáveis, infraestrutura e comandos de desenvolvimento.                         |
 | [docs/testing.md](testing.md)                                       | Suítes de testes, bancos isolados, simulações, cobertura e verificações na CI.                                 |
-| `docs/deployment.md`                                                | Hospedagem, variáveis por ambiente, migrations, pipeline de deploy e manutenção do sandbox.                    |
+| [docs/deployment.md](deployment.md)                                 | Hospedagem, variáveis por ambiente, migrations, pipeline de deploy e manutenção do sandbox.                    |
 | `docs/decisions/`                                                   | Registros de decisões técnicas que mereçam uma explicação própria, com contexto e consequências.               |
 | [backend/docs/database.md](../backend/docs/database.md)             | Modelo de dados, relacionamentos, regras de persistência e migrations.                                         |
 | [backend/docs/authentication.md](../backend/docs/authentication.md) | Cadastro, confirmação, sessão por cookies, renovação, recuperação de acesso e proteções das requisições.       |
