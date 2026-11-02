@@ -24,6 +24,8 @@ Os [hooks](../frontend/src/hooks) de consulta e mutação usam TanStack Query pa
 
 Os [contextos](../frontend/src/contexts) mantêm estados compartilhados, como o usuário autenticado e as etapas de cadastro e recuperação de acesso. O estado da sessão fica separado do cache de consultas à biblioteca e ao dashboard.
 
+O [guia de arquitetura do frontend](../frontend/docs/architecture.md) detalha a navegação, a divisão dos estados, as chaves de cache e o fluxo de edição de um jogo da biblioteca.
+
 ### Organização do backend
 
 | Camada              | Responsabilidade                                                                             | Exemplo da biblioteca                                                      |
