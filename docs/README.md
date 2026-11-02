@@ -9,6 +9,7 @@ Esta documentação explica a arquitetura, os fluxos e a manutenção do QuestLo
 | Arquitetura, integrações e ambientes                   | [Arquitetura do QuestLog](architecture.md)                  |
 | Modelo de dados, persistência e migrations             | [Banco de dados](../backend/docs/database.md)               |
 | Cadastro, sessão e recuperação de acesso               | [Autenticação e sessão](../backend/docs/authentication.md)  |
+| Eventos da API e investigação de falhas                | [Logs e investigação de falhas](../backend/docs/logging.md) |
 | Organização, navegação e dados do frontend             | [Arquitetura do frontend](../frontend/docs/architecture.md) |
 | Organização dos componentes, stories e simulações      | [Componentes e Storybook](../frontend/docs/components.md)   |
 | Instalação, configuração e comandos locais             | [Desenvolvimento local](development.md)                     |
@@ -30,7 +31,7 @@ Os guias são acrescentados por etapas. Os arquivos disponíveis aparecem como l
 | `docs/decisions/`                                                   | Registros de decisões técnicas que mereçam uma explicação própria, com contexto e consequências.               |
 | [backend/docs/database.md](../backend/docs/database.md)             | Modelo de dados, relacionamentos, regras de persistência e migrations.                                         |
 | [backend/docs/authentication.md](../backend/docs/authentication.md) | Cadastro, confirmação, sessão por cookies, renovação, recuperação de acesso e proteções das requisições.       |
-| `backend/docs/logging.md`                                           | Configuração dos logs, níveis, identificação de requisições e consulta durante o desenvolvimento e a operação. |
+| [backend/docs/logging.md](../backend/docs/logging.md)               | Configuração dos logs, níveis, identificação de requisições e consulta durante o desenvolvimento e a operação. |
 | [frontend/docs/architecture.md](../frontend/docs/architecture.md)   | Organização da aplicação React, navegação, estado da sessão, consultas, mutações e comunicação com a API.      |
 | [frontend/docs/components.md](../frontend/docs/components.md)       | Organização dos componentes e critérios para criar e manter stories, exemplos e simulações.                    |
 

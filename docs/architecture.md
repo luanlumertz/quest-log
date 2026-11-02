@@ -194,6 +194,8 @@ As verificações se complementam:
 
 Erros de negócio e de integração são convertidos em respostas HTTP. A integração RAWG valida as respostas externas e trata falhas de rede e timeout. Os logs da API incluem a identificação da requisição, devolvida no cabeçalho `X-Request-Id`, para ajudar a investigar falhas.
 
+O [guia de logs](../backend/docs/logging.md) explica os eventos registrados, os níveis, o contexto da requisição e os cuidados com dados sensíveis.
+
 O endpoint `GET /healthz` responde `{"status":"ok"}` quando o servidor consegue atender à consulta. Ele não consulta o banco nem verifica RAWG ou o provedor de e-mail.
 
 ## Documentação e tarefas operacionais

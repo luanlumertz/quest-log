@@ -231,4 +231,4 @@ Acessar diretamente a raiz da API de produção no Render pode retornar `{"messa
 | Limpeza do sandbox falha                   | Secret de conexão, migrations do sandbox, ambiente e nome do banco exigido.                           |
 | Somente um ambiente recebeu a versão nova  | Resultado e logs do job e do serviço correspondentes; os deploys são independentes.                   |
 
-As proteções e os fluxos da sessão estão no [guia de autenticação](../backend/docs/authentication.md). As verificações anteriores à publicação estão no [guia de testes](testing.md).
+O [guia de logs](../backend/docs/logging.md) apresenta os eventos e os campos usados na investigação. As proteções e os fluxos da sessão estão no [guia de autenticação](../backend/docs/authentication.md). As verificações anteriores à publicação estão no [guia de testes](testing.md).

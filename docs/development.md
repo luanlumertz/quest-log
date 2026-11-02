@@ -231,6 +231,8 @@ Os comandos combinados iniciam as ferramentas diretamente pelo Node, com menos a
 
 Os logs da API usam pino-pretty no desenvolvimento, com horário, nível e mensagem. Produção e CI usam JSON. No Windows, a API recebe saída direta para contornar uma incompatibilidade do `tsx watch`; os demais servidores do grupo recebem os prefixos **WEB** e **STORYBOOK**.
 
+O [guia de logs](../backend/docs/logging.md) explica `LOG_LEVEL`, eventos, identificação das requisições e tratamento dos dados registrados.
+
 Para encerrar `dev` ou `dev:full`, pressione `Ctrl+C` naquele terminal. Os servidores iniciados pelo grupo são encerrados, e essa interrupção intencional não é tratada como falha da aplicação. No Windows, o npm que abriu o comando ainda pode pedir uma confirmação de encerramento, dependendo do terminal.
 
 Os containers permanecem em execução após encerrar os servidores. O aviso **A infraestrutura continua ligada** aparece somente se a consulta ao Docker encontrar containers do projeto rodando. Para pará-los, execute na raiz:
