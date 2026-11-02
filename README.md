@@ -18,6 +18,7 @@ O projeto nasceu da minha dificuldade em encontrar uma ferramenta que combinasse
 - [Arquitetura](#arquitetura)
 - [Documentação da API](#documentação-da-api)
 - [Catálogo de componentes](#catálogo-de-componentes)
+- [Guias técnicos](#guias-técnicos)
 - [Como executar localmente](#como-executar-localmente)
 - [Como executar os testes](#como-executar-os-testes)
 - [Licença](#licença)
@@ -157,6 +158,10 @@ npm run build-storybook
 ```
 
 O resultado é gerado em `frontend/storybook-static/`, pasta ignorada pelo Git.
+
+## Guias técnicos
+
+Consulte o [índice da documentação](docs/README.md) para encontrar as instruções disponíveis e acompanhar a organização dos guias de arquitetura, desenvolvimento, testes, deploy e detalhes do backend e do frontend.
 
 ## Como executar localmente
 
