@@ -6,6 +6,8 @@ O QuestLog reúne uma aplicação React e uma API Express no mesmo repositório.
 
 Este guia apresenta como essas partes se conectam. As instruções de instalação estão no [guia de desenvolvimento local](development.md), e os contratos dos endpoints estão no [Swagger](../README.md#documentação-da-api).
 
+Os [registros de decisões técnicas](decisions/README.md) explicam o contexto e as consequências das escolhas de proxy e cookies, sandbox público, separação do catálogo e organização do Storybook.
+
 ## Partes do sistema
 
 | Parte      | Responsabilidade                                                               | Referência no projeto                                                                      |
