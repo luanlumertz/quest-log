@@ -129,7 +129,13 @@ Para renovar e encerrar a sessão pelo Swagger local, configure no `backend/.env
 AUTH_COOKIE_PATH_PREFIX=/api
 ```
 
-Reinicie o backend e faça login novamente após essa configuração. Use uma conta do ambiente local e consulte os códigos de confirmação no [Mailpit](http://localhost:8025). As requisições são reais e usam o banco configurado no backend local.
+Para usar a aplicação junto com o Swagger nesse fluxo, configure também no `frontend/.env`:
+
+```dotenv
+VITE_API_URL=/api
+```
+
+Reinicie os servidores e faça login novamente após essas configurações. Assim, ambos usam o proxy do Vite e os mesmos caminhos de cookies. Use uma conta do ambiente local e consulte os códigos de confirmação no [Mailpit](http://localhost:8025). As requisições são reais e usam o banco configurado no backend local. O [guia de autenticação](backend/docs/authentication.md#cookies-e-caminhos-por-ambiente) explica os caminhos dos cookies em cada ambiente.
 
 ## Catálogo de componentes
 

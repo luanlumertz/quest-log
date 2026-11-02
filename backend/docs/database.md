@@ -153,6 +153,8 @@ As migrations atuais não criam restrições SQL `CHECK` para esses intervalos e
 
 ## Contas e dados temporários
 
+Os fluxos que criam, consomem e invalidam esses registros estão no [guia de autenticação e sessão](authentication.md).
+
 `User.email` é único. A senha é armazenada em `passwordHash`; o código de confirmação de cadastro é armazenado em `PendingRegistration.codeHash`. Senhas e códigos usam hash com bcrypt. Os tokens de renovação e de redefinição de senha têm hashes SHA-256 persistidos em `RefreshSession.tokenHash` e `PasswordRecovery.resetTokenHash`.
 
 O JWT de acesso não possui uma tabela própria. `User.sessionVersion` permite invalidar tokens de versões anteriores da sessão. A troca e a recuperação de senha incrementam essa versão e removem sessões de renovação anteriores; a troca autenticada também grava uma sessão substituta na mesma transação.

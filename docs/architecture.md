@@ -180,6 +180,8 @@ O [serviço de obtenção do jogo](../backend/src/services/library-game.service.
 
 O backend emite os cookies `accessToken` e `refreshToken` com `HttpOnly`; o navegador os envia conforme a origem e os caminhos configurados. O frontend consulta o usuário da sessão e, ao receber `401` em uma chamada elegível, tenta renovar a sessão e repetir a requisição uma vez. Essa coordenação está no cliente HTTP da aplicação; o Swagger não executa a mesma renovação automática.
 
+O [guia de autenticação](../backend/docs/authentication.md) detalha cadastro, login, renovação, cookies, recuperação de acesso e encerramento das sessões.
+
 As verificações se complementam:
 
 - **Autenticação:** verifica o token de acesso, a existência do usuário e a versão da sessão nas rotas protegidas.
