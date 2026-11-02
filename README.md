@@ -103,6 +103,8 @@ No frontend, as **páginas e os componentes** compõem a interface, os **hooks**
 
 No ambiente local, o Docker Compose disponibiliza PostgreSQL, pgAdmin e Mailpit. O Mailpit permite inspecionar os e-mails enviados por SMTP durante o desenvolvimento.
 
+Consulte o [guia de arquitetura](docs/architecture.md) para conhecer as responsabilidades das camadas, os fluxos de requisições e as diferenças entre desenvolvimento, produção e sandbox.
+
 ## Documentação da API
 
 A documentação usa **OpenAPI e Swagger UI** para apresentar endpoints, parâmetros, autenticação, respostas e modelos de dados (**Schemas**), além de permitir a execução de requisições pelo navegador. A seção **Comece por aqui** orienta o cadastro, a confirmação da conta e o login.

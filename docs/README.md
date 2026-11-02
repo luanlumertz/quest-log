@@ -6,6 +6,7 @@ Esta documentação explica a arquitetura, os fluxos e a manutenção do QuestLo
 
 | Assunto                                                | Onde consultar                                                    |
 | ------------------------------------------------------ | ----------------------------------------------------------------- |
+| Arquitetura, integrações e ambientes                   | [Arquitetura do QuestLog](architecture.md)                        |
 | Instalação, configuração e comandos locais             | [Como executar localmente](../README.md#como-executar-localmente) |
 | Testes e verificações automatizadas                    | [Como executar os testes](../README.md#como-executar-os-testes)   |
 | Endpoints, parâmetros, respostas e autenticação da API | [OpenAPI e Swagger UI](../README.md#documentação-da-api)          |
@@ -13,20 +14,20 @@ Esta documentação explica a arquitetura, os fluxos e a manutenção do QuestLo
 
 ## Organização dos guias
 
-Os guias serão acrescentados por etapas. A tabela abaixo define o destino de cada assunto; os caminhos indicam arquivos planejados, ainda não disponíveis para leitura.
+Os guias são acrescentados por etapas. Os arquivos disponíveis aparecem como links; os demais caminhos indicam os próximos guias planejados.
 
-| Local                            | Responsabilidade                                                                                               |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `docs/architecture.md`           | Visão do sistema, integrações, fluxo das requisições e diferenças entre desenvolvimento, produção e sandbox.   |
-| `docs/development.md`            | Preparação do ambiente local, variáveis, infraestrutura e comandos de desenvolvimento.                         |
-| `docs/testing.md`                | Suítes de testes, bancos isolados, simulações, cobertura e verificações na CI.                                 |
-| `docs/deployment.md`             | Hospedagem, variáveis por ambiente, migrations, pipeline de deploy e manutenção do sandbox.                    |
-| `docs/decisions/`                | Registros de decisões técnicas que mereçam uma explicação própria, com contexto e consequências.               |
-| `backend/docs/database.md`       | Modelo de dados, relacionamentos, regras de persistência e migrations.                                         |
-| `backend/docs/authentication.md` | Cadastro, confirmação, sessão por cookies, renovação, recuperação de acesso e proteções das requisições.       |
-| `backend/docs/logging.md`        | Configuração dos logs, níveis, identificação de requisições e consulta durante o desenvolvimento e a operação. |
-| `frontend/docs/architecture.md`  | Organização da aplicação React, navegação, estado da sessão, consultas, mutações e comunicação com a API.      |
-| `frontend/docs/components.md`    | Organização dos componentes e critérios para criar e manter stories, exemplos e simulações.                    |
+| Local                                   | Responsabilidade                                                                                               |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [docs/architecture.md](architecture.md) | Visão do sistema, integrações, fluxo das requisições e diferenças entre desenvolvimento, produção e sandbox.   |
+| `docs/development.md`                   | Preparação do ambiente local, variáveis, infraestrutura e comandos de desenvolvimento.                         |
+| `docs/testing.md`                       | Suítes de testes, bancos isolados, simulações, cobertura e verificações na CI.                                 |
+| `docs/deployment.md`                    | Hospedagem, variáveis por ambiente, migrations, pipeline de deploy e manutenção do sandbox.                    |
+| `docs/decisions/`                       | Registros de decisões técnicas que mereçam uma explicação própria, com contexto e consequências.               |
+| `backend/docs/database.md`              | Modelo de dados, relacionamentos, regras de persistência e migrations.                                         |
+| `backend/docs/authentication.md`        | Cadastro, confirmação, sessão por cookies, renovação, recuperação de acesso e proteções das requisições.       |
+| `backend/docs/logging.md`               | Configuração dos logs, níveis, identificação de requisições e consulta durante o desenvolvimento e a operação. |
+| `frontend/docs/architecture.md`         | Organização da aplicação React, navegação, estado da sessão, consultas, mutações e comunicação com a API.      |
+| `frontend/docs/components.md`           | Organização dos componentes e critérios para criar e manter stories, exemplos e simulações.                    |
 
 Os futuros `backend/README.md` e `frontend/README.md` servirão como entradas rápidas para cada aplicação, encaminhando para os guias correspondentes. O README da raiz continuará apresentando o projeto e oferecendo um caminho rápido para executá-lo.
 
