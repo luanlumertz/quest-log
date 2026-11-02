@@ -237,4 +237,4 @@ npx prisma generate
 
 `migrate dev` cria e aplica a nova migration no ambiente de desenvolvimento; versione o schema e o SQL gerado. `prisma generate` atualiza o cliente em `backend/src/generated/prisma`, pasta ignorada pelo Git. Gerar o cliente não aplica alterações ao banco.
 
-Nas instalações hospedadas, as migrations versionadas são aplicadas com `prisma migrate deploy`, usando a conexão daquele ambiente. A ordem deve manter o banco compatível com a versão da API que será iniciada. Os comandos de testes e de execução local completos permanecem no [README principal](../../README.md).
+Nas instalações hospedadas, as migrations versionadas são aplicadas com `prisma migrate deploy`, usando a conexão daquele ambiente. A ordem deve manter o banco compatível com a versão da API que será iniciada. O [guia de desenvolvimento](../../docs/development.md) reúne a preparação local, e os comandos de testes permanecem no [README principal](../../README.md#como-executar-os-testes).

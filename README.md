@@ -121,21 +121,9 @@ As contas do sandbox ficam elegíveis para exclusão automática após mais de *
 
 ### Acesso local ao Swagger
 
-Siga o guia de [execução local](#como-executar-localmente) e mantenha o backend e o frontend em execução. Abra [http://localhost:5173/api/docs/](http://localhost:5173/api/docs/); o servidor `/api` usa o proxy local do Vite.
+Siga o [guia de desenvolvimento](docs/development.md), incluindo a [configuração do frontend e dos cookies](docs/development.md#frontend-e-caminhos-dos-cookies), e mantenha backend e frontend em execução. Abra [http://localhost:5173/api/docs/](http://localhost:5173/api/docs/); o servidor `/api` usa o proxy local do Vite.
 
-Para renovar e encerrar a sessão pelo Swagger local, configure no `backend/.env`:
-
-```dotenv
-AUTH_COOKIE_PATH_PREFIX=/api
-```
-
-Para usar a aplicação junto com o Swagger nesse fluxo, configure também no `frontend/.env`:
-
-```dotenv
-VITE_API_URL=/api
-```
-
-Reinicie os servidores e faça login novamente após essas configurações. Assim, ambos usam o proxy do Vite e os mesmos caminhos de cookies. Use uma conta do ambiente local e consulte os códigos de confirmação no [Mailpit](http://localhost:8025). As requisições são reais e usam o banco configurado no backend local. O [guia de autenticação](backend/docs/authentication.md#cookies-e-caminhos-por-ambiente) explica os caminhos dos cookies em cada ambiente.
+Use uma conta do ambiente local e consulte os códigos no [Mailpit](http://localhost:8025). As requisições são reais e usam o banco configurado no backend local. O [guia de autenticação](backend/docs/authentication.md#cookies-e-caminhos-por-ambiente) explica os caminhos dos cookies em cada ambiente.
 
 ## Catálogo de componentes
 
@@ -173,14 +161,9 @@ Consulte o [índice da documentação](docs/README.md) para encontrar as instru�
 
 ## Como executar localmente
 
-### Pré-requisitos
+Você precisa de Node.js 24 com npm, Git, Docker com Compose em execução e uma chave da RAWG. O [guia de desenvolvimento local](docs/development.md) reúne a configuração completa, os comandos individuais e a resolução de problemas.
 
-- Node.js 24, versão utilizada na CI, e npm.
-- Git.
-- Docker com Docker Compose disponível.
-- Uma chave da API da RAWG para buscar jogos e consultar seus detalhes.
-
-### 1. Clonar o repositório e instalar as ferramentas da raiz
+Clone o repositório e instale as ferramentas da raiz:
 
 ```sh
 git clone https://github.com/luanlumertz/quest-log.git
@@ -188,130 +171,25 @@ cd quest-log
 npm ci
 ```
 
-O `npm ci` instala as ferramentas da raiz conforme o `package-lock.json`. As dependências do backend e do frontend serão instaladas pelo comando `setup`, após a configuração dos arquivos de ambiente.
+Crie `.env`, `backend/.env` e `frontend/.env` a partir dos respectivos `.env.example`. Configure as credenciais locais do Docker, a conexão PostgreSQL, `JWT_SECRET` e `RAWG_API_KEY`, seguindo o [passo de configuração](docs/development.md#2-configurar-as-variáveis-de-ambiente). Para usar aplicação e Swagger juntos pelo Vite, esse passo também explica `VITE_API_URL=/api` e `AUTH_COOKIE_PATH_PREFIX=/api`.
 
-### 2. Configurar as variáveis de ambiente
-
-Copie os arquivos de exemplo para os respectivos arquivos `.env`:
-
-| Arquivo de exemplo      | Cópia local     | Finalidade                                  |
-| ----------------------- | --------------- | ------------------------------------------- |
-| `.env.example`          | `.env`          | Configuração dos serviços do Docker Compose |
-| `backend/.env.example`  | `backend/.env`  | Banco, autenticação, integrações e servidor |
-| `frontend/.env.example` | `frontend/.env` | Endereço da API no desenvolvimento          |
-
-No `.env` da raiz, preencha:
-
-```dotenv
-POSTGRES_PASSWORD=questlog_local
-PGADMIN_EMAIL=admin@example.com
-PGADMIN_PASSWORD=pgadmin_local
-```
-
-Esses valores são exemplos para o ambiente local. No `backend/.env`, configure:
-
-```dotenv
-DATABASE_URL="postgresql://questlog:questlog_local@localhost:5432/quest_log"
-JWT_SECRET="substitua_por_um_segredo_aleatorio"
-RAWG_API_KEY="sua_chave_da_rawg"
-```
-
-A senha em `DATABASE_URL` deve corresponder a `POSTGRES_PASSWORD` da raiz. Se a senha contiver caracteres especiais, codifique-os para uso em uma URL.
-
-Para gerar um segredo para `JWT_SECRET`, execute:
-
-```sh
-node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
-```
-
-Mantenha os demais valores de desenvolvimento do exemplo do backend: `NODE_ENV=development`, `PORT_LOCAL=3000`, `FRONTEND_URL=http://localhost:5173`, `TRUST_PROXY_HOPS=0` e as configurações SMTP do Mailpit. `DIRECT_URL`, `ORIGIN_SECRET` e as credenciais da Brevo podem permanecer sem configuração para esse fluxo local.
-
-No `frontend/.env`, mantenha:
-
-```dotenv
-VITE_API_URL="http://localhost:3000"
-```
-
-As chaves da RAWG e de autenticação ficam somente no backend. Os arquivos `.env` são ignorados pelo Git.
-
-### 3. Instalar as aplicações e preparar o banco local
-
-Na raiz do repositório, com o Docker em execução:
+Com os arquivos configurados, execute na raiz:
 
 ```sh
 npm run setup
 npm run db:prepare
-```
-
-O `setup` instala as dependências do backend e do frontend com `npm ci` e gera o Prisma Client. Execute-o no primeiro uso e quando precisar reinstalar as dependências.
-
-O `db:prepare` inicia PostgreSQL, pgAdmin e Mailpit pelo Compose, aguarda o banco ficar saudável e aplica as migrations existentes. Ele exige uma conexão local com o banco `quest_log` na porta `5432`, conferindo tanto `DATABASE_URL` quanto `DIRECT_URL`, quando definida. Variáveis do terminal têm prioridade sobre o `backend/.env`; conexões de outros ambientes são recusadas.
-
-Execute `db:prepare` no primeiro uso e após receber novas migrations. Esses comandos exigem o Docker instalado e em execução; não iniciam o Docker Desktop automaticamente.
-
-### 4. Iniciar o ambiente de desenvolvimento
-
-Na raiz:
-
-```sh
 npm run dev
 ```
 
-O comando verifica as portas, inicia a infraestrutura se necessário, aguarda o PostgreSQL e executa backend e frontend no mesmo terminal. Um resumo apresenta os endereços locais. O ambiente combinado inicia as ferramentas diretamente pelo Node, com menos anúncios de inicialização e preservando os avisos e erros do Vite e do Storybook. A telemetria do Storybook fica desativada nessa execução.
+Acesse a aplicação em [http://localhost:5173/](http://localhost:5173/). Cadastre-se e consulte o código de confirmação no [Mailpit](http://localhost:8025/). Para incluir o Storybook no grupo, use `npm run dev:full` no lugar de `npm run dev`.
 
-Os logs da API usam pino-pretty no desenvolvimento, com horário, nível e mensagem. A produção e a CI mantêm JSON. No Windows, a API recebe a saída direta para evitar uma incompatibilidade do `tsx watch`; os outros serviços recebem os prefixos **WEB** e **STORYBOOK**. As dependências e migrations devem estar preparadas conforme o passo anterior.
+Você também pode iniciar cada aplicação com `npm run dev` diretamente em `backend/` e `frontend/`, em terminais separados e com a infraestrutura disponível. Veja as [alternativas de execução](docs/development.md#executar-cada-parte-separadamente).
 
-Para incluir o Storybook:
-
-```sh
-npm run dev:full
-```
-
-Acesse a aplicação em `http://localhost:5173`, o Swagger em `http://localhost:5173/api/docs/` e o Storybook em `http://localhost:6006/`. A API usa `PORT` ou `PORT_LOCAL` do backend; com o exemplo local, fica em `http://localhost:3000`, com healthcheck em `/healthz`.
-
-O ambiente combinado exige `NODE_ENV=development` e `APP_ENV=development`, quando definidos, e o banco local `quest_log`. Se uma porta necessária estiver ocupada, a inicialização é interrompida sem encerrar o processo existente. O frontend e o Storybook também exigem suas portas ao serem iniciados individualmente.
-
-Os comandos individuais continuam disponíveis na raiz:
-
-| Comando                         | Finalidade                                         |
-| ------------------------------- | -------------------------------------------------- |
-| `npm run dev --prefix backend`  | Iniciar somente a API                              |
-| `npm run dev --prefix frontend` | Iniciar somente o frontend                         |
-| `npm run storybook`             | Iniciar somente o catálogo, sem depender do Docker |
-| `npm run infra:up`              | Iniciar a infraestrutura e aguardar sua preparação |
-| `npm run infra:stop`            | Parar a infraestrutura preservando os dados        |
-
-Você também pode entrar na pasta de cada aplicação e executar o comando diretamente, em terminais separados:
-
-| Pasta de execução | Comando             | Finalidade                 |
-| ----------------- | ------------------- | -------------------------- |
-| `backend/`        | `npm run dev`       | Iniciar somente a API      |
-| `frontend/`       | `npm run dev`       | Iniciar somente o frontend |
-| `frontend/`       | `npm run storybook` | Iniciar somente o catálogo |
-
-Por exemplo, `cd backend` seguido de `npm run dev` equivale a executar `npm run dev --prefix backend` na raiz. Os comandos individuais não iniciam a infraestrutura automaticamente: para usar a aplicação, mantenha os serviços preparados no passo anterior em execução ou use `npm run infra:up` na raiz. Encerre cada servidor com `Ctrl+C` no respectivo terminal.
-
-Se a preparação da infraestrutura falhar, os servidores não começam. Depois de iniciados, quando um dos comandos do grupo encerrar, os demais serão encerrados pelo `concurrently`. Erros de requisição ou falhas internas que mantenham um comando de observação aberto não encerram automaticamente o grupo.
-
-### 5. Criar uma conta e acessar a aplicação
-
-Cadastre-se pela interface e abra o Mailpit em `http://localhost:8025` para consultar o código de verificação enviado por e-mail. Após verificar o cadastro, entre na aplicação e busque jogos para montar sua biblioteca.
-
-O pgAdmin fica disponível em `http://localhost:5050`, com o e-mail e a senha definidos no `.env` da raiz. Para cadastrar a conexão com o banco nele, use o host `postgres`, a porta `5432`, o banco `quest_log`, o usuário `questlog` e a senha definida em `POSTGRES_PASSWORD`.
-
-Para encerrar, use `Ctrl+C` no terminal de `dev` ou `dev:full`; os servidores daquele grupo serão encerrados com uma mensagem de conclusão. Esse encerramento intencional não é tratado como falha da aplicação. No Windows, o npm que abriu o comando ainda pode pedir uma confirmação de encerramento, dependendo do terminal. O encerramento dos servidores não para os containers; o aviso de infraestrutura ligada aparece somente quando a consulta ao Docker encontra containers do projeto em execução. Para parar a infraestrutura, execute na raiz:
-
-```sh
-npm run infra:stop
-```
-
-O `infra:stop` para apenas os containers do projeto. Se for executado com a aplicação ainda aberta, as operações que usam banco e SMTP podem falhar. Processos iniciados em outros terminais são independentes, mas compartilham esses serviços.
-
-Os dados são mantidos nos volumes do Docker. As credenciais iniciais do PostgreSQL são aplicadas na primeira criação do volume; alterar apenas o `.env` depois disso não altera a senha do banco existente.
+Para encerrar os servidores do grupo, use `Ctrl+C`; para parar a infraestrutura preservando os dados, execute `npm run infra:stop`. O [guia](docs/development.md#logs-e-encerramento) detalha o comportamento dos processos e containers.
 
 ## Como executar os testes
 
-Instale as dependências e gere o Prisma Client conforme o guia de execução local. Os comandos abaixo indicam quando devem ser executados na raiz ou dentro de uma pasta específica.
+Instale as dependências e gere o Prisma Client conforme o [guia de desenvolvimento local](docs/development.md#primeiro-uso). Os comandos abaixo indicam quando devem ser executados na raiz ou dentro de uma pasta específica.
 
 Os bancos `quest_log_test` e `quest_log_e2e` são criados pelos scripts do Docker na primeira inicialização de um volume vazio; volumes anteriores à inclusão desses scripts precisam ter esses bancos criados separadamente.
 

@@ -4,7 +4,7 @@
 
 O QuestLog reúne uma aplicação React e uma API Express no mesmo repositório. O frontend apresenta a biblioteca e coordena as interações; o backend aplica as regras de negócio, acessa o PostgreSQL com Prisma e se comunica com RAWG e serviços de e-mail.
 
-Este guia apresenta como essas partes se conectam. As instruções de instalação estão no [README principal](../README.md#como-executar-localmente), e os contratos dos endpoints estão no [Swagger](../README.md#documentação-da-api).
+Este guia apresenta como essas partes se conectam. As instruções de instalação estão no [guia de desenvolvimento local](development.md), e os contratos dos endpoints estão no [Swagger](../README.md#documentação-da-api).
 
 ## Partes do sistema
 
@@ -95,7 +95,7 @@ Com o [exemplo de ambiente do frontend](../frontend/.env.example), a aplicação
 
 O backend permite a origem local configurada em `FRONTEND_URL` e aceita credenciais nas chamadas entre origens. O Mailpit recebe os e-mails de desenvolvimento, permitindo consultar os códigos sem enviá-los a uma caixa de entrada real.
 
-O Compose inicia a infraestrutura. Os comandos da raiz coordenam o início dos servidores e a preparação do banco; consulte o [guia de execução local](../README.md#como-executar-localmente) para os comandos e a configuração dos cookies usados pelo Swagger.
+O Compose inicia a infraestrutura. Os comandos da raiz coordenam o início dos servidores e a preparação do banco; consulte o [guia de desenvolvimento local](development.md) para os comandos e a configuração dos cookies usados pelo Swagger.
 
 ## Sandbox público
 

@@ -4,17 +4,17 @@ Esta documentação explica a arquitetura, os fluxos e a manutenção do QuestLo
 
 ## Documentação disponível
 
-| Assunto                                                | Onde consultar                                                    |
-| ------------------------------------------------------ | ----------------------------------------------------------------- |
-| Arquitetura, integrações e ambientes                   | [Arquitetura do QuestLog](architecture.md)                        |
-| Modelo de dados, persistência e migrations             | [Banco de dados](../backend/docs/database.md)                     |
-| Cadastro, sessão e recuperação de acesso               | [Autenticação e sessão](../backend/docs/authentication.md)        |
-| Organização, navegação e dados do frontend             | [Arquitetura do frontend](../frontend/docs/architecture.md)       |
-| Organização dos componentes, stories e simulações      | [Componentes e Storybook](../frontend/docs/components.md)         |
-| Instalação, configuração e comandos locais             | [Como executar localmente](../README.md#como-executar-localmente) |
-| Testes e verificações automatizadas                    | [Como executar os testes](../README.md#como-executar-os-testes)   |
-| Endpoints, parâmetros, respostas e autenticação da API | [OpenAPI e Swagger UI](../README.md#documentação-da-api)          |
-| Componentes, propriedades e exemplos de interface      | [Storybook](../README.md#catálogo-de-componentes)                 |
+| Assunto                                                | Onde consultar                                                  |
+| ------------------------------------------------------ | --------------------------------------------------------------- |
+| Arquitetura, integrações e ambientes                   | [Arquitetura do QuestLog](architecture.md)                      |
+| Modelo de dados, persistência e migrations             | [Banco de dados](../backend/docs/database.md)                   |
+| Cadastro, sessão e recuperação de acesso               | [Autenticação e sessão](../backend/docs/authentication.md)      |
+| Organização, navegação e dados do frontend             | [Arquitetura do frontend](../frontend/docs/architecture.md)     |
+| Organização dos componentes, stories e simulações      | [Componentes e Storybook](../frontend/docs/components.md)       |
+| Instalação, configuração e comandos locais             | [Desenvolvimento local](development.md)                         |
+| Testes e verificações automatizadas                    | [Como executar os testes](../README.md#como-executar-os-testes) |
+| Endpoints, parâmetros, respostas e autenticação da API | [OpenAPI e Swagger UI](../README.md#documentação-da-api)        |
+| Componentes, propriedades e exemplos de interface      | [Storybook](../README.md#catálogo-de-componentes)               |
 
 ## Organização dos guias
 
@@ -23,7 +23,7 @@ Os guias são acrescentados por etapas. Os arquivos disponíveis aparecem como l
 | Local                                                               | Responsabilidade                                                                                               |
 | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | [docs/architecture.md](architecture.md)                             | Visão do sistema, integrações, fluxo das requisições e diferenças entre desenvolvimento, produção e sandbox.   |
-| `docs/development.md`                                               | Preparação do ambiente local, variáveis, infraestrutura e comandos de desenvolvimento.                         |
+| [docs/development.md](development.md)                               | Preparação do ambiente local, variáveis, infraestrutura e comandos de desenvolvimento.                         |
 | `docs/testing.md`                                                   | Suítes de testes, bancos isolados, simulações, cobertura e verificações na CI.                                 |
 | `docs/deployment.md`                                                | Hospedagem, variáveis por ambiente, migrations, pipeline de deploy e manutenção do sandbox.                    |
 | `docs/decisions/`                                                   | Registros de decisões técnicas que mereçam uma explicação própria, com contexto e consequências.               |
