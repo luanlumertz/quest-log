@@ -216,4 +216,6 @@ O tema é definido em [index.css](../src/index.css), com Tailwind CSS, cores e f
 
 O Storybook usa os componentes da aplicação com dados e operações simuladas. Os exemplos ficam em `stories/`, separados de `src/` e organizados por caminhos correspondentes aos componentes. A [configuração global](../.storybook/preview.ts) reutiliza os estilos da aplicação e configura as simulações dos serviços de conta e biblioteca. O catálogo pode executar sem iniciar a API ou o banco.
 
+O [guia de componentes e Storybook](components.md) explica os critérios de separação, a estrutura das stories, os controles, o isolamento e a manutenção das simulações.
+
 Os testes ficam em `tests/`, com suítes unitárias e de integração, React Testing Library e MSW. Os testes E2E pertencem à [estrutura da raiz](../../e2e). O [README](../../README.md#como-executar-os-testes) explica a execução de cada suíte, e a seção de [Storybook](../../README.md#catálogo-de-componentes) apresenta os comandos do catálogo.
