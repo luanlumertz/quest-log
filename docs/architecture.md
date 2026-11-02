@@ -172,6 +172,8 @@ O [hook de adição](../frontend/src/hooks/library.hook.ts) chama o service HTTP
 
 O catálogo local guarda os dados compartilhados do jogo. A entrada da biblioteca liga esse jogo a uma pessoa e mantém seu progresso, nota, tempo e datas. Um mesmo jogo pode aparecer nas bibliotecas de diferentes usuários com registros pessoais distintos.
 
+O [guia do banco de dados](../backend/docs/database.md) detalha esses modelos, seus relacionamentos, regras de persistência e migrations.
+
 O [serviço de obtenção do jogo](../backend/src/services/library-game.service.ts) reutiliza o catálogo local quando possível. A busca e a consulta de detalhes pelas rotas `/games`, por sua vez, acessam a RAWG. O [dashboard](../backend/src/services/dashboard.service.ts) calcula as estatísticas a partir dos registros da biblioteca no PostgreSQL.
 
 ## Sessão, proteções e falhas
