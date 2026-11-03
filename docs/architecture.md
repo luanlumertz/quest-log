@@ -110,7 +110,7 @@ flowchart TD
     database[("Neon · quest_log_sandbox")]
     rawg["RAWG"]
     brevo["Brevo"]
-    cleanup["GitHub Actions · Limpeza diária de contas inativas"]
+    cleanup["GitHub Actions · Limpeza semanal de contas inativas"]
 
     browser -->|Consulta a documentação e executa as rotas| api
     api -->|Prisma| database
@@ -123,7 +123,7 @@ A documentação e a API usam a mesma origem, sem o proxy privado da Vercel. Por
 
 As operações são reais: criar uma conta, adicionar um jogo ou excluir a conta altera o banco do sandbox. As contas da aplicação principal não fazem parte desse ambiente; para experimentar as rotas protegidas, o visitante se cadastra e faz login no próprio sandbox.
 
-A atividade das contas é registrada em `lastActiveAt`. O [workflow de limpeza](../.github/workflows/sandbox-cleanup.yml) executa diariamente um script que remove contas criadas há mais de 30 dias e sem atividade nesse período. O script verifica o ambiente e o nome do banco conectado antes da exclusão. A tarefa executa no GitHub Actions e acessa o banco, sem depender de uma chamada HTTP à API do Render.
+A atividade das contas é registrada em `lastActiveAt`. O [workflow de limpeza](../.github/workflows/sandbox-cleanup.yml) executa semanalmente um script que remove contas criadas há mais de 30 dias e sem atividade nesse período. O script verifica o ambiente e o nome do banco conectado antes da exclusão. A tarefa executa no GitHub Actions e acessa o banco, sem depender de uma chamada HTTP à API do Render.
 
 ### Identificação dos ambientes
 
@@ -204,10 +204,10 @@ O endpoint `GET /healthz` responde `{"status":"ok"}` quando o servidor consegue 
 
 O OpenAPI é montado a partir dos registros em [backend/src/openapi](../backend/src/openapi) e de schemas reutilizados do projeto. O Swagger UI é servido em `/docs` no desenvolvimento e no sandbox; a instalação principal de produção não expõe essa interface.
 
-O Storybook usa os componentes do frontend com exemplos, dados fictícios e operações simuladas. Ele pode executar sem API ou banco e não altera os dados do sandbox nem da aplicação principal. Os arquivos de configuração ficam em [frontend/.storybook](../frontend/.storybook), e os exemplos ficam em [frontend/stories](../frontend/stories). A publicação do catálogo ainda está pendente; os comandos locais estão no [README](../README.md#catálogo-de-componentes).
+O Storybook usa os componentes do frontend com exemplos, dados fictícios e operações simuladas. Ele pode executar sem API ou banco e não altera os dados do sandbox nem da aplicação principal. Os arquivos de configuração ficam em [frontend/.storybook](../frontend/.storybook), e os exemplos ficam em [frontend/stories](../frontend/stories). O [catálogo público](https://questlog-storybook.vercel.app/) é hospedado como site estático em um projeto próprio na Vercel; os comandos locais estão no [README](../README.md#catálogo-de-componentes).
 
 A [CI](../.github/workflows/ci.yml) verifica formatação, scripts de desenvolvimento, backend, frontend, build do Storybook e testes E2E. Em pushes na `main`, depois das verificações, jobs separados acionam os deploys de produção e sandbox no Render. A hospedagem do frontend usa a integração da Vercel.
 
 O [guia de deploy](deployment.md) reúne as configurações das hospedagens, os secrets dos workflows, a aplicação de migrations e a operação da limpeza do sandbox.
 
-Além da limpeza diária de contas do sandbox, o próprio [processo do servidor](../backend/src/server.ts) inicia tarefas periódicas para remover cadastros pendentes e recuperações de senha expirados. Essas tarefas pertencem à API em execução; a limpeza diária do sandbox pertence ao workflow separado.
+Além da limpeza semanal de contas do sandbox, o próprio [processo do servidor](../backend/src/server.ts) inicia tarefas periódicas para remover cadastros pendentes e recuperações de senha expirados. Essas tarefas pertencem à API em execução; a limpeza semanal do sandbox pertence ao workflow separado.

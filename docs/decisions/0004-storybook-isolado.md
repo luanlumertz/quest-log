@@ -2,7 +2,7 @@
 
 [Índice das decisões](README.md)
 
-**Situação:** em uso, documentada retrospectivamente. A hospedagem pública do catálogo permanece pendente.
+**Situação:** em uso, documentada retrospectivamente. O [catálogo público](https://questlog-storybook.vercel.app/) é hospedado na Vercel em um projeto separado da aplicação.
 
 ## Contexto
 

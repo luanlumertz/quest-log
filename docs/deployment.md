@@ -15,7 +15,7 @@ Este guia reúne a configuração de referência e o fluxo de publicação. Os w
 | Banco de produção     | Neon.                       | Contas, sessões e bibliotecas da aplicação principal.                                 |
 | API e Swagger sandbox | Outro serviço no Render.    | [Swagger público](https://questlog-sandbox.onrender.com/docs/).                       |
 | Banco do sandbox      | Neon, separado da produção. | Banco `quest_log_sandbox`, usado nas demonstrações públicas.                          |
-| Storybook público     | Publicação pendente.        | O build está disponível; o README ainda contém o lembrete `[LINK]`.                   |
+| Storybook público     | Outro projeto na Vercel.    | [Catálogo de componentes](https://questlog-storybook.vercel.app/).                    |
 
 O sandbox usa o mesmo código da API, com banco e credenciais próprios. Uma conta criada no Swagger público pertence a esse ambiente. O Storybook usa simulações e não depende de uma dessas APIs para seus exemplos.
 
@@ -191,11 +191,11 @@ Reverter o código não desfaz o SQL já aplicado. Planeje mudanças compatívei
 
 ## Limpeza de contas do sandbox
 
-O workflow [sandbox-cleanup.yml](../.github/workflows/sandbox-cleanup.yml) aceita acionamento manual e agenda uma execução diária com `17 6 * * *`, às **06:17 UTC**. O job exige a referência `main` e executa `npm run sandbox:cleanup -- --execute` dentro do backend compilado.
+O workflow [sandbox-cleanup.yml](../.github/workflows/sandbox-cleanup.yml) aceita acionamento manual e agenda uma execução semanal com `17 6 * * 0`, aos **domingos, às 06:17 UTC (03:17 em Brasília)**. O job exige a referência `main` e executa `npm run sandbox:cleanup -- --execute` dentro do backend compilado.
 
 Ele instala dependências, gera o cliente e compila com uma conexão fictícia de configuração. Somente na etapa de limpeza recebe `SANDBOX_DATABASE_URL` como `DATABASE_URL`. Essa etapa verifica o secret, a identificação do ambiente e o nome real do banco antes da exclusão.
 
-São elegíveis contas criadas há mais de 30 dias e com `lastActiveAt` anterior ao limite ou ausente. A exclusão reavalia essas condições no banco e remove os dados pessoais relacionados por cascata. Jogos e plataformas compartilhados permanecem no catálogo.
+São elegíveis contas criadas há mais de 30 dias e com `lastActiveAt` anterior ao limite ou ausente. Como a execução é semanal, uma conta elegível pode aguardar quase sete dias pela próxima limpeza, considerando o calendário normal de execuções. A exclusão reavalia essas condições no banco e remove os dados pessoais relacionados por cascata. Jogos e plataformas compartilhados permanecem no catálogo.
 
 O [script](../backend/src/scripts/cleanupSandbox.ts) imprime `mode`, `database`, `inactivityDays`, `cutoff`, `candidates` e `deleted`. Também escreve um resumo na execução do GitHub Actions com modo, prazo, corte e quantidades. A configuração atual usa o modo de exclusão; acionar o workflow manualmente também usa `--execute`.
 
@@ -203,9 +203,23 @@ O comando do backend aceita `--dry-run` para somente conferir e `--execute` para
 
 ## Publicação do Storybook
 
-O catálogo gera arquivos estáticos com `npm run build-storybook` dentro de `frontend/`, com saída em `storybook-static/`. A CI já confere esse build. Sua hospedagem e o link público continuam pendentes.
+O [catálogo público](https://questlog-storybook.vercel.app/) é hospedado em um projeto próprio na Vercel, chamado `questlog-storybook`, conectado ao mesmo repositório. O catálogo gera arquivos estáticos com `npm run build-storybook` dentro de `frontend/`, com saída em `storybook-static/`. A CI também confere esse build no job do frontend.
 
-A publicação do catálogo precisa de configuração própria: `frontend/vercel.json` pertence à aplicação principal e contém proxy privado e fallback para o React. A configuração definitiva do projeto do catálogo deve servir os arquivos do Storybook, sem herdar essas regras e os segredos da aplicação. Depois da publicação, atualize o link e o badge no [README](../README.md#catálogo-de-componentes).
+Use esta configuração de referência no projeto do catálogo:
+
+| Campo              | Valor                                        |
+| ------------------ | -------------------------------------------- |
+| Root Directory     | Raiz do repositório, `./`.                   |
+| Application Preset | `Other`.                                     |
+| Node.js            | Versão principal `24`.                       |
+| Install Command    | `npm ci --prefix frontend`.                  |
+| Build Command      | `npm run build-storybook --prefix frontend`. |
+| Output Directory   | `frontend/storybook-static`.                 |
+| Production Branch  | `main`.                                      |
+
+O Root Directory fica na raiz, e os comandos usam `--prefix frontend` para executar na aplicação correta. Assim, o catálogo não usa `frontend/vercel.json`, que pertence à aplicação principal e contém proxy privado e fallback para o React. Essas opções ficam no painel do projeto do catálogo; não há um arquivo de configuração da Vercel na raiz do repositório.
+
+Os exemplos usam dados fictícios e operações simuladas, sem exigir variáveis de ambiente da API ou o segredo privado do proxy. A integração Git da Vercel publica o catálogo; a CI verifica seu build, mas não contém um job que acione esse deploy. O link público e o badge ficam no [README](../README.md#catálogo-de-componentes).
 
 ## Conferência após publicar
 

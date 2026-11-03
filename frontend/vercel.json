@@ -7,7 +7,9 @@
                 {
                     "type": "request.headers",
                     "op": "set",
-                    "target": { "key": "x-questlog-origin-secret" },
+                    "target": {
+                        "key": "x-questlog-origin-secret"
+                    },
                     "args": "$ORIGIN_SECRET",
                     "env": ["ORIGIN_SECRET"]
                 }
@@ -20,5 +22,11 @@
             "src": "/(.*)",
             "dest": "/index.html"
         }
-    ]
+    ],
+    "git": {
+        "deploymentEnabled": {
+            "*": false,
+            "main": true
+        }
+    }
 }

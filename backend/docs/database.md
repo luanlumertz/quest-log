@@ -229,7 +229,7 @@ As relações com `onDelete: Cascade` definem estas remoções:
 
 Por consequência, excluir uma conta também remove as plataformas selecionadas nas entradas pessoais. Os registros compartilhados em `Game`, `Platform` e `GamePlatform` permanecem. As referências a jogos e plataformas usam restrições de exclusão quando ainda existem vínculos dependentes.
 
-No sandbox, `lastActiveAt` é preenchido na criação da conta e atualizado no login, na renovação e em requisições autenticadas. O [workflow diário](../../.github/workflows/sandbox-cleanup.yml) remove contas criadas há mais de 30 dias e cuja atividade seja anterior ao limite, ou esteja ausente. Essa exclusão usa as mesmas cascatas do banco. A rotina valida `APP_ENV=sandbox` e a conexão real com `quest_log_sandbox`; a política não é aplicada às contas de produção.
+No sandbox, `lastActiveAt` é preenchido na criação da conta e atualizado no login, na renovação e em requisições autenticadas. O [workflow semanal](../../.github/workflows/sandbox-cleanup.yml) remove contas criadas há mais de 30 dias e cuja atividade seja anterior ao limite, ou esteja ausente. Essa exclusão usa as mesmas cascatas do banco. A rotina valida `APP_ENV=sandbox` e a conexão real com `quest_log_sandbox`; a política não é aplicada às contas de produção.
 
 ## Conexões e ambientes
 
