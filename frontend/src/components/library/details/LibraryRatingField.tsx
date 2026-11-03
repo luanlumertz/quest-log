@@ -1,4 +1,4 @@
-import { getStarFillPercentages } from "../../../utils/getStarFillPercentages";
+import { RatingStars } from "../../ui/RatingStars";
 import { useLibraryRatingControl } from "./useLibraryRatingControl";
 
 type LibraryRatingFieldProps = {
@@ -55,8 +55,6 @@ export function LibraryRatingField({
         onChange,
     });
 
-    const stars = getStarFillPercentages(rating);
-
     return (
         <div>
             <label
@@ -73,28 +71,7 @@ export function LibraryRatingField({
             </label>
 
             <div className="mt-1 flex min-h-10 items-center gap-3">
-                <div className="flex" aria-label={`Nota ${rating} de 5`}>
-                    {stars.map((fill, index) => (
-                        <span key={index} className="relative inline-block" aria-hidden="true">
-                            <span className="text-xl text-ink-mute">★</span>
-
-                            <span
-                                className="
-                                        absolute
-                                        left-0
-                                        top-0
-                                        overflow-hidden
-                                        whitespace-nowrap
-                                        text-xl
-                                        text-gold
-                                    "
-                                style={{ width: `${fill}%` }}
-                            >
-                                ★
-                            </span>
-                        </span>
-                    ))}
-                </div>
+                <RatingStars rating={rating} showValue={false} size="lg" tone="gold" />
 
                 <div className="flex items-stretch gap-1.5">
                     <input

@@ -48,6 +48,7 @@ export function createLogger({
     destination,
     level,
 }: { destination?: DestinationStream; level?: string } = {}) {
+    const pretty = !destination && process.env.NODE_ENV === "development" && !process.env.CI;
     return pino(
         {
             level:
@@ -56,7 +57,20 @@ export function createLogger({
                 (process.env.NODE_ENV === "test" ? "silent" : "info"),
             base: { service: "questlog-backend" },
             timestamp: pino.stdTimeFunctions.isoTime,
-            formatters: { level: (label) => ({ level: label }) },
+            ...(pretty
+                ? {
+                      transport: {
+                          target: "pino-pretty",
+                          options: {
+                              colorize: process.stdout.isTTY === true,
+                              translateTime: "SYS:HH:MM:ss",
+                              messageFormat: "[API] {msg}",
+                              ignore: "pid,hostname,service,event,appEnvironment",
+                              singleLine: true,
+                          },
+                      },
+                  }
+                : { formatters: { level: (label: string) => ({ level: label }) } }),
             mixin: () => ({ ...requestContext.getStore() }),
             serializers: { err: (error: unknown) => serializeError(error) },
             redact: {

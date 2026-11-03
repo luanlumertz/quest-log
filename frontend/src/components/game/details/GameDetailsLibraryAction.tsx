@@ -7,7 +7,7 @@ import { AddGameToLibraryModal } from "../add-game-modal/AddGameToLibraryModal";
 import { GameStatusBadge } from "../../ui/GameStatusBadge";
 import { MaterialIcon } from "../../ui/MaterialIcon";
 import { Button, ButtonLink } from "../../ui/Button";
-import { Alert } from "../../ui/Alert";
+import { RetryAlert } from "../../ui/RetryAlert";
 
 type GameDetailsLibraryActionProps = {
     game: GameDetailsResult;
@@ -45,22 +45,9 @@ export function GameDetailsLibraryAction({
 
     if (isLibraryError) {
         return (
-            <Alert>
-                <div>
-                    <p>Não foi possível verificar sua biblioteca.</p>
-
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={onRetryLibrary}
-                        isLoading={isLibraryFetching}
-                        loadingText="Tentando..."
-                        className="mt-3"
-                    >
-                        Tentar novamente
-                    </Button>
-                </div>
-            </Alert>
+            <RetryAlert onRetry={onRetryLibrary} isRetrying={isLibraryFetching}>
+                <p>Não foi possível verificar sua biblioteca.</p>
+            </RetryAlert>
         );
     }
 

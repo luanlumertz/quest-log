@@ -9,6 +9,7 @@ import {
     messageResponse,
     swaggerSessionInstructions,
     unauthenticatedResponse,
+    unexpectedBodyErrorResponses,
     validationErrorResponse,
 } from "./auth.responses.js";
 import { updateUserRequestSchema, userResponseSchema } from "./auth.schemas.js";
@@ -70,6 +71,7 @@ export function registerProfilePaths(registry: OpenAPIRegistry) {
                 description: "Conta excluída e cookies limpos. Sem corpo.",
                 headers: clearedSessionCookieHeaders,
             },
+            ...unexpectedBodyErrorResponses,
             401: unauthenticatedResponse,
             403: csrfErrorResponse,
             404: messageResponse(

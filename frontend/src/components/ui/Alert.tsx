@@ -42,7 +42,7 @@ export function Alert({ children, variant = "error", className = "" }: AlertProp
         <div
             role={variant === "error" ? "alert" : "status"}
             className={`
-                flex items-start
+                flex items-center
                 gap-2
                 rounded-xl
                 border
@@ -52,7 +52,7 @@ export function Alert({ children, variant = "error", className = "" }: AlertProp
                 ${className}
             `}
         >
-            <MaterialIcon name={config.icon} className="mt-px shrink-0 text-[18px]! leading-none" />
+            <MaterialIcon name={config.icon} className="shrink-0 text-[18px]! leading-none" />
 
             <div className="min-w-0">{children}</div>
         </div>

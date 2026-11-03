@@ -14,12 +14,24 @@ import { LibraryGameDetailsForm } from "../components/library/details/LibraryGam
 import { ConfirmDeleteLibraryEntryModal } from "../components/library/details/ConfirmDeleteLibraryEntryModal";
 
 import { BackButton } from "../components/ui/BackButton";
-import { Button, ButtonLink } from "../components/ui/Button";
+import { ButtonLink } from "../components/ui/Button";
 import { LoadingState } from "../components/ui/LoadingState";
 import { StateView } from "../components/ui/StateView";
+import { RetryErrorState } from "../components/ui/RetryErrorState";
 
 import { ApiError } from "../services/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+
+function LibraryGameNotFoundState({ description }: { description: string }) {
+    return (
+        <StateView
+            icon="search_off"
+            title="Jogo não encontrado na biblioteca"
+            description={description}
+            action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
+        />
+    );
+}
 
 export function LibraryGameDetails() {
     const { gameId } = useParams();
@@ -54,12 +66,7 @@ export function LibraryGameDetails() {
 
     if (!isValidGameId) {
         return (
-            <StateView
-                icon="search_off"
-                title="Jogo não encontrado na biblioteca"
-                description="O endereço acessado não corresponde a um jogo válido da sua biblioteca."
-                action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
-            />
+            <LibraryGameNotFoundState description="O endereço acessado não corresponde a um jogo válido da sua biblioteca." />
         );
     }
 
@@ -69,43 +76,24 @@ export function LibraryGameDetails() {
 
     if (isError && error instanceof ApiError && error.status === 404) {
         return (
-            <StateView
-                icon="search_off"
-                title="Jogo não encontrado na biblioteca"
-                description="Este jogo pode ter sido removido da sua biblioteca."
-                action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
-            />
+            <LibraryGameNotFoundState description="Este jogo pode ter sido removido da sua biblioteca." />
         );
     }
 
     if (isError) {
         return (
-            <StateView
-                icon="error"
-                tone="danger"
+            <RetryErrorState
                 title="Não foi possível carregar o jogo"
                 description="Tente novamente em alguns instantes."
-                action={
-                    <Button
-                        isLoading={isFetching}
-                        loadingText="Tentando..."
-                        onClick={() => void refetch()}
-                    >
-                        Tentar novamente
-                    </Button>
-                }
+                isRetrying={isFetching}
+                onRetry={() => void refetch()}
             />
         );
     }
 
     if (!entry) {
         return (
-            <StateView
-                icon="search_off"
-                title="Jogo não encontrado na biblioteca"
-                description="Este jogo não está disponível na sua biblioteca."
-                action={<ButtonLink to="/library">Voltar para biblioteca</ButtonLink>}
-            />
+            <LibraryGameNotFoundState description="Este jogo não está disponível na sua biblioteca." />
         );
     }
 

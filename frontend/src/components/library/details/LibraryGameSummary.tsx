@@ -1,8 +1,7 @@
 import { DEFAULT_GAME_COVER_URL } from "../../../config/game.config";
 import type { LibraryEntryDetails } from "../../../types/library.types";
 import { formatDate } from "../../../utils/formatDate";
-import { Alert } from "../../ui/Alert";
-import { Button } from "../../ui/Button";
+import { RetryAlert } from "../../ui/RetryAlert";
 
 type LibraryGameSummaryProps = {
     entry: LibraryEntryDetails;
@@ -133,22 +132,13 @@ export function LibraryGameSummary({
                 </div>
 
                 {hasGameDetailsError && (
-                    <Alert className="mt-5">
-                        <div>
-                            <p>Algumas informações do jogo não puderam ser carregadas.</p>
-
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                isLoading={isGameDetailsFetching}
-                                loadingText="Tentando..."
-                                onClick={onRetryGameDetails}
-                                className="mt-3"
-                            >
-                                Tentar novamente
-                            </Button>
-                        </div>
-                    </Alert>
+                    <RetryAlert
+                        className="mt-5"
+                        onRetry={onRetryGameDetails}
+                        isRetrying={isGameDetailsFetching}
+                    >
+                        <p>Algumas informações do jogo não puderam ser carregadas.</p>
+                    </RetryAlert>
                 )}
             </div>
         </aside>

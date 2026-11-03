@@ -1,4 +1,5 @@
 import z from "zod";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import {
     changePasswordSchema,
     loginUserSchema,
@@ -8,6 +9,8 @@ import {
     updateUserSchema,
     verifyPasswordRecoverySchema,
 } from "../../schemas/auth.schema.js";
+
+extendZodWithOpenApi(z);
 
 export const loginRequestSchema = loginUserSchema.extend({
     email: loginUserSchema.shape.email.meta({
@@ -24,11 +27,16 @@ export const loginRequestSchema = loginUserSchema.extend({
     }),
 });
 
-export const userResponseSchema = z.object({
-    id: z.number().int().positive(),
-    name: z.string(),
-    email: z.email(),
-});
+export const userResponseSchema = z
+    .object({
+        id: z.number().int().positive(),
+        name: z.string(),
+        email: z.email(),
+    })
+    .openapi("User", {
+        description:
+            "Dados do usuário retornados pela API. Não inclui senha, hash ou tokens de sessão.",
+    });
 
 const displayNameSchema = updateUserSchema.shape.name.meta({
     type: "string",

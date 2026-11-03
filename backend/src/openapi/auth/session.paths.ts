@@ -4,6 +4,7 @@ import {
     csrfErrorResponse,
     csrfHeadersSchema,
     internalErrorResponse,
+    unexpectedBodyErrorResponses,
     messageResponse,
     sessionCookieHeaders,
     swaggerSessionInstructions,
@@ -24,6 +25,7 @@ export function registerSessionPaths(registry: OpenAPIRegistry) {
                 description: "Sessão renovada. Resposta sem corpo.",
                 headers: sessionCookieHeaders,
             },
+            ...unexpectedBodyErrorResponses,
             401: messageResponse(
                 "Cookie de renovação ausente, inválido, expirado, revogado ou já consumido.",
                 "Sessão inválida",
@@ -52,6 +54,7 @@ export function registerSessionPaths(registry: OpenAPIRegistry) {
                     "Cookies limpos e sessão de renovação revogada, quando existente. Sem corpo.",
                 headers: clearedSessionCookieHeaders,
             },
+            ...unexpectedBodyErrorResponses,
             403: csrfErrorResponse,
             500: internalErrorResponse,
         },
