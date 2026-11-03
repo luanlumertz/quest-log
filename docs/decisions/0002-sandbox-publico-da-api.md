@@ -16,7 +16,7 @@ Disponibilizar o Swagger em uma instalação própria da API no Render, usando o
 
 O navegador acessa a documentação e a API diretamente na origem do sandbox. O visitante cria e confirma uma conta nesse ambiente e faz login para executar as rotas protegidas. Autenticação, proteção CSRF e limites continuam ativos.
 
-Registrar a atividade das contas e executar uma limpeza diária das contas criadas há mais de 30 dias e sem atividade nesse período. A rotina valida o ambiente e o nome do banco conectado antes de excluir.
+Registrar a atividade das contas e executar uma limpeza semanal das contas criadas há mais de 30 dias e sem atividade nesse período. A rotina valida o ambiente e o nome do banco conectado antes de excluir.
 
 ## Consequências
 
@@ -31,5 +31,5 @@ Registrar a atividade das contas e executar uma limpeza diária das contas criad
 
 - [Identificação dos ambientes](../../backend/src/lib/appEnvironment.ts) e [documentação OpenAPI](../../backend/src/openapi.ts).
 - [Serviço de limpeza](../../backend/src/services/sandboxCleanup.service.ts) e [proteções da rotina](../../backend/src/lib/sandboxCleanup.ts).
-- [Workflow diário](../../.github/workflows/sandbox-cleanup.yml).
+- [Workflow semanal](../../.github/workflows/sandbox-cleanup.yml).
 - [Arquitetura do sandbox](../architecture.md#sandbox-público) e [guia de deploy](../deployment.md).

@@ -20,6 +20,8 @@ O endereço local da API e os caminhos dos cookies precisam estar alinhados. A [
 
 ## Explorar o Storybook
 
+[Acesse o catálogo público](https://questlog-storybook.vercel.app/) para explorar os componentes sem instalar o projeto.
+
 Para explorar somente o catálogo, instale as dependências e execute dentro de `frontend/`:
 
 ```sh

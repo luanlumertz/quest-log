@@ -2,7 +2,7 @@
 
 [![Acesse o QuestLog](https://img.shields.io/badge/QuestLog-Acessar-7C6AF7?style=flat)](https://quest-log-omega-jade.vercel.app/)
 [![Explore e teste a API no Swagger](https://img.shields.io/badge/Swagger-API-85EA2D?style=flat&logo=swagger&logoColor=white)](https://questlog-sandbox.onrender.com/docs/)
-[![Explore o catálogo de componentes no Storybook](https://img.shields.io/badge/Storybook-Componentes-FF4785?style=flat&logo=storybook&logoColor=white)](#catálogo-de-componentes)
+[![Explore o catálogo de componentes no Storybook](https://img.shields.io/badge/Storybook-Componentes-FF4785?style=flat&logo=storybook&logoColor=white)](https://questlog-storybook.vercel.app/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/luanlumertz/quest-log)
 
 O QuestLog é uma aplicação web para organizar sua biblioteca de jogos e acompanhar sua experiência com cada título. Registre o progresso, o tempo jogado, as datas de início e conclusão e suas avaliações, reunindo em um só lugar o histórico da sua jornada nos jogos.
@@ -117,7 +117,7 @@ Os testes usam um **sandbox com API e banco próprios**, separado das contas e d
 
 Para testar rotas protegidas, crie uma conta no sandbox pelas rotas de cadastro, confirme o código recebido por e-mail e faça login por `POST /auth/login`. O navegador gerencia os cookies automaticamente; não é necessário copiar tokens manualmente. Nas operações que exigem `X-QuestLog-Request`, mantenha o valor `true`. Se a sessão de acesso expirar, use `POST /auth/refresh` ou faça login novamente.
 
-As contas do sandbox ficam elegíveis para exclusão automática após mais de **30 dias sem atividade**. O serviço pode demorar a responder no primeiro acesso após um período de inatividade.
+As contas do sandbox ficam elegíveis para exclusão automática após mais de **30 dias sem atividade**. A limpeza é executada semanalmente. O serviço pode demorar a responder no primeiro acesso após um período de inatividade.
 
 ### Acesso local ao Swagger
 
@@ -131,7 +131,7 @@ O **Storybook** apresenta os componentes de UI, autenticação, dashboard, jogos
 
 ### Acesso público ao Storybook
 
-**Link público:** [LINK] — substituir pelo endereço do catálogo após a publicação.
+[Explore o catálogo de componentes no Storybook](https://questlog-storybook.vercel.app/), sem instalar o projeto.
 
 ### Executar o Storybook localmente
 
