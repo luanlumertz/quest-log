@@ -6,26 +6,54 @@ O QuestLog usa PostgreSQL e Prisma para persistir contas, sessões, jogos e bibl
 
 ## Modelo de dados
 
-O diagrama resume os modelos, seus principais campos e relacionamentos. **PK** indica a chave primária, **FK** uma chave estrangeira e **UK** uma restrição de unicidade. Nas chaves compostas, a combinação dos campos identifica o registro; cada campo isolado pode se repetir.
+Os diagramas resumem os modelos, seus principais campos e relacionamentos, separados por assunto para facilitar a leitura das conexões. **PK** indica a chave primária, **FK** uma chave estrangeira e **UK** uma restrição de unicidade. Nas chaves compostas, a combinação dos campos identifica o registro; cada campo isolado pode se repetir.
+
+`User`, `Game` e `Platform` aparecem em mais de um diagrama para conectar os assuntos. Cada nome representa a mesma tabela; os campos adicionais são apresentados no diagrama correspondente à sua responsabilidade.
+
+### Biblioteca pessoal
 
 ```mermaid
 erDiagram
+    direction LR
     User ||--o{ LibraryEntry : possui
     Game ||--o{ LibraryEntry : aparece_em
-    Game ||--o{ GamePlatform : suporta
-    Platform ||--o{ GamePlatform : participa
     LibraryEntry ||--o{ LibraryEntryPlatform : seleciona
     Platform ||--o{ LibraryEntryPlatform : participa
-    User ||..o{ RefreshSession : possui
-    User ||..o| PasswordRecovery : possui
 
     User {
         Int id PK
-        String email UK
-        String passwordHash
-        Int sessionVersion
-        DateTime lastActiveAt "Opcional"
     }
+    Game {
+        Int id PK
+    }
+    Platform {
+        Int id PK
+        String name UK
+    }
+    LibraryEntry {
+        Int userId PK, FK
+        Int gameId PK, FK
+        GameStatus status
+        Decimal rating "Opcional"
+        Int playtimeMinutes
+        DateTime startedAt "Opcional"
+        DateTime completedAt "Opcional"
+    }
+    LibraryEntryPlatform {
+        Int userId PK, FK
+        Int gameId PK, FK
+        Int platformId PK, FK
+    }
+```
+
+### Catálogo de jogos e plataformas
+
+```mermaid
+erDiagram
+    direction LR
+    Game ||--o{ GamePlatform : suporta
+    Platform ||--o{ GamePlatform : participa
+
     Game {
         Int id PK
         Int externalId UK
@@ -41,19 +69,22 @@ erDiagram
         Int gameId PK, FK
         Int platformId PK, FK
     }
-    LibraryEntry {
-        Int userId PK, FK
-        Int gameId PK, FK
-        GameStatus status
-        Decimal rating "Opcional"
-        Int playtimeMinutes
-        DateTime startedAt "Opcional"
-        DateTime completedAt "Opcional"
-    }
-    LibraryEntryPlatform {
-        Int userId PK, FK
-        Int gameId PK, FK
-        Int platformId PK, FK
+```
+
+### Contas e autenticação
+
+```mermaid
+erDiagram
+    direction LR
+    User ||..o{ RefreshSession : possui
+    User ||..o| PasswordRecovery : possui
+
+    User {
+        Int id PK
+        String email UK
+        String passwordHash
+        Int sessionVersion
+        DateTime lastActiveAt "Opcional"
     }
     RefreshSession {
         Int id PK

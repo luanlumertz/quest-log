@@ -36,7 +36,7 @@ Os guias gerais ficam em `docs/`, e os detalhes de cada aplicação ficam em `ba
 | [frontend/docs/architecture.md](../frontend/docs/architecture.md)   | Organização da aplicação React, navegação, estado da sessão, consultas, mutações e comunicação com a API.      |
 | [frontend/docs/components.md](../frontend/docs/components.md)       | Organização dos componentes e critérios para criar e manter stories, exemplos e simulações.                    |
 
-Os futuros `backend/README.md` e `frontend/README.md` servirão como entradas rápidas para cada aplicação, encaminhando para os guias correspondentes. O README da raiz continuará apresentando o projeto e oferecendo um caminho rápido para executá-lo.
+Os READMEs do [backend](../backend/README.md) e do [frontend](../frontend/README.md) são entradas rápidas para cada aplicação, com comandos próprios e links para os guias correspondentes. O [README da raiz](../README.md) apresenta o projeto e oferece um caminho rápido para executá-lo.
 
 ## Como manter a documentação
 

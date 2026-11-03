@@ -159,6 +159,8 @@ O resultado é gerado em `frontend/storybook-static/`, pasta ignorada pelo Git.
 
 Consulte o [índice da documentação](docs/README.md) para encontrar as instruções disponíveis e acompanhar a organização dos guias de arquitetura, desenvolvimento, testes, deploy e detalhes do backend e do frontend.
 
+Os READMEs do [backend](backend/README.md) e do [frontend](frontend/README.md) oferecem entradas rápidas com os comandos e guias de cada aplicação.
+
 ## Como executar localmente
 
 Você precisa de Node.js 24 com npm, Git, Docker com Compose em execução e uma chave da RAWG. O [guia de desenvolvimento local](docs/development.md) reúne a configuração completa, os comandos individuais e a resolução de problemas.
