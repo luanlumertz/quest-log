@@ -3,7 +3,8 @@ name: Limpeza de contas inativas do sandbox
 on:
     workflow_dispatch:
     schedule:
-        - cron: "17 6 * * *"
+        # Domingos, às 06:17 UTC (03:17 em Brasília).
+        - cron: "17 6 * * 0"
 
 permissions:
     contents: read
